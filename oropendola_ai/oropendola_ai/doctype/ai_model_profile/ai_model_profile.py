@@ -58,21 +58,66 @@ class AIModelProfile(Document):
 			import time
 			start_time = time.time()
 			
-			# Simple ping to health endpoint or base endpoint
-			health_url = self.endpoint_url.rstrip('/') + '/health'
+			# Get API key
+			api_key = self.get_api_key()
 			
-			try:
-				response = requests.get(health_url, timeout=5)
-				if response.status_code == 200:
-					status = "Up"
-				elif response.status_code == 503:
-					status = "Degraded"
-				else:
-					status = "Down"
-			except:
-				# Try base endpoint
-				response = requests.get(self.endpoint_url, timeout=5)
-				status = "Up" if response.status_code < 500 else "Down"
+			if not api_key:
+				# No API key - mark as down
+				self.db_set("health_status", "Down", update_modified=False)
+				self.db_set("last_health_check", frappe.utils.now(), update_modified=False)
+				frappe.db.commit()
+				
+				return {
+					"status": "Down",
+					"error": f"API key not configured: {self.api_key_env_var}",
+					"timestamp": frappe.utils.now()
+				}
+			
+			# Provider-specific health check endpoints
+			headers = {}
+			health_url = None
+			
+			# OpenAI / OpenRouter / compatible APIs
+			if 'openai.com' in self.endpoint_url or 'openrouter.ai' in self.endpoint_url:
+				health_url = self.endpoint_url.rstrip('/') + '/v1/models'
+				headers = {'Authorization': f'Bearer {api_key}'}
+			
+			# Anthropic Claude
+			elif 'anthropic.com' in self.endpoint_url:
+				health_url = self.endpoint_url.rstrip('/') + '/v1/models'
+				headers = {
+					'x-api-key': api_key,
+					'anthropic-version': '2023-06-01'
+				}
+			
+			# Google AI (Gemini)
+			elif 'generativelanguage.googleapis.com' in self.endpoint_url:
+				health_url = f"{self.endpoint_url.rstrip('/')}/v1beta/models?key={api_key}"
+			
+			# xAI (Grok)
+			elif 'api.x.ai' in self.endpoint_url:
+				health_url = self.endpoint_url.rstrip('/') + '/v1/models'
+				headers = {'Authorization': f'Bearer {api_key}'}
+			
+			# DeepSeek
+			elif 'api.deepseek.com' in self.endpoint_url:
+				health_url = self.endpoint_url.rstrip('/') + '/v1/models'
+				headers = {'Authorization': f'Bearer {api_key}'}
+			
+			# Generic fallback
+			else:
+				health_url = self.endpoint_url
+				headers = {'Authorization': f'Bearer {api_key}'}
+			
+			# Perform health check
+			response = requests.get(health_url, headers=headers, timeout=10)
+			
+			if response.status_code == 200:
+				status = "Up"
+			elif response.status_code == 503:
+				status = "Degraded"
+			else:
+				status = "Down"
 			
 			latency = int((time.time() - start_time) * 1000)
 			
@@ -92,6 +137,11 @@ class AIModelProfile(Document):
 			self.db_set("health_status", "Down", update_modified=False)
 			self.db_set("last_health_check", frappe.utils.now(), update_modified=False)
 			frappe.db.commit()
+			
+			frappe.log_error(
+				f"Health check failed for {self.model_name}: {str(e)}",
+				"Model Health Check Error"
+			)
 			
 			return {
 				"status": "Down",

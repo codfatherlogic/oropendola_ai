@@ -1,0 +1,246 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SUB-{YYYY}-{#####}",
+ "creation": "2025-10-27 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "plan",
+  "status",
+  "column_break_1",
+  "api_key_link",
+  "priority_score",
+  "dates_section",
+  "start_date",
+  "end_date",
+  "column_break_2",
+  "trial_end_date",
+  "auto_renew",
+  "quota_section",
+  "daily_quota_limit",
+  "daily_quota_remaining",
+  "column_break_3",
+  "total_usage",
+  "total_requests",
+  "billing_section",
+  "billing_email",
+  "next_billing_date",
+  "column_break_4",
+  "amount_paid",
+  "last_payment_date",
+  "metadata_section",
+  "created_by_user",
+  "cancelled_at",
+  "cancellation_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plan",
+   "options": "AI Plan",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nTrial\nExpired\nCancelled\nPast Due\nSuspended",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "api_key_link",
+   "fieldtype": "Link",
+   "label": "API Key",
+   "options": "AI API Key",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "plan.priority_score",
+   "fieldname": "priority_score",
+   "fieldtype": "Int",
+   "label": "Priority Score",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "Subscription Period"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trial_end_date",
+   "fieldtype": "Date",
+   "label": "Trial End Date"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_renew",
+   "fieldtype": "Check",
+   "label": "Auto Renew"
+  },
+  {
+   "fieldname": "quota_section",
+   "fieldtype": "Section Break",
+   "label": "Usage & Quotas"
+  },
+  {
+   "description": "-1 for unlimited",
+   "fetch_from": "plan.requests_limit_per_day",
+   "fieldname": "daily_quota_limit",
+   "fieldtype": "Int",
+   "label": "Daily Quota Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "daily_quota_remaining",
+   "fieldtype": "Int",
+   "label": "Daily Quota Remaining"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_usage",
+   "fieldtype": "Float",
+   "label": "Total Usage (Units)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_requests",
+   "fieldtype": "Int",
+   "label": "Total Requests",
+   "read_only": 1
+  },
+  {
+   "fieldname": "billing_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Information"
+  },
+  {
+   "fieldname": "billing_email",
+   "fieldtype": "Data",
+   "label": "Billing Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "next_billing_date",
+   "fieldtype": "Date",
+   "label": "Next Billing Date"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount_paid",
+   "fieldtype": "Currency",
+   "label": "Amount Paid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_payment_date",
+   "fieldtype": "Date",
+   "label": "Last Payment Date",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Metadata"
+  },
+  {
+   "fieldname": "created_by_user",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancelled_at",
+   "fieldtype": "Datetime",
+   "label": "Cancelled At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancellation_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancellation Reason"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Oropendola Ai",
+ "name": "AI Subscription",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "customer",
+ "track_changes": 1
+}

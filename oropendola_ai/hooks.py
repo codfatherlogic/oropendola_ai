@@ -148,23 +148,23 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"oropendola_ai.tasks.all"
-# 	],
-# 	"daily": [
-# 		"oropendola_ai.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"oropendola_ai.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"oropendola_ai.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"oropendola_ai.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"oropendola_ai.oropendola_ai.tasks.reset_daily_quotas",
+		"oropendola_ai.oropendola_ai.tasks.generate_billing_invoices",
+		"oropendola_ai.oropendola_ai.tasks.cleanup_old_usage_logs"
+	],
+	"hourly": [
+		"oropendola_ai.oropendola_ai.tasks.check_expired_subscriptions",
+		"oropendola_ai.oropendola_ai.tasks.send_quota_alerts"
+	],
+	"cron": {
+		"*/5 * * * *": [
+			"oropendola_ai.oropendola_ai.tasks.perform_health_checks",
+			"oropendola_ai.oropendola_ai.tasks.sync_redis_usage_to_db"
+		]
+	}
+}
 
 # Testing
 # -------

@@ -1,0 +1,218 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:model_name",
+ "creation": "2025-10-27 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "model_name",
+  "provider",
+  "is_active",
+  "column_break_1",
+  "endpoint_url",
+  "api_key_env_var",
+  "performance_section",
+  "capacity_score",
+  "cost_per_unit",
+  "column_break_2",
+  "health_status",
+  "avg_latency_ms",
+  "last_health_check",
+  "configuration_section",
+  "max_context_window",
+  "supports_streaming",
+  "timeout_seconds",
+  "column_break_3",
+  "max_concurrent_requests",
+  "retry_attempts",
+  "tags",
+  "metadata_section",
+  "success_rate",
+  "total_requests",
+  "failed_requests"
+ ],
+ "fields": [
+  {
+   "fieldname": "model_name",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Model Name",
+   "options": "DeepSeek\nGrok\nClaude\nGPT-4\nGemini",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Data",
+   "label": "Provider"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "endpoint_url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Endpoint URL",
+   "reqd": 1
+  },
+  {
+   "description": "Environment variable name for API key",
+   "fieldname": "api_key_env_var",
+   "fieldtype": "Data",
+   "label": "API Key Env Var"
+  },
+  {
+   "fieldname": "performance_section",
+   "fieldtype": "Section Break",
+   "label": "Performance Metrics"
+  },
+  {
+   "description": "0-100, higher is better capacity",
+   "fieldname": "capacity_score",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Capacity Score",
+   "reqd": 1
+  },
+  {
+   "description": "Cost per request unit",
+   "fieldname": "cost_per_unit",
+   "fieldtype": "Currency",
+   "label": "Cost Per Unit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Up",
+   "fieldname": "health_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Health Status",
+   "options": "Up\nDown\nDegraded\nMaintenance"
+  },
+  {
+   "fieldname": "avg_latency_ms",
+   "fieldtype": "Int",
+   "label": "Avg Latency (ms)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_health_check",
+   "fieldtype": "Datetime",
+   "label": "Last Health Check",
+   "read_only": 1
+  },
+  {
+   "fieldname": "configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuration"
+  },
+  {
+   "default": "128000",
+   "fieldname": "max_context_window",
+   "fieldtype": "Int",
+   "label": "Max Context Window"
+  },
+  {
+   "default": "0",
+   "fieldname": "supports_streaming",
+   "fieldtype": "Check",
+   "label": "Supports Streaming"
+  },
+  {
+   "default": "30",
+   "fieldname": "timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Timeout (seconds)"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "10",
+   "fieldname": "max_concurrent_requests",
+   "fieldtype": "Int",
+   "label": "Max Concurrent Requests"
+  },
+  {
+   "default": "3",
+   "fieldname": "retry_attempts",
+   "fieldtype": "Int",
+   "label": "Retry Attempts"
+  },
+  {
+   "description": "JSON array of tags",
+   "fieldname": "tags",
+   "fieldtype": "Small Text",
+   "label": "Tags"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Statistics"
+  },
+  {
+   "fieldname": "success_rate",
+   "fieldtype": "Percent",
+   "label": "Success Rate",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_requests",
+   "fieldtype": "Int",
+   "label": "Total Requests",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "failed_requests",
+   "fieldtype": "Int",
+   "label": "Failed Requests",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Oropendola Ai",
+ "name": "AI Model Profile",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

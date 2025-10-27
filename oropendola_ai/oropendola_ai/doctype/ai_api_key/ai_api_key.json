@@ -1,0 +1,184 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:KEY-{YYYY}-{#####}",
+ "creation": "2025-10-27 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "subscription",
+  "status",
+  "column_break_1",
+  "key_prefix",
+  "created_by",
+  "key_details_section",
+  "key_hash",
+  "usage_section",
+  "last_used",
+  "usage_count",
+  "column_break_2",
+  "total_requests",
+  "failed_requests",
+  "metadata_section",
+  "revoked_at",
+  "revoked_by",
+  "revoke_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subscription",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Subscription",
+   "options": "AI Subscription",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nRevoked\nExpired\nSuspended",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "First 8 characters of the key for identification",
+   "fieldname": "key_prefix",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Key Prefix",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.status=='Active'",
+   "fieldname": "key_details_section",
+   "fieldtype": "Section Break",
+   "label": "Key Details"
+  },
+  {
+   "description": "SHA256 hash of the API key",
+   "fieldname": "key_hash",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Key Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "usage_section",
+   "fieldtype": "Section Break",
+   "label": "Usage Statistics"
+  },
+  {
+   "fieldname": "last_used",
+   "fieldtype": "Datetime",
+   "label": "Last Used",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "usage_count",
+   "fieldtype": "Int",
+   "label": "Usage Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_requests",
+   "fieldtype": "Int",
+   "label": "Total Requests",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "failed_requests",
+   "fieldtype": "Int",
+   "label": "Failed Requests",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Metadata"
+  },
+  {
+   "fieldname": "revoked_at",
+   "fieldtype": "Datetime",
+   "label": "Revoked At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoked_by",
+   "fieldtype": "Link",
+   "label": "Revoked By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoke_reason",
+   "fieldtype": "Small Text",
+   "label": "Revoke Reason"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Oropendola Ai",
+ "name": "AI API Key",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Customer"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "key_prefix",
+ "track_changes": 1
+}

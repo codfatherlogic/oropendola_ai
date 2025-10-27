@@ -59,3 +59,35 @@ class AIPlan(Document):
 	def get_allowed_models(self):
 		"""Get list of allowed model names"""
 		return [model.model_name for model in self.model_access if model.is_allowed]
+	
+	def get_model_cost_weight(self, model_name):
+		"""
+		Get cost weight for a specific model in this plan.
+		Cost weight influences routing decisions - higher weight = more likely to be selected.
+		
+		Args:
+			model_name (str): Name of the model
+			
+		Returns:
+			float: Cost weight (default: 10 if not found)
+		"""
+		for model in self.model_access:
+			if model.model_name == model_name and model.is_allowed:
+				return float(model.cost_weight or 10)
+		return 10  # Default weight
+	
+	def get_smart_routing_config(self):
+		"""
+		Get smart routing configuration for this plan.
+		
+		Returns:
+			dict: Smart routing configuration
+		"""
+		return {
+			"default_mode": self.default_routing_mode or "auto",
+			"enable_session_continuity": bool(self.enable_session_continuity),
+			"session_ttl": self.session_ttl or 3600,
+			"enable_task_complexity_detection": bool(self.enable_task_complexity_detection),
+			"correlation_threshold": self.correlation_threshold or 0.7,
+			"monthly_budget_limit": self.monthly_budget_limit or 0
+		}

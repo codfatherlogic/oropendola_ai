@@ -2,12 +2,12 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "format:KEY-{YYYY}-{#####}",
- "creation": "2025-10-27 00:00:00.000000",
+ "creation": "2025-10-27 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "customer",
+  "user",
   "subscription",
   "status",
   "column_break_1",
@@ -28,12 +28,12 @@
  ],
  "fields": [
   {
-   "fieldname": "customer",
+   "fieldname": "user",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Customer",
-   "options": "Customer",
+   "label": "User",
+   "options": "User",
    "reqd": 1
   },
   {
@@ -152,7 +152,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-27 00:00:00.000000",
+ "modified": "2025-10-27 20:59:35.086836",
  "modified_by": "Administrator",
  "module": "Oropendola Ai",
  "name": "AI API Key",
@@ -176,6 +176,7 @@
    "role": "Customer"
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

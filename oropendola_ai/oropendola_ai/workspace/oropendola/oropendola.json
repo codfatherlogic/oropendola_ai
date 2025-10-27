@@ -1,0 +1,85 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"bPAvRYRnGX\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Oropendola</span>\",\"col\":12}},{\"id\":\"Tvu9SkD2Ge\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Model Profile\",\"col\":3}},{\"id\":\"V80jHX44lV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Usage Log\",\"col\":3}},{\"id\":\"PT3lmimgMq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Invoice\",\"col\":3}},{\"id\":\"o19gXZFu2o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Plan\",\"col\":3}},{\"id\":\"asb90mP4KY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI API Key\",\"col\":3}},{\"id\":\"YZ6zUgyB8W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Customer\",\"col\":3}},{\"id\":\"VxrtD_jqxr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Subscription\",\"col\":3}}]",
+ "creation": "2025-10-27 21:23:07.217023",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "scan",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Oropendola",
+ "links": [],
+ "modified": "2025-10-27 21:27:36.817843",
+ "modified_by": "Administrator",
+ "module": "Oropendola Ai",
+ "name": "Oropendola",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Model Profile",
+   "link_to": "AI Model Profile",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Usage Log",
+   "link_to": "AI Usage Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Invoice",
+   "link_to": "AI Invoice",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Plan",
+   "link_to": "AI Plan",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI API Key",
+   "link_to": "AI API Key",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Customer",
+   "link_to": "AI Customer",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Subscription",
+   "link_to": "AI Subscription",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Oropendola"
+}

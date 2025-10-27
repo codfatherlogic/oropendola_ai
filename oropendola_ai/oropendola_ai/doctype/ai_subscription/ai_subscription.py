@@ -18,6 +18,7 @@ class AISubscription(Document):
 		"""Initialize subscription before insert"""
 		self.set_dates()
 		self.set_quota()
+		self.initialize_monthly_budget()
 		self.created_by_user = frappe.session.user
 	
 	def after_insert(self):
@@ -78,7 +79,7 @@ class AISubscription(Document):
 			# Create AI API Key document
 			api_key_doc = frappe.get_doc({
 				"doctype": "AI API Key",
-				"customer": self.customer,
+				"user": self.user,  # Changed from customer to user
 				"subscription": self.name,
 				"key_hash": key_hash,
 				"key_prefix": raw_key[:8],
@@ -162,3 +163,142 @@ class AISubscription(Document):
 			return raw_key
 		
 		return None
+	
+	# ========================================
+	# User-Based Monthly Budget Tracking
+	# ========================================
+	
+	def initialize_monthly_budget(self):
+		"""Initialize monthly budget tracking for new subscription"""
+		import datetime
+		
+		# Set current month start (first day of current month)
+		today_date = datetime.date.today()
+		self.current_month_start = today_date.replace(day=1)
+		
+		# Initialize budget used to 0
+		self.monthly_budget_used = 0.0
+		
+		# Set alert threshold if not already set
+		if not self.budget_alert_threshold:
+			self.budget_alert_threshold = 0.9  # 90%
+	
+	def check_monthly_budget(self, estimated_cost: float) -> tuple:
+		"""
+		Check if user has sufficient monthly budget remaining.
+		Returns: (allowed: bool, message: str, remaining: float)
+		"""
+		import datetime
+		
+		# Check if we need to reset monthly budget (new month)
+		self.reset_monthly_budget_if_needed()
+		
+		# Get monthly budget limit from plan
+		if not self.monthly_budget_limit or self.monthly_budget_limit == 0:
+			# No budget limit (unlimited)
+			return (True, "Unlimited budget", -1)
+		
+		current_used = self.monthly_budget_used or 0
+		remaining = self.monthly_budget_limit - current_used
+		
+		# Check if estimated cost exceeds remaining budget
+		if estimated_cost > remaining:
+			return (
+				False,
+				f"Insufficient budget. Required: {estimated_cost:.2f}, Remaining: {remaining:.2f}",
+				remaining
+			)
+		
+		# Check if approaching alert threshold
+		threshold = self.budget_alert_threshold or 0.9
+		alert_amount = self.monthly_budget_limit * threshold
+		
+		if current_used + estimated_cost >= alert_amount:
+			self.send_budget_alert(current_used + estimated_cost, remaining - estimated_cost)
+		
+		return (True, f"Budget check passed. Remaining: {remaining - estimated_cost:.2f}", remaining)
+	
+	def consume_monthly_budget(self, cost: float):
+		"""Consume monthly budget for this user"""
+		# Reset if new month
+		self.reset_monthly_budget_if_needed()
+		
+		# Increment budget used
+		current_used = self.monthly_budget_used or 0
+		new_used = current_used + cost
+		
+		self.db_set("monthly_budget_used", new_used, update_modified=False)
+		frappe.db.commit()
+		
+		return new_used
+	
+	def reset_monthly_budget_if_needed(self):
+		"""Reset monthly budget if a new month has started"""
+		import datetime
+		
+		today_date = datetime.date.today()
+		first_of_month = today_date.replace(day=1)
+		
+		if not self.current_month_start or getdate(self.current_month_start) < first_of_month:
+			# New month - reset budget
+			self.db_set("current_month_start", first_of_month, update_modified=False)
+			self.db_set("monthly_budget_used", 0.0, update_modified=False)
+			frappe.db.commit()
+			
+			frappe.log_error(
+				f"Monthly budget reset for user {self.customer} (subscription: {self.name})",
+				"Budget Reset"
+			)
+	
+	def send_budget_alert(self, current_usage: float, remaining: float):
+		"""Send alert when budget threshold is reached"""
+		try:
+			threshold_pct = int((self.budget_alert_threshold or 0.9) * 100)
+			usage_pct = int((current_usage / self.monthly_budget_limit) * 100)
+			
+			# Check if alert already sent this month
+			alert_key = f"budget_alert:{self.name}:{self.current_month_start}"
+			if frappe.cache().get_value(alert_key):
+				return  # Alert already sent
+			
+			# Send email alert
+			frappe.sendmail(
+				recipients=[self.billing_email or self.user],  # Changed from getting customer email
+				subject=f"Budget Alert: {usage_pct}% Used - Oropendola AI",
+				message=f"""
+					<p>Hello,</p>
+					<p>Your Oropendola AI monthly budget has reached <strong>{threshold_pct}%</strong> of your limit.</p>
+					<ul>
+						<li>Budget Limit: {self.monthly_budget_limit:.2f}</li>
+						<li>Current Usage: {current_usage:.2f} ({usage_pct}%)</li>
+						<li>Remaining: {remaining:.2f}</li>
+					</ul>
+					<p>To avoid service interruption, please consider upgrading your plan or managing your usage.</p>
+					<p>Thank you,<br>Oropendola AI Team</p>
+				"""
+			)
+			
+			# Cache alert to avoid duplicate sends
+			frappe.cache().set_value(alert_key, True, expires_in_sec=86400)  # 24 hours
+			
+		except Exception as e:
+			frappe.log_error(f"Failed to send budget alert: {str(e)}", "Budget Alert Error")
+	
+	def get_monthly_budget_stats(self) -> dict:
+		"""Get monthly budget statistics for this user"""
+		self.reset_monthly_budget_if_needed()
+		
+		limit = self.monthly_budget_limit or 0
+		used = self.monthly_budget_used or 0
+		remaining = limit - used if limit > 0 else -1
+		usage_pct = (used / limit * 100) if limit > 0 else 0
+		
+		return {
+			"monthly_budget_limit": limit,
+			"monthly_budget_used": used,
+			"monthly_budget_remaining": remaining,
+			"usage_percentage": round(usage_pct, 2),
+			"current_month_start": str(self.current_month_start),
+			"alert_threshold": self.budget_alert_threshold or 0.9,
+			"unlimited": limit == 0 or remaining == -1
+		}

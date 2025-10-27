@@ -69,7 +69,7 @@
   {
    "description": "Environment variable name for API key",
    "fieldname": "api_key_env_var",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "API Key Env Var"
   },
   {

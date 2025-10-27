@@ -197,13 +197,39 @@ class ModelRouter:
 		else:
 			return (False, "Rate limit exceeded")
 	
-	def select_model(self, allowed_models: List[str], priority_score: int) -> Optional[Dict]:
+	def check_monthly_budget(self, subscription_id: str, estimated_cost: float) -> Tuple[bool, str, float]:
 		"""
-		Select best model based on routing algorithm.
+		Check user's monthly budget before routing request.
+		
+		Args:
+			subscription_id (str): Subscription ID
+			estimated_cost (float): Estimated cost of the request
+			
+		Returns:
+			tuple: (allowed: bool, message: str, remaining: float)
+		"""
+		subscription = frappe.get_doc("AI Subscription", subscription_id)
+		return subscription.check_monthly_budget(estimated_cost)
+	
+	def consume_monthly_budget(self, subscription_id: str, actual_cost: float):
+		"""
+		Consume user's monthly budget after successful request.
+		
+		Args:
+			subscription_id (str): Subscription ID
+			actual_cost (float): Actual cost incurred
+		"""
+		subscription = frappe.get_doc("AI Subscription", subscription_id)
+		return subscription.consume_monthly_budget(actual_cost)
+	
+	def select_model(self, allowed_models: List[str], priority_score: int, plan_id: str) -> Optional[Dict]:
+		"""
+		Select best model based on routing algorithm with Cost Weight from plan.
 		
 		Args:
 			allowed_models (list): List of allowed model names
 			priority_score (int): Subscription priority score
+			plan_id (str): AI Plan ID to get cost weights
 			
 		Returns:
 			dict: Selected model profile or None
@@ -223,21 +249,55 @@ class ModelRouter:
 		if not models:
 			return None
 		
+		# Get AI Plan to retrieve cost weights
+		plan = frappe.get_doc("AI Plan", plan_id)
+		
 		# Score each model
 		scored_models = []
 		for model in models:
 			model_doc = frappe.get_doc("AI Model Profile", model.name)
-			score = model_doc.get_routing_score(priority_score)
+			
+			# Get cost weight for this model from plan
+			plan_cost_weight = plan.get_model_cost_weight(model.model_name)
+			
+			# Calculate routing score with cost weight
+			score = model_doc.get_routing_score(priority_score, plan_cost_weight)
 			
 			scored_models.append({
 				"model": model_doc,
-				"score": score
+				"score": score,
+				"cost_weight": plan_cost_weight
 			})
 		
 		# Sort by score (highest first)
 		scored_models.sort(key=lambda x: x["score"], reverse=True)
 		
 		return scored_models[0]["model"] if scored_models else None
+	
+	def prepare_request_headers(self, model_profile) -> dict:
+		"""Prepare request headers with API key from config"""
+		headers = {
+			"Content-Type": "application/json"
+		}
+		
+		# Get API key from model profile (which reads from site config)
+		api_key = model_profile.get_api_key()
+		
+		if api_key:
+			# Add authorization header based on provider
+			if model_profile.provider == "OpenAI":
+				headers["Authorization"] = f"Bearer {api_key}"
+			elif model_profile.provider == "Anthropic":
+				headers["x-api-key"] = api_key
+				headers["anthropic-version"] = "2023-06-01"
+			elif model_profile.provider == "Google":
+				# For Gemini, API key goes in URL query param
+				pass
+			else:
+				# For DeepSeek, Grok, and others - use Bearer token
+				headers["Authorization"] = f"Bearer {api_key}"
+		
+		return headers, api_key
 	
 	def route_request(self, api_key: str, payload: dict) -> dict:
 		"""
@@ -285,10 +345,29 @@ class ModelRouter:
 				"message": quota_msg
 			}
 		
-		# Step 4: Select model
+		# Step 3.5: Check user's monthly budget (per-user limit)
+		# Estimate cost based on expected tokens (default: 1000 tokens @ $0.01 per 1K tokens)
+		estimated_tokens = payload.get("max_tokens", 1000)
+		estimated_cost = (estimated_tokens / 1000) * 0.01  # Rough estimate
+		
+		budget_ok, budget_msg, remaining_budget = self.check_monthly_budget(
+			subscription["subscription_id"],
+			estimated_cost
+		)
+		
+		if not budget_ok:
+			return {
+				"status": 429,
+				"error": "Monthly budget exceeded",
+				"message": budget_msg,
+				"budget_remaining": remaining_budget
+			}
+		
+		# Step 4: Select model with cost weight consideration
 		selected_model = self.select_model(
 			subscription["allowed_models"],
-			subscription["priority_score"]
+			subscription["priority_score"],
+			subscription["plan_id"]  # ⭐ Pass plan ID for cost weights
 		)
 		
 		if not selected_model:
@@ -302,9 +381,19 @@ class ModelRouter:
 		try:
 			model_start = time.time()
 			
+			# Prepare headers with API key
+			headers, api_key = self.prepare_request_headers(selected_model)
+			
+			# Prepare endpoint URL (some providers need API key in query params)
+			endpoint_url = selected_model.endpoint_url
+			if selected_model.provider == "Google" and api_key:
+				# Gemini uses API key in query parameter
+				endpoint_url = f"{endpoint_url}?key={api_key}"
+			
 			response = requests.post(
-				selected_model.endpoint_url,
+				endpoint_url,
 				json=payload,
+				headers=headers,
 				timeout=selected_model.timeout_seconds
 			)
 			
@@ -312,14 +401,27 @@ class ModelRouter:
 			
 			if response.status_code == 200:
 				# Success - log usage
+				response_data = response.json()
+				
+				# Calculate actual cost based on token usage
+				tokens_input = payload.get("tokens_input", estimated_tokens)
+				tokens_output = response_data.get("tokens_output", estimated_tokens)
+				
+				# Get model cost per unit from model profile
+				model_cost_per_unit = float(selected_model.cost_per_unit or 0.01)
+				actual_cost = ((tokens_input + tokens_output) / 1000) * model_cost_per_unit
+				
+				# Consume monthly budget for this user
+				self.consume_monthly_budget(subscription["subscription_id"], actual_cost)
+				
 				self.log_usage(
 					subscription["subscription_id"],
 					selected_model.model_name,
 					cost_units,
 					"Success",
 					model_latency,
-					tokens_input=payload.get("tokens_input"),
-					tokens_output=response.json().get("tokens_output")
+					tokens_input=tokens_input,
+					tokens_output=tokens_output
 				)
 				
 				# Update model stats
@@ -330,9 +432,11 @@ class ModelRouter:
 				return {
 					"status": 200,
 					"model": selected_model.model_name,
-					"response": response.json(),
+					"response": response_data,
 					"latency_ms": model_latency,
-					"total_time_ms": total_time
+					"total_time_ms": total_time,
+					"cost": actual_cost,
+					"budget_remaining": remaining_budget - actual_cost
 				}
 			else:
 				raise Exception(f"Model returned {response.status_code}")
@@ -384,9 +488,18 @@ class ModelRouter:
 				if not model.is_active or model.health_status == "Down":
 					continue
 				
+				# Prepare headers with API key
+				headers, api_key = self.prepare_request_headers(model)
+				
+				# Prepare endpoint URL
+				endpoint_url = model.endpoint_url
+				if model.provider == "Google" and api_key:
+					endpoint_url = f"{endpoint_url}?key={api_key}"
+				
 				response = requests.post(
-					model.endpoint_url,
+					endpoint_url,
 					json=payload,
+					headers=headers,
 					timeout=model.timeout_seconds
 				)
 				

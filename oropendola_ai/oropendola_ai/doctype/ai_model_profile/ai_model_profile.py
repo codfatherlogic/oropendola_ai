@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 import requests
 import json
+import os
 
 
 class AIModelProfile(Document):
@@ -36,6 +37,20 @@ class AIModelProfile(Document):
 		
 		if not (self.endpoint_url.startswith("http://") or self.endpoint_url.startswith("https://")):
 			frappe.throw("Endpoint URL must start with http:// or https://")
+	
+	def get_api_key(self):
+		"""Get API key from site config or environment variable"""
+		if not self.api_key_env_var:
+			return None
+		
+		# Try to get from Frappe site config first
+		api_key = frappe.conf.get(self.api_key_env_var)
+		
+		# Fallback to OS environment variable
+		if not api_key:
+			api_key = os.getenv(self.api_key_env_var)
+		
+		return api_key
 	
 	def perform_health_check(self):
 		"""Perform health check on model endpoint"""
@@ -105,20 +120,25 @@ class AIModelProfile(Document):
 		
 		frappe.db.commit()
 	
-	def get_routing_score(self, subscription_priority=0):
+	def get_routing_score(self, subscription_priority=0, plan_cost_weight=None):
 		"""
 		Calculate routing score based on multiple factors.
 		Higher score = better candidate for routing.
+		
+		Args:
+			subscription_priority (int): Priority score from subscription (0-100)
+			plan_cost_weight (float): Cost weight from AI Plan for this model
 		"""
 		if not self.is_active or self.health_status == "Down":
 			return 0
 		
-		# Weights for scoring
+		# Weights for scoring (configurable)
 		WEIGHT_LATENCY = 1.0
 		WEIGHT_CAPACITY = 0.5
 		WEIGHT_COST = 1.5
 		WEIGHT_PRIORITY = 2.0
 		WEIGHT_SUCCESS = 0.3
+		WEIGHT_COST_WEIGHT = 3.0  # ⭐ NEW: Plan's cost weight has high impact
 		
 		# Latency score (lower is better, inverse it)
 		latency_score = WEIGHT_LATENCY * (1.0 / ((self.avg_latency_ms or 100) + 1))
@@ -135,13 +155,20 @@ class AIModelProfile(Document):
 		# Success rate score
 		success_score = WEIGHT_SUCCESS * ((self.success_rate or 100) / 100.0)
 		
+		# Cost Weight score from AI Plan ⭐ NEW
+		cost_weight_score = 0
+		if plan_cost_weight is not None:
+			# Normalize cost weight (default 10) and apply weight
+			cost_weight_score = WEIGHT_COST_WEIGHT * (plan_cost_weight / 10.0)
+		
 		# Degraded penalty
 		degraded_penalty = 0
 		if self.health_status == "Degraded":
 			degraded_penalty = -10
 		
 		total_score = (latency_score + capacity_score + cost_score + 
-		               priority_score + success_score + degraded_penalty)
+		               priority_score + success_score + cost_weight_score +
+		               degraded_penalty)
 		
 		return total_score
 	
@@ -175,4 +202,5 @@ class AIModelProfile(Document):
 		# Sort by score (highest first)
 		scored_models.sort(key=lambda x: x["score"], reverse=True)
 		
+		return scored_models[0]["model"] if scored_models else None
 		return scored_models[0]["model"] if scored_models else None

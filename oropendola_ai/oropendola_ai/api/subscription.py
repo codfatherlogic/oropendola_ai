@@ -317,3 +317,49 @@ def regenerate_api_key(subscription_id):
 			"success": False,
 			"error": str(e)
 		}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_monthly_budget_stats(api_key):
+	"""
+	Get monthly budget statistics for a user.
+	
+	Args:
+		api_key (str): User's API key
+		
+	Returns:
+		dict: Monthly budget statistics
+	"""
+	try:
+		# Validate API key and get subscription
+		key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+		
+		api_key_doc = frappe.get_all(
+			"AI API Key",
+			filters={"key_hash": key_hash, "status": "Active"},
+			fields=["subscription"],
+			limit=1
+		)
+		
+		if not api_key_doc:
+			return {
+				"success": False,
+				"error": "Invalid API key"
+			}
+		
+		subscription = frappe.get_doc("AI Subscription", api_key_doc[0].subscription)
+		
+		# Get budget stats
+		stats = subscription.get_monthly_budget_stats()
+		
+		return {
+			"success": True,
+			"budget_stats": stats
+		}
+		
+	except Exception as e:
+		frappe.log_error(f"Failed to get budget stats: {str(e)}", "Budget Stats API Error")
+		return {
+			"success": False,
+			"error": str(e)
+		}

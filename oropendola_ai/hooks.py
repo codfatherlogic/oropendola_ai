@@ -83,7 +83,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "oropendola_ai.install.before_install"
-# after_install = "oropendola_ai.install.after_install"
+after_install = "oropendola_ai.install.after_install"
 
 # Uninstallation
 # ------------
@@ -137,13 +137,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"User": {
+		"after_insert": "oropendola_ai.oropendola_ai.utils.user_utils.create_default_subscription"
+	}
+}
 
 # Scheduled Tasks
 # ---------------

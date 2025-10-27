@@ -21,6 +21,14 @@
   "requests_limit_per_day",
   "rate_limit_qps",
   "priority_score",
+  "smart_routing_section",
+  "default_routing_mode",
+  "enable_session_continuity",
+  "session_ttl",
+  "column_break_smart",
+  "enable_task_complexity_detection",
+  "correlation_threshold",
+  "monthly_budget_limit",
   "features_section",
   "features",
   "model_access_section",
@@ -115,6 +123,61 @@
    "fieldtype": "Int",
    "label": "Priority Score",
    "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "smart_routing_section",
+   "fieldtype": "Section Break",
+   "label": "Smart Routing Configuration"
+  },
+  {
+   "default": "auto",
+   "description": "Default smart routing mode for this plan. Auto balances cost and quality.",
+   "fieldname": "default_routing_mode",
+   "fieldtype": "Select",
+   "label": "Default Routing Mode",
+   "options": "auto\nperformance\nefficient\nlite",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Maintain model consistency across conversation sessions for better context.",
+   "fieldname": "enable_session_continuity",
+   "fieldtype": "Check",
+   "label": "Enable Session Continuity"
+  },
+  {
+   "default": "3600",
+   "depends_on": "eval:doc.enable_session_continuity==1",
+   "description": "Session cache duration in seconds (default: 1 hour)",
+   "fieldname": "session_ttl",
+   "fieldtype": "Int",
+   "label": "Session TTL (seconds)"
+  },
+  {
+   "fieldname": "column_break_smart",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Automatically detect task complexity and route to appropriate models.",
+   "fieldname": "enable_task_complexity_detection",
+   "fieldtype": "Check",
+   "label": "Enable Task Complexity Detection"
+  },
+  {
+   "default": "0.7",
+   "depends_on": "eval:doc.enable_session_continuity==1",
+   "description": "Similarity threshold for session continuity (0.0-1.0). Higher = stricter.",
+   "fieldname": "correlation_threshold",
+   "fieldtype": "Float",
+   "label": "Correlation Threshold"
+  },
+  {
+   "description": "Monthly budget limit in plan currency. 0 for unlimited.",
+   "fieldname": "monthly_budget_limit",
+   "fieldtype": "Currency",
+   "label": "Monthly Budget Limit"
   },
   {
    "fieldname": "features_section",

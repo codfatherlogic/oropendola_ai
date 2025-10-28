@@ -11,15 +11,15 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "oropendola_ai",
-# 		"logo": "/assets/oropendola_ai/logo.png",
-# 		"title": "Oropendola Ai",
-# 		"route": "/oropendola_ai",
-# 		"has_permission": "oropendola_ai.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "oropendola_ai",
+		"logo": "/files/icon.png",
+		"title": "Oropendola AI",
+		"route": "/app",
+		"has_permission": "oropendola_ai.oropendola_ai.api.permission.has_app_permission"
+	}
+]
 
 # Includes in <head>
 # ------------------
@@ -30,7 +30,11 @@ app_license = "mit"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/oropendola_ai/css/oropendola_ai.css"
-# web_include_js = "/assets/oropendola_ai/js/oropendola_ai.js"
+web_include_js = [
+    "/assets/oropendola_ai/js/cache-buster.js",
+    "/assets/oropendola_ai/js/security-redirect.js",
+    "/assets/oropendola_ai/js/force_redirect.js"
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "oropendola_ai/public/scss/website"
@@ -57,7 +61,12 @@ app_license = "mit"
 # ----------
 
 # application home page (will override Website Settings)
-# home_page = "login"
+home_page = "index"
+
+# Override default login page with custom dark-themed login
+website_route_rules = [
+	{'from_route': '/login', 'to_route': '/login'},
+]
 
 # website user home page (by Role)
 # role_home_page = {
@@ -171,10 +180,15 @@ scheduler_events = {
 
 # Overriding Methods
 # ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "oropendola_ai.event.get_events"
-# }
+# Override login method directly
+override_whitelisted_methods = {
+	"frappe.auth.get_logged_user": "oropendola_ai.oropendola_ai.api.auth.custom_login"
+}
+
+# Use auth hooks to intercept login
+auth_hooks = [
+	"oropendola_ai.oropendola_ai.utils.auth_hooks.validate_auth"
+]
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
@@ -194,8 +208,16 @@ scheduler_events = {
 
 # Request Events
 # ----------------
-# before_request = ["oropendola_ai.utils.before_request"]
-# after_request = ["oropendola_ai.utils.after_request"]
+before_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_headers"]
+after_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_headers"]
+
+# Session Events
+# ----------------
+on_session_creation = "oropendola_ai.oropendola_ai.utils.session_utils.on_session_creation"
+
+# Boot Session
+# ----------------
+extend_bootinfo = "oropendola_ai.oropendola_ai.utils.session_utils.extend_bootinfo"
 
 # Job Events
 # ----------

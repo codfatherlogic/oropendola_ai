@@ -8,6 +8,7 @@ from frappe import _
 def after_install():
 	"""Called after app installation"""
 	create_default_model_profiles()
+	create_default_plans()
 
 
 @frappe.whitelist()
@@ -132,3 +133,195 @@ def create_default_model_profiles():
 	print(f"Created: {created_count}")
 	print(f"Already exists: {existing_count}")
 	print(f"Failed: {failed_count}")
+
+
+@frappe.whitelist()
+def delete_all_subscriptions_and_keys():
+	"""Delete all AI API Keys and AI Subscriptions - USE WITH CAUTION!"""
+	try:
+		# Delete all AI API Keys
+		api_keys = frappe.get_all("AI API Key")
+		for key in api_keys:
+			frappe.delete_doc("AI API Key", key.name, force=1, ignore_permissions=True)
+		
+		# Delete all AI Subscriptions
+		subscriptions = frappe.get_all("AI Subscription")
+		for sub in subscriptions:
+			frappe.delete_doc("AI Subscription", sub.name, force=1, ignore_permissions=True)
+		
+		# Delete all AI Invoices
+		invoices = frappe.get_all("AI Invoice")
+		for inv in invoices:
+			frappe.delete_doc("AI Invoice", inv.name, force=1, ignore_permissions=True)
+		
+		# Delete all AI Customers
+		customers = frappe.get_all("AI Customer")
+		for cust in customers:
+			frappe.delete_doc("AI Customer", cust.name, force=1, ignore_permissions=True)
+		
+		frappe.db.commit()
+		
+		print(f"✓ Deleted {len(api_keys)} API Keys")
+		print(f"✓ Deleted {len(subscriptions)} Subscriptions")
+		print(f"✓ Deleted {len(invoices)} Invoices")
+		print(f"✓ Deleted {len(customers)} Customers")
+		
+		return {
+			"success": True,
+			"deleted_keys": len(api_keys),
+			"deleted_subscriptions": len(subscriptions),
+			"deleted_invoices": len(invoices),
+			"deleted_customers": len(customers)
+		}
+	except Exception as e:
+		frappe.db.rollback()
+		print(f"✗ Error: {str(e)}")
+		return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+def create_default_plans():
+	"""Create default AI subscription plans"""
+	
+	plans_data = [
+		{
+			"plan_id": "1-day-trial",
+			"title": "1 Day Trial",
+			"description": "Try Oropendola AI for one day",
+			"price": 199,
+			"currency": "INR",
+			"duration_days": 1,
+			"requests_limit_per_day": 200,
+			"monthly_budget_limit": 0,
+			"support_level": "Standard",
+			"default_routing_mode": "efficient",
+			"priority_score": 1,
+			"is_active": 1,
+			"features": [
+				"Premium Fast Requests",
+				"Smart To-Do List",
+				"1M Context Window"
+			],
+			"models": [
+				{"name": "DeepSeek", "cost_weight": 60},
+				{"name": "Grok", "cost_weight": 10},
+				{"name": "Claude", "cost_weight": 10},
+				{"name": "GPT-4", "cost_weight": 10},
+				{"name": "Gemini", "cost_weight": 10}
+			]
+		},
+		{
+			"plan_id": "7-days",
+			"title": "7 Days",
+			"description": "Perfect for short projects",
+			"price": 849,
+			"currency": "INR",
+			"duration_days": 7,
+			"requests_limit_per_day": 300,
+			"monthly_budget_limit": 1000,
+			"support_level": "Priority",
+			"default_routing_mode": "auto",
+			"priority_score": 5,
+			"is_active": 1,
+			"features": [
+				"Premium Fast Requests",
+				"Smart To-Do List",
+				"1M Context Window"
+			],
+			"models": [
+				{"name": "DeepSeek", "cost_weight": 60},
+				{"name": "Grok", "cost_weight": 10},
+				{"name": "Claude", "cost_weight": 10},
+				{"name": "GPT-4", "cost_weight": 10},
+				{"name": "Gemini", "cost_weight": 10}
+			]
+		},
+		{
+			"plan_id": "1-month-unlimited",
+			"title": "1 Month - Unlimited",
+			"description": "Unlimited requests for one month",
+			"price": 2999,
+			"currency": "INR",
+			"duration_days": 30,
+			"requests_limit_per_day": -1,
+			"monthly_budget_limit": 5000,
+			"support_level": "Enterprise",
+			"default_routing_mode": "performance",
+			"priority_score": 10,
+			"is_active": 1,
+			"features": [
+				"Premium Fast Requests",
+				"High-Priority Support",
+				"Smart To-Do List",
+				"1M Context Window"
+			],
+			"models": [
+				{"name": "DeepSeek", "cost_weight": 60},
+				{"name": "Grok", "cost_weight": 10},
+				{"name": "Claude", "cost_weight": 10},
+				{"name": "GPT-4", "cost_weight": 10},
+				{"name": "Gemini", "cost_weight": 10}
+			]
+		}
+	]
+	
+	created_count = 0
+	existing_count = 0
+	
+	for plan_data in plans_data:
+		# Check if plan already exists
+		if frappe.db.exists("AI Plan", plan_data["plan_id"]):
+			existing_count += 1
+			print(f"⊙ AI Plan already exists: {plan_data['title']}")
+			continue
+		
+		# Extract features and models
+		features = plan_data.pop("features", [])
+		models = plan_data.pop("models", [])
+		
+		# Create plan
+		plan = frappe.get_doc({
+			"doctype": "AI Plan",
+			"name": plan_data["plan_id"],
+			**plan_data
+		})
+		
+		# Add features
+		for idx, feature_name in enumerate(features, 1):
+			plan.append("features", {
+				"feature_name": feature_name,
+				"enabled": 1,
+				"idx": idx
+			})
+		
+		# Add models with cost weights
+		for idx, model_data in enumerate(models, 1):
+			if isinstance(model_data, dict):
+				# New format with cost weight
+				plan.append("model_access", {
+					"model_name": model_data["name"],
+					"cost_weight": model_data.get("cost_weight", 1),
+					"idx": idx
+				})
+			else:
+				# Old format (just model name)
+				plan.append("model_access", {
+					"model_name": model_data,
+					"cost_weight": 1,
+					"idx": idx
+				})
+		
+		plan.insert(ignore_permissions=True)
+		created_count += 1
+		print(f"✓ Created plan: {plan_data['title']}")
+	
+	frappe.db.commit()
+	print(f"\n=== AI Plans Summary ===")
+	print(f"Created: {created_count}")
+	print(f"Already exists: {existing_count}")
+	
+	return {
+		"success": True,
+		"created": created_count,
+		"existing": existing_count
+	}

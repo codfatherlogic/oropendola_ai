@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code Authentication - Oropendola AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: #28a745;
+            position: relative;
+            animation: scaleIn 0.3s ease-in-out;
+        }
+
+        .checkmark:after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .subscription-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .subscription-info h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subscription-info .detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .subscription-info .detail span:first-child {
+            color: #666;
+        }
+
+        .subscription-info .detail span:last-child {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">O</div>
+        <h1 id="title">Authenticating VS Code</h1>
+        <p id="message">Please wait while we verify your account...</p>
+        
+        <div id="loading" class="spinner"></div>
+        
+        <div id="subscription-details" class="subscription-info" style="display: none;">
+            <h3>Your Subscription</h3>
+            <div class="detail">
+                <span>Plan:</span>
+                <span id="plan-name">-</span>
+            </div>
+            <div class="detail">
+                <span>Status:</span>
+                <span id="plan-status">-</span>
+            </div>
+            <div class="detail">
+                <span>Daily Quota:</span>
+                <span id="quota-info">-</span>
+            </div>
+        </div>
+        
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Get session token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionToken = urlParams.get('token');
+
+        // Configuration
+        const API_BASE = window.location.origin;
+
+        // Main authentication flow
+        async function authenticateVSCode() {
+            if (!sessionToken) {
+                showError('Invalid authentication link. Please try again from VS Code.');
+                return;
+            }
+
+            try {
+                // Check if user is logged in
+                const isLoggedIn = await checkLoginStatus();
+                
+                if (!isLoggedIn) {
+                    // Redirect to login page, then back here
+                    const returnUrl = encodeURIComponent(window.location.href);
+                    window.location.href = `/login?redirect-to=${returnUrl}`;
+                    return;
+                }
+
+                // User is logged in - get their API key and subscription
+                await completeAuthentication();
+
+            } catch (error) {
+                console.error('Authentication error:', error);
+                showError(`Authentication failed: ${error.message}`);
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                return data.message && data.message !== 'Guest';
+            } catch (error) {
+                console.error('Login check error:', error);
+                return false;
+            }
+        }
+
+        async function completeAuthentication() {
+            try {
+                // Get user's API key
+                const apiKeyResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.user_api.get_my_api_key`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    }
+                });
+
+                if (!apiKeyResponse.ok) {
+                    throw new Error('Failed to retrieve API key');
+                }
+
+                const apiKeyData = await apiKeyResponse.json();
+                
+                if (!apiKeyData.message || !apiKeyData.message.success) {
+                    throw new Error(apiKeyData.message?.error || 'No API key found. Please contact support.');
+                }
+
+                const apiKey = apiKeyData.message.api_key;
+                const userEmail = apiKeyData.message.user;
+
+                // Get subscription details
+                const subResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.user_api.get_my_subscription`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    }
+                });
+
+                if (!subResponse.ok) {
+                    throw new Error('Failed to retrieve subscription');
+                }
+
+                const subData = await subResponse.json();
+                
+                if (!subData.message || !subData.message.success) {
+                    throw new Error('No active subscription found');
+                }
+
+                const subscription = subData.message.subscription;
+
+                // Display subscription info
+                displaySubscriptionInfo(subscription);
+
+                // Complete the VS Code auth flow
+                const completeResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.vscode_extension.complete_vscode_auth`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken,
+                        user_email: userEmail,
+                        api_key: apiKey,
+                        subscription: subscription
+                    })
+                });
+
+                if (!completeResponse.ok) {
+                    throw new Error('Failed to complete authentication');
+                }
+
+                const completeData = await completeResponse.json();
+
+                if (completeData.message && completeData.message.success) {
+                    showSuccess();
+                } else {
+                    throw new Error(completeData.message?.error || 'Authentication failed');
+                }
+
+            } catch (error) {
+                console.error('Complete auth error:', error);
+                throw error;
+            }
+        }
+
+        function displaySubscriptionInfo(subscription) {
+            const subscriptionDiv = document.getElementById('subscription-details');
+            document.getElementById('plan-name').textContent = subscription.plan_name || 'Free';
+            document.getElementById('plan-status').textContent = subscription.status || 'Active';
+            
+            const quota = subscription.daily_quota_limit === -1 
+                ? 'Unlimited' 
+                : `${subscription.daily_quota_remaining || 0} / ${subscription.daily_quota_limit || 0}`;
+            document.getElementById('quota-info').textContent = quota;
+            
+            subscriptionDiv.style.display = 'block';
+        }
+
+        function showSuccess() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('title').textContent = 'Authentication Successful!';
+            document.getElementById('message').textContent = 'You can now return to VS Code. The extension will automatically detect the authentication.';
+            
+            const container = document.querySelector('.auth-container');
+            const checkmark = document.createElement('div');
+            checkmark.className = 'checkmark';
+            container.insertBefore(checkmark, document.getElementById('subscription-details'));
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status success';
+            statusDiv.textContent = '✓ Your VS Code extension is now authenticated and ready to use!';
+            statusDiv.style.display = 'block';
+
+            // Auto-close after 5 seconds
+            setTimeout(() => {
+                window.close();
+            }, 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('title').textContent = 'Authentication Failed';
+            document.getElementById('message').textContent = message;
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `<strong>Error:</strong> ${message}<br><br><a href="/login" class="btn">Try Again</a>`;
+            statusDiv.style.display = 'block';
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        // Start authentication on page load
+        authenticateVSCode();
+    </script>
+</body>
+</html>

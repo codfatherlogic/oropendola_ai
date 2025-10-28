@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Oropendola AI</title>
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Cache Buster Script -->
+    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    
+    <!-- Immediate Login Redirect Fix -->
+    <script>
+        // Override window.location to catch redirects
+        (function() {
+            const originalReplace = window.location.replace;
+            window.location.replace = function(url) {
+                console.log('🔄 Redirect intercepted:', url);
+                // If trying to redirect to /app or /desk, redirect to /my-profile instead
+                if (url && (url.includes('/app') || url.includes('/desk'))) {
+                    console.log('⚠️ Desk redirect detected, changing to /my-profile');
+                    url = '/my-profile';
+                }
+                return originalReplace.call(this, url);
+            };
+        })();
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --error-color: #FF5F56;
+            --success-color: #27C93F;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .logo img {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 16px rgba(123, 97, 255, 0.5));
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 6px 20px rgba(123, 97, 255, 0.7));
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .auth-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #7B61FF;
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 24px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider::before {
+            margin-right: 16px;
+        }
+
+        .divider::after {
+            margin-left: 16px;
+        }
+
+        .link-section {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .link-section a {
+            color: #7B61FF;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .link-section a:hover {
+            color: #00D9FF;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.error {
+            background: rgba(255, 95, 86, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .alert.success {
+            background: rgba(39, 201, 63, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-home a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .back-home a:hover {
+            color: var(--text-primary);
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle input {
+            padding-right: 45px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI Logo">
+            </div>
+            <p class="tagline">Code faster with AI that knows your code</p>
+        </div>
+
+        <!-- Auth Box -->
+        <div class="auth-box">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('login')">Sign In</button>
+                <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alert" class="alert"></div>
+
+            <!-- Login Tab -->
+            <div id="login-tab" class="tab-content active">
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="text" id="login-email" placeholder="you@example.com or administrator" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-toggle">
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('login-password')">
+                                Show
+                            </button>
+                        </div>
+                    </div>
+                    <div class="link-section" style="text-align: right; margin-top: -8px;">
+                        <a href="#" onclick="showForgotPassword(); return false;">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn-submit" id="login-btn">Sign In</button>
+                </form>
+            </div>
+
+            <!-- Signup Tab -->
+            <div id="signup-tab" class="tab-content">
+                <form id="signup-form" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signup-fullname">Full Name</label>
+                        <input type="text" id="signup-fullname" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="password-toggle">
+                            <input type="password" id="signup-password" placeholder="••••••••" required minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('signup-password')">
+                                Show
+                            </button>
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px; margin-top: 4px; display: block;">
+                            Minimum 6 characters
+                        </small>
+                    </div>
+                    <button type="submit" class="btn-submit" id="signup-btn">Create Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="back-home">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Switch between tabs
+        function switchTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('login-tab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('signup-tab').classList.add('active');
+            }
+
+            // Clear alerts
+            hideAlert();
+            
+            // Update URL hash
+            window.location.hash = tab;
+        }
+
+        // Handle hash on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash === 'signup') {
+                switchTab('signup');
+            } else if (hash === 'login') {
+                switchTab('login');
+            }
+
+            // Check for plan parameter (from pricing page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan');
+            if (plan) {
+                // Store plan for after signup
+                sessionStorage.setItem('selected_plan', plan);
+                switchTab('signup');
+            }
+        });
+
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+        }
+
+        // Hide alert
+        function hideAlert() {
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+
+            // Disable button
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Signing in...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/method/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usr: email,
+                        pwd: password
+                        // No redirect_to parameter - let server decide based on role
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.message === 'Logged In') {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Check if response includes home_page
+                    let homePage = data.home_page || data.message?.home_page;
+                    
+                    // Force /my-profile for non-admin users (safety check)
+                    if (!homePage || homePage === '/' || homePage.includes('/app') || homePage.includes('/desk')) {
+                        // Check if this is an admin login
+                        if (email.toLowerCase() === 'administrator' || email.toLowerCase().includes('admin')) {
+                            homePage = '/app';
+                        } else {
+                            homePage = '/my-profile';
+                        }
+                    }
+                    
+                    console.log('🔑 Login successful, redirecting to:', homePage);
+                    
+                    // Redirect based on server response
+                    setTimeout(() => {
+                        const urlRedirect = new URLSearchParams(window.location.search).get('redirect-to');
+                        const finalRedirect = urlRedirect || homePage;
+                        
+                        console.log('🎯 Final redirect URL:', finalRedirect);
+                        
+                        // Force full page reload
+                        window.location.replace(finalRedirect);
+                    }, 500);
+                } else {
+                    throw new Error(data.message || data.exc || 'Invalid email or password');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert(error.message || 'Login failed. Please check your credentials.');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+
+        // Handle signup
+        async function handleSignup(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const fullname = document.getElementById('signup-fullname').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const btn = document.getElementById('signup-btn');
+
+            // Split full name
+            const nameParts = fullname.trim().split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ') || firstName;
+
+            // Disable button
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Creating account...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/method/frappe.core.doctype.user.user.sign_up`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        full_name: fullname
+                        // No redirect_to - will be handled after login
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Account created - now login
+                    showAlert('Account created! Logging you in...', 'success');
+                    
+                    // Attempt auto-login
+                    setTimeout(async () => {
+                        try {
+                            const loginResponse = await fetch(`${API_BASE}/api/method/login`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    usr: email,
+                                    pwd: password
+                                    // No redirect_to - let server decide based on role
+                                })
+                            });
+
+                            if (loginResponse.ok) {
+                                // Check if plan was selected
+                                const plan = sessionStorage.getItem('selected_plan');
+                                if (plan) {
+                                    sessionStorage.removeItem('selected_plan');
+                                    window.location.replace(`/pricing?plan=${plan}`);
+                                } else {
+                                    window.location.replace('/my-profile');
+                                }
+                            } else {
+                                // Manual login required
+                                showAlert('Account created! Please sign in.', 'success');
+                                switchTab('login');
+                                document.getElementById('login-email').value = email;
+                            }
+                        } catch (loginError) {
+                            showAlert('Account created! Please sign in.', 'success');
+                            switchTab('login');
+                            document.getElementById('login-email').value = email;
+                        }
+                    }, 1000);
+                } else {
+                    throw new Error(data.exc || data._server_messages || 'Signup failed');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                let errorMsg = 'Signup failed. Please try again.';
+                
+                if (error.message.includes('already exists')) {
+                    errorMsg = 'This email is already registered. Please sign in instead.';
+                }
+                
+                showAlert(errorMsg);
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
+
+        // Show forgot password (placeholder)
+        function showForgotPassword() {
+            const email = document.getElementById('login-email').value || '';
+            const modal = document.getElementById('forgot-modal');
+            
+            if (!modal) {
+                // Create modal if it doesn't exist
+                const forgotModalHTML = `
+                    <div id="forgot-modal" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.7);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 9999;
+                        font-family: 'Inter', sans-serif;
+                    ">
+                        <div style="
+                            background: #111111;
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 16px;
+                            padding: 40px;
+                            max-width: 450px;
+                            width: 90%;
+                            color: white;
+                        ">
+                            <h2 style="font-size: 24px; margin-bottom: 24px; text-align: center;">Reset Password</h2>
+                            
+                            <div id="forgot-step-1" style="display: block;">
+                                <p style="color: #A0A0A0; margin-bottom: 20px; text-align: center;">Enter your email to receive a reset code</p>
+                                <input type="email" id="forgot-email" placeholder="your@email.com" value="${email}" style="
+                                    width: 100%;
+                                    padding: 14px 16px;
+                                    background: #1A1A1A;
+                                    border: 1px solid rgba(255,255,255,0.1);
+                                    border-radius: 8px;
+                                    color: white;
+                                    font-size: 15px;
+                                    margin-bottom: 24px;
+                                    font-family: 'Inter', sans-serif;
+                                ">
+                                <button onclick="sendForgotOTP()" style="
+                                    width: 100%;
+                                    padding: 14px;
+                                    background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    margin-bottom: 12px;
+                                    font-family: 'Inter', sans-serif;
+                                ">Send Code</button>
+                            </div>
+                            
+                            <div id="forgot-step-2" style="display: none;">
+                                <p style="color: #A0A0A0; margin-bottom: 20px; text-align: center;">Enter the 6-digit code sent to your email</p>
+                                <input type="text" id="forgot-otp" placeholder="123456" maxlength="6" style="
+                                    width: 100%;
+                                    padding: 14px 16px;
+                                    background: #1A1A1A;
+                                    border: 1px solid rgba(255,255,255,0.1);
+                                    border-radius: 8px;
+                                    color: white;
+                                    font-size: 15px;
+                                    margin-bottom: 24px;
+                                    font-family: 'Inter', sans-serif;
+                                    text-align: center;
+                                    letter-spacing: 8px;
+                                ">
+                                <button onclick="verifyForgotOTP()" style="
+                                    width: 100%;
+                                    padding: 14px;
+                                    background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    margin-bottom: 12px;
+                                    font-family: 'Inter', sans-serif;
+                                ">Verify Code</button>
+                            </div>
+                            
+                            <div id="forgot-step-3" style="display: none;">
+                                <p style="color: #A0A0A0; margin-bottom: 20px; text-align: center;">Enter your new password</p>
+                                <input type="password" id="forgot-password" placeholder="New password" style="
+                                    width: 100%;
+                                    padding: 14px 16px;
+                                    background: #1A1A1A;
+                                    border: 1px solid rgba(255,255,255,0.1);
+                                    border-radius: 8px;
+                                    color: white;
+                                    font-size: 15px;
+                                    margin-bottom: 12px;
+                                    font-family: 'Inter', sans-serif;
+                                ">
+                                <input type="password" id="forgot-password-confirm" placeholder="Confirm password" style="
+                                    width: 100%;
+                                    padding: 14px 16px;
+                                    background: #1A1A1A;
+                                    border: 1px solid rgba(255,255,255,0.1);
+                                    border-radius: 8px;
+                                    color: white;
+                                    font-size: 15px;
+                                    margin-bottom: 24px;
+                                    font-family: 'Inter', sans-serif;
+                                ">
+                                <button onclick="resetForgotPassword()" style="
+                                    width: 100%;
+                                    padding: 14px;
+                                    background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    margin-bottom: 12px;
+                                    font-family: 'Inter', sans-serif;
+                                ">Reset Password</button>
+                            </div>
+                            
+                            <button onclick="closeForgotModal()" style="
+                                width: 100%;
+                                padding: 12px;
+                                background: transparent;
+                                color: #7B61FF;
+                                border: 1px solid #7B61FF;
+                                border-radius: 8px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                font-family: 'Inter', sans-serif;
+                            ">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', forgotModalHTML);
+            }
+            
+            // Show modal
+            document.getElementById('forgot-modal').style.display = 'flex';
+            document.getElementById('forgot-step-1').style.display = 'block';
+            document.getElementById('forgot-step-2').style.display = 'none';
+            document.getElementById('forgot-step-3').style.display = 'none';
+            document.getElementById('forgot-email').focus();
+        }
+        
+        function closeForgotModal() {
+            const modal = document.getElementById('forgot-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        async function sendForgotOTP() {
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email) {
+                alert('Please enter your email');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.send_otp`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, purpose: 'reset_password'})
+                });
+                const data = await response.json();
+                
+                if (data.message && data.message.success) {
+                    // Move to step 2
+                    document.getElementById('forgot-step-1').style.display = 'none';
+                    document.getElementById('forgot-step-2').style.display = 'block';
+                    document.getElementById('forgot-otp').focus();
+                } else {
+                    alert(data.message?.error || 'Failed to send reset code');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Failed to send reset code. Please try again.');
+            }
+        }
+        
+        async function verifyForgotOTP() {
+            const email = document.getElementById('forgot-email').value.trim();
+            const otp = document.getElementById('forgot-otp').value.trim();
+            
+            if (otp.length !== 6) {
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.verify_otp`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, otp, purpose: 'reset_password'})
+                });
+                const data = await response.json();
+                
+                if (data.message && data.message.success) {
+                    // Move to step 3
+                    document.getElementById('forgot-step-2').style.display = 'none';
+                    document.getElementById('forgot-step-3').style.display = 'block';
+                    document.getElementById('forgot-password').focus();
+                } else {
+                    alert(data.message?.error || 'Invalid reset code');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Failed to verify code. Please try again.');
+            }
+        }
+        
+        async function resetForgotPassword() {
+            const email = document.getElementById('forgot-email').value.trim();
+            const password = document.getElementById('forgot-password').value;
+            const passwordConfirm = document.getElementById('forgot-password-confirm').value;
+            
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters');
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.reset_password_with_otp`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                const data = await response.json();
+                
+                if (data.message && data.message.success) {
+                    alert('Password reset successfully! You can now login with your new password.');
+                    closeForgotModal();
+                    // Clear login form
+                    document.getElementById('login-email').value = '';
+                    document.getElementById('login-password').value = '';
+                } else {
+                    alert(data.message?.error || 'Failed to reset password');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Failed to reset password. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
+</html>

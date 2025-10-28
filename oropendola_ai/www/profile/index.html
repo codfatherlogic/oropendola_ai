@@ -1,0 +1,571 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Oropendola AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <link rel="apple-touch-icon" href="/files/icon.png">
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Cache Buster Script -->
+    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1A1A1A;
+            --bg-card: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-tertiary: #666666;
+            --accent-primary: #00D9FF;
+            --accent-secondary: #7B61FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #27C93F;
+            --warning: #FFB800;
+            --error: #FF5F56;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 8px rgba(123, 97, 255, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 4px 12px rgba(123, 97, 255, 0.6));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Main Content */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 40px 60px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: var(--bg-secondary);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(123, 97, 255, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .detail-item {
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 36px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                padding: 12px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/profile" class="active">Dashboard</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs">Docs</a>
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>Welcome to your <span class="gradient-text">Dashboard</span></h1>
+            <p>Manage your account, view analytics, and access all your profile settings</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('analytics')">
+                📊 Analytics
+            </button>
+            <button class="tab" onclick="showTab('profile')">
+                👤 Profile
+            </button>
+            <button class="tab" onclick="showTab('billing')">
+                💳 Billing
+            </button>
+            <button class="tab" onclick="showTab('settings')">
+                ⚙️ Settings
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p style="color: var(--text-secondary);">Loading your dashboard...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentUser = null;
+
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUserData();
+            showTab('analytics');
+        });
+
+        async function loadUserData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.message === 'Guest') {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                currentUser = data.message;
+            } catch (error) {
+                console.error('Error loading user:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function showTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const content = document.getElementById('tab-content');
+
+            switch(tabName) {
+                case 'analytics':
+                    content.innerHTML = `
+                        <div class="cards-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">📝</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Total Requests</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">⚡</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Tokens Used</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-value">$0.00</div>
+                                <div class="stat-label">Amount Spent</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">📊</div>
+                                <div class="stat-value">Free</div>
+                                <div class="stat-label">Current Plan</div>
+                            </div>
+                        </div>
+                        <div class="profile-section">
+                            <h3 style="margin-bottom: 20px;">Getting Started</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                                Welcome to Oropendola AI! To start using our AI coding assistant:
+                            </p>
+                            <ol style="color: var(--text-secondary); padding-left: 24px;">
+                                <li style="margin-bottom: 12px;">Install the VS Code extension</li>
+                                <li style="margin-bottom: 12px;">Connect your API key</li>
+                                <li style="margin-bottom: 12px;">Start coding with AI assistance</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+
+                case 'profile':
+                    const initials = currentUser ? currentUser.substring(0, 2).toUpperCase() : 'U';
+                    content.innerHTML = `
+                        <div class="profile-section">
+                            <div class="profile-header">
+                                <div class="profile-avatar">${initials}</div>
+                                <div class="profile-info">
+                                    <h2>${currentUser || 'User'}</h2>
+                                    <p>AI Assistant User</p>
+                                </div>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Email</div>
+                                    <div class="detail-value">${currentUser || 'Not available'}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Role</div>
+                                    <div class="detail-value">AI Assistant User</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Plan</div>
+                                    <div class="detail-value">Free Trial</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Status</div>
+                                    <div class="detail-value" style="color: var(--success);">● Active</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'billing':
+                    content.innerHTML = `
+                        <div class="profile-section">
+                            <h3 style="margin-bottom: 20px;">Billing & Subscription</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                                Manage your subscription and payment methods.
+                            </p>
+                            <div class="cards-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon">💳</div>
+                                    <div class="stat-value">Free</div>
+                                    <div class="stat-label">Current Plan</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">📅</div>
+                                    <div class="stat-value">-</div>
+                                    <div class="stat-label">Next Billing Date</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 24px;">
+                                <a href="/pricing" style="display: inline-block; padding: 14px 28px; background: var(--accent-gradient); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                                    Upgrade Plan
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'settings':
+                    content.innerHTML = `
+                        <div class="profile-section">
+                            <h3 style="margin-bottom: 20px;">Account Settings</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                                Configure your account preferences and security settings.
+                            </p>
+                            <div class="detail-item" style="margin-bottom: 16px;">
+                                <div class="detail-label">Language</div>
+                                <div class="detail-value">English</div>
+                            </div>
+                            <div class="detail-item" style="margin-bottom: 16px;">
+                                <div class="detail-label">Theme</div>
+                                <div class="detail-value">Dark Mode</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Notifications</div>
+                                <div class="detail-value">Enabled</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch(`${API_BASE}/api/method/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

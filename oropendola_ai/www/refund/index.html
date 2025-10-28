@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Policy - Oropendola AI</title>
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <style>
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-muted: #707070;
+            --accent-primary: #7B61FF;
+            --accent-secondary: #00D9FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF, #00D9FF);
+            --border-color: #2A2A2A;
+            --success-color: #10B981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 8px rgba(123, 97, 255, 0.4));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .refund-container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 130px 40px 100px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-header h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .refund-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 56px;
+        }
+
+        .toc {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 48px;
+        }
+
+        .toc-title {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+        }
+
+        .toc-list li { margin-bottom: 10px; }
+
+        .toc-list a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-primary);
+            padding-left: 8px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            scroll-margin-top: 120px;
+        }
+
+        .section-title {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 21px;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 14px;
+            color: var(--accent-primary);
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            line-height: 1.8;
+        }
+
+        .section ul, .section ol {
+            color: var(--text-secondary);
+            margin-left: 28px;
+            margin-bottom: 18px;
+        }
+
+        .section li {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(0, 217, 255, 0.05));
+            border-left: 4px solid var(--accent-primary);
+            padding: 24px;
+            margin: 28px 0;
+            border-radius: 10px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+            padding: 24px;
+            margin: 28px 0;
+            border-radius: 10px;
+        }
+
+        .success-box p {
+            margin-bottom: 0;
+            color: var(--text-secondary);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .data-table thead tr { background: var(--bg-tertiary); }
+
+        .data-table th {
+            padding: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+        }
+
+        .section a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            .logo { font-size: 19px; }
+            .logo img { width: 36px; height: 36px; }
+            .nav-links { display: none; }
+            .refund-container { padding: 110px 24px 70px; }
+            .page-header h1 { font-size: 38px; }
+            .refund-content { padding: 36px 24px; }
+            .section-title { font-size: 26px; }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 32px; }
+            .refund-content { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI">
+                Oropendola AI
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs">Docs</a>
+                <a href="/login">Sign In</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="refund-container">
+        <div class="page-header">
+            <h1>Refund Policy</h1>
+            <p class="last-updated">Last Updated: January 15, 2025</p>
+        </div>
+
+        <div class="refund-content">
+            <nav class="toc">
+                <h2 class="toc-title">Table of Contents</h2>
+                <ul class="toc-list">
+                    <li><a href="#overview">1. Policy Overview</a></li>
+                    <li><a href="#eligibility">2. Refund Eligibility</a></li>
+                    <li><a href="#timeframes">3. Refund Timeframes</a></li>
+                    <li><a href="#non-refundable">4. Non-Refundable Items</a></li>
+                    <li><a href="#process">5. Refund Process</a></li>
+                    <li><a href="#processing-time">6. Processing Time</a></li>
+                    <li><a href="#cancellations">7. Cancellations</a></li>
+                    <li><a href="#chargebacks">8. Chargebacks & Disputes</a></li>
+                    <li><a href="#contact">9. Contact Us</a></li>
+                </ul>
+            </nav>
+
+            <section class="section" id="overview">
+                <h2 class="section-title">1. Policy Overview</h2>
+                <p>
+                    At Oropendola AI, we strive to provide the best AI-powered coding assistance service. If you're not satisfied with your purchase, this Refund Policy outlines when and how you can request a refund.
+                </p>
+                <div class="highlight-box">
+                    <p><strong>Our Commitment:</strong> We offer a 7-day money-back guarantee for first-time Pro and Team subscriptions (conditions apply).</p>
+                </div>
+            </section>
+
+            <section class="section" id="eligibility">
+                <h2 class="section-title">2. Refund Eligibility</h2>
+
+                <h3 class="section-subtitle">2.1 Eligible Refund Scenarios</h3>
+                <p>You may be eligible for a refund if:</p>
+                <ul>
+                    <li><strong>Service Unavailability:</strong> Service was unavailable for 48+ consecutive hours due to our infrastructure (not third-party AI providers)</li>
+                    <li><strong>Billing Errors:</strong> You were charged incorrectly or twice for the same subscription</li>
+                    <li><strong>First-Time Purchase:</strong> Within 7 days of your first Pro or Team subscription (see conditions below)</li>
+                    <li><strong>Unauthorized Charges:</strong> Your account was used without authorization (with proof)</li>
+                    <li><strong>Service Not as Described:</strong> Core features advertised are not functional</li>
+                </ul>
+
+                <h3 class="section-subtitle">2.2 7-Day Money-Back Guarantee</h3>
+                <p>For first-time Pro or Team subscribers:</p>
+                <ul>
+                    <li>Request refund within 7 days of initial purchase</li>
+                    <li>Applies only to first subscription (not renewals)</li>
+                    <li>Must not have exceeded 50% of monthly usage quota</li>
+                    <li>Account must not have violated our Terms of Service</li>
+                    <li>Does not apply to annual subscriptions (prorated refunds only)</li>
+                </ul>
+
+                <div class="success-box">
+                    <p><strong>Example:</strong> If you purchased a Pro monthly plan on January 1st and are not satisfied, you can request a full refund by January 7th (provided you used less than 50% of your monthly quota).</p>
+                </div>
+
+                <h3 class="section-subtitle">2.3 Prorated Refunds</h3>
+                <p>For annual subscriptions, we offer prorated refunds:</p>
+                <ul>
+                    <li>Available within 30 days of purchase</li>
+                    <li>Refund = (Paid Amount) - (Months Used × Monthly Equivalent)</li>
+                    <li>Subject to fair use evaluation</li>
+                    <li>Not available if usage exceeded reasonable limits</li>
+                </ul>
+            </section>
+
+            <section class="section" id="timeframes">
+                <h2 class="section-title">3. Refund Timeframes</h2>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Subscription Type</th>
+                            <th>Refund Window</th>
+                            <th>Refund Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Free Tier</td>
+                            <td>N/A</td>
+                            <td>Not applicable</td>
+                        </tr>
+                        <tr>
+                            <td>Pro Monthly (First-time)</td>
+                            <td>7 days</td>
+                            <td>Full refund</td>
+                        </tr>
+                        <tr>
+                            <td>Team Monthly (First-time)</td>
+                            <td>7 days</td>
+                            <td>Full refund</td>
+                        </tr>
+                        <tr>
+                            <td>Annual Plans</td>
+                            <td>30 days</td>
+                            <td>Prorated refund</td>
+                        </tr>
+                        <tr>
+                            <td>Renewal Subscriptions</td>
+                            <td>48 hours</td>
+                            <td>Full refund (accidental renewal)</td>
+                        </tr>
+                        <tr>
+                            <td>Corporate Plans</td>
+                            <td>Custom</td>
+                            <td>Per agreement</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="section" id="non-refundable">
+                <h2 class="section-title">4. Non-Refundable Items</h2>
+
+                <h3 class="section-subtitle">4.1 No Refunds For</h3>
+                <ul>
+                    <li><strong>Renewal Charges:</strong> After 48 hours of auto-renewal (cancel before renewal to avoid charges)</li>
+                    <li><strong>Partial Months:</strong> Unused portion of current billing period (except annual plans)</li>
+                    <li><strong>Free Tier:</strong> No charges, no refunds</li>
+                    <li><strong>Excessive Usage:</strong> If you exceeded fair use limits before refund request</li>
+                    <li><strong>Terms Violations:</strong> If your account was terminated for violating Terms of Service</li>
+                    <li><strong>Third-Party Issues:</strong> Outages or issues with OpenAI, Anthropic, or Google AI services</li>
+                    <li><strong>Change of Mind:</strong> After 7-day window (for monthly) or 30-day window (for annual)</li>
+                    <li><strong>Downgrades:</strong> Downgrading to a lower tier does not qualify for refund</li>
+                </ul>
+
+                <h3 class="section-subtitle">4.2 Usage-Based Restrictions</h3>
+                <p>Refunds may be denied if:</p>
+                <ul>
+                    <li>You used more than 80% of your monthly quota</li>
+                    <li>Your account shows abusive or automated usage patterns</li>
+                    <li>You generated excessive API requests</li>
+                    <li>You used the service commercially without a Corporate plan</li>
+                </ul>
+            </section>
+
+            <section class="section" id="process">
+                <h2 class="section-title">5. Refund Process</h2>
+
+                <h3 class="section-subtitle">5.1 How to Request a Refund</h3>
+                <p><strong>Step 1:</strong> Email us at <a href="mailto:hello@oropendola.ai">hello@oropendola.ai</a> or <a href="mailto:billing@oropendola.ai">billing@oropendola.ai</a></p>
+                <p><strong>Step 2:</strong> Include the following information:</p>
+                <ul>
+                    <li>Your account email address</li>
+                    <li>Subscription plan name</li>
+                    <li>Purchase date and transaction ID</li>
+                    <li>Reason for refund request</li>
+                    <li>Any supporting documentation (if applicable)</li>
+                </ul>
+
+                <p><strong>Step 3:</strong> Our billing team will review your request</p>
+                <ul>
+                    <li>Initial response within 48 hours (business days)</li>
+                    <li>We may ask for additional information</li>
+                    <li>Decision made within 5 business days</li>
+                </ul>
+
+                <h3 class="section-subtitle">5.2 Refund Approval Criteria</h3>
+                <p>We will evaluate:</p>
+                <ul>
+                    <li>Whether your request falls within eligible timeframes</li>
+                    <li>Your account usage and activity</li>
+                    <li>Whether Terms of Service were followed</li>
+                    <li>Any technical issues you experienced</li>
+                    <li>Previous refund history</li>
+                </ul>
+
+                <h3 class="section-subtitle">5.3 Refund Decision</h3>
+                <p>If approved:</p>
+                <ul>
+                    <li>You'll receive a confirmation email</li>
+                    <li>Refund will be processed to your original payment method</li>
+                    <li>Your subscription will be canceled (if active)</li>
+                    <li>Access continues until the end of the current billing period</li>
+                </ul>
+
+                <p>If denied:</p>
+                <ul>
+                    <li>You'll receive an explanation</li>
+                    <li>You may appeal the decision within 7 days</li>
+                    <li>Final decision will be made by senior management</li>
+                </ul>
+            </section>
+
+            <section class="section" id="processing-time">
+                <h2 class="section-title">6. Processing Time</h2>
+
+                <h3 class="section-subtitle">6.1 Refund Timeline</h3>
+                <p>Once approved, refunds are processed as follows:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Payment Method</th>
+                            <th>Processing Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Credit/Debit Card (Razorpay)</td>
+                            <td>5-7 business days</td>
+                        </tr>
+                        <tr>
+                            <td>UPI (Razorpay)</td>
+                            <td>3-5 business days</td>
+                        </tr>
+                        <tr>
+                            <td>Net Banking</td>
+                            <td>5-7 business days</td>
+                        </tr>
+                        <tr>
+                            <td>PayU Wallet</td>
+                            <td>1-3 business days</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Note:</strong> Processing times depend on your bank or payment provider. We have no control over bank processing times.</p>
+
+                <h3 class="section-subtitle">6.2 Refund Confirmation</h3>
+                <p>You will receive:</p>
+                <ul>
+                    <li>Refund initiation email from us</li>
+                    <li>Payment provider confirmation (Razorpay/PayU)</li>
+                    <li>Bank credit notification (from your bank)</li>
+                </ul>
+            </section>
+
+            <section class="section" id="cancellations">
+                <h2 class="section-title">7. Cancellations</h2>
+
+                <h3 class="section-subtitle">7.1 Canceling Your Subscription</h3>
+                <p>To avoid future charges:</p>
+                <ul>
+                    <li>Cancel at least 24 hours before your next billing date</li>
+                    <li>Cancellations can be done from your Account Dashboard → Billing</li>
+                    <li>You will receive a cancellation confirmation email</li>
+                    <li>Access continues until the end of the current billing period</li>
+                </ul>
+
+                <h3 class="section-subtitle">7.2 Cancellation vs. Refund</h3>
+                <div class="highlight-box">
+                    <p><strong>Important:</strong> Canceling your subscription does NOT automatically trigger a refund. If you want a refund, you must explicitly request it per the process above.</p>
+                </div>
+
+                <h3 class="section-subtitle">7.3 Auto-Renewal Accidents</h3>
+                <p>
+                    If you forgot to cancel before renewal and were charged:
+                </p>
+                <ul>
+                    <li>Request refund within 48 hours of charge</li>
+                    <li>Must not have used the service during new billing period</li>
+                    <li>Full refund will be issued</li>
+                    <li>Subscription will be canceled</li>
+                </ul>
+            </section>
+
+            <section class="section" id="chargebacks">
+                <h2 class="section-title">8. Chargebacks & Disputes</h2>
+
+                <h3 class="section-subtitle">8.1 Contact Us First</h3>
+                <p>
+                    Before filing a chargeback with your bank, please contact us. Chargebacks:
+                </p>
+                <ul>
+                    <li>May result in immediate account suspension</li>
+                    <li>Take longer to resolve than direct refund requests</li>
+                    <li>May incur processing fees (which we may pass to you)</li>
+                    <li>Can be avoided if you contact us first</li>
+                </ul>
+
+                <h3 class="section-subtitle">8.2 Chargeback Consequences</h3>
+                <p>If you file a chargeback:</p>
+                <ul>
+                    <li>Your account will be suspended pending investigation</li>
+                    <li>We will provide evidence to your bank (transaction records, usage logs)</li>
+                    <li>If chargeback is ruled in your favor, we will not dispute further</li>
+                    <li>If ruled in our favor, your account will remain suspended until payment is resolved</li>
+                    <li>Frivolous chargebacks may result in permanent account termination</li>
+                </ul>
+
+                <h3 class="section-subtitle">8.3 Payment Disputes</h3>
+                <p>
+                    For payment disputes (incorrect amount, unauthorized charge), contact us immediately at <a href="mailto:billing@oropendola.ai">billing@oropendola.ai</a>. We will investigate and resolve within 5 business days.
+                </p>
+            </section>
+
+            <section class="section" id="contact">
+                <h2 class="section-title">9. Contact Us</h2>
+                <p>
+                    For refund requests, billing questions, or payment issues:
+                </p>
+
+                <div class="highlight-box">
+                    <p>
+                        <strong>CODFATHER LOGIC LLP</strong><br>
+                        XIII/284A, Anjanasree Arcade<br>
+                        Nagampadom, Kottayam-686 001<br>
+                        Kerala, India<br><br>
+                        <strong>General Inquiries:</strong> <a href="mailto:hello@oropendola.ai" style="color: var(--accent-secondary);">hello@oropendola.ai</a><br>
+                        <strong>Billing/Refunds:</strong> <a href="mailto:billing@oropendola.ai" style="color: var(--accent-secondary);">billing@oropendola.ai</a><br><br>
+                        <strong>Response Time:</strong> 48 hours (business days)
+                    </p>
+                </div>
+
+                <div class="success-box">
+                    <p><strong>Pro Tip:</strong> Most refund requests are approved within 24 hours if they meet our eligibility criteria. Be sure to include all required information in your initial email to speed up the process!</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -16,6 +16,146 @@ import json
 # ========================================
 
 @frappe.whitelist(allow_guest=True)
+def initiate_vscode_auth():
+	"""
+	Initiate authentication flow for VS Code extension
+	Generates a session token and returns the authentication URL
+	
+	Returns:
+		dict: Session token and auth URL
+	"""
+	try:
+		import secrets
+		
+		# Generate secure session token
+		session_token = secrets.token_urlsafe(32)
+		
+		# Store session in cache (expires in 10 minutes)
+		cache_key = f"vscode_auth:{session_token}"
+		frappe.cache().set_value(cache_key, {
+			"status": "pending",
+			"created_at": frappe.utils.now(),
+			"user": None,
+			"api_key": None,
+			"subscription": None
+		}, expires_in_sec=600)
+		
+		# Build authentication URL
+		auth_url = f"{frappe.utils.get_url()}/vscode-auth?token={session_token}"
+		
+		return {
+			"success": True,
+			"auth_url": auth_url,
+			"session_token": session_token,
+			"expires_in": 600
+		}
+		
+	except Exception as e:
+		frappe.log_error(message=str(e), title="VS Code Auth Initiation Error")
+		return {
+			"success": False,
+			"error": str(e)
+		}
+
+
+@frappe.whitelist(allow_guest=True)
+def check_vscode_auth_status(session_token):
+	"""
+	Check if VS Code authentication is complete
+	Polled by VS Code extension every 5 seconds
+	
+	Args:
+		session_token (str): Session token from initiate_vscode_auth
+		
+	Returns:
+		dict: Authentication status and data
+	"""
+	try:
+		cache_key = f"vscode_auth:{session_token}"
+		session_data = frappe.cache().get_value(cache_key)
+		
+		if not session_data:
+			return {
+				"success": False,
+				"status": "expired",
+				"message": "Session expired or invalid"
+			}
+		
+		# If authentication is complete, return data and clear cache
+		if session_data.get("status") == "complete":
+			# Clear the cache after successful retrieval
+			frappe.cache().delete_value(cache_key)
+			
+			return {
+				"success": True,
+				"status": "complete",
+				"api_key": session_data.get("api_key"),
+				"user_email": session_data.get("user"),
+				"subscription": session_data.get("subscription")
+			}
+		
+		# Still pending
+		return {
+			"success": True,
+			"status": session_data.get("status"),
+			"message": "Authentication pending"
+		}
+		
+	except Exception as e:
+		frappe.log_error(message=str(e), title="VS Code Auth Status Check Error")
+		return {
+			"success": False,
+			"error": str(e)
+		}
+
+
+@frappe.whitelist()
+def complete_vscode_auth(session_token, user_email, api_key, subscription):
+	"""
+	Mark VS Code authentication as complete
+	Called by the frontend auth page after successful login
+	
+	Args:
+		session_token (str): Session token
+		user_email (str): Logged-in user's email
+		api_key (str): User's API key
+		subscription (dict): Subscription details
+		
+	Returns:
+		dict: Success status
+	"""
+	try:
+		cache_key = f"vscode_auth:{session_token}"
+		session_data = frappe.cache().get_value(cache_key)
+		
+		if not session_data:
+			return {
+				"success": False,
+				"error": "Invalid or expired session"
+			}
+		
+		# Update session with authentication data
+		frappe.cache().set_value(cache_key, {
+			"status": "complete",
+			"user": user_email,
+			"api_key": api_key,
+			"subscription": subscription,
+			"completed_at": frappe.utils.now()
+		}, expires_in_sec=300)  # 5 minutes for VS Code to retrieve
+		
+		return {
+			"success": True,
+			"message": "Authentication complete"
+		}
+		
+	except Exception as e:
+		frappe.log_error(message=str(e), title="VS Code Auth Completion Error")
+		return {
+			"success": False,
+			"error": str(e)
+		}
+
+@frappe.whitelist(allow_guest=True)
 def validate_api_key(api_key: str):
 	"""
 	Validate API key for VS Code extension

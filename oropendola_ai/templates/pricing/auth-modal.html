@@ -1,0 +1,1608 @@
+<!-- OTP Authentication Modal -->
+<div id="authModal" class="modal-overlay">
+    <div class="auth-modal">
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        
+        <div class="modal-content">
+            <!-- Step 1: Email Input -->
+            <div id="emailStep" class="auth-step active">
+                <div class="modal-header">
+                    <h2>Subscribe to <span id="planTitle">Pro Plan</span></h2>
+                    <p>Enter your email to get started</p>
+                </div>
+
+                <div class="plan-badge">
+                    Selected Plan: <span id="selectedPlan">Pro Plan</span> - <span id="selectedPrice">₹849</span>
+                </div>
+
+                <form id="emailForm" onsubmit="handleEmailSubmit(event)">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="your@email.com" 
+                            required 
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-full" id="sendOtpBtn">
+                        Continue
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="#" onclick="switchToLogin(event)">Login</a>
+                </div>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div id="otpStep" class="auth-step">
+                <div class="modal-header">
+                    <h2>Enter Verification Code</h2>
+                    <p>We sent a 6-digit code to <strong id="otpEmail"></strong></p>
+                </div>
+
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-input" id="otp1" oninput="handleOtpInput(this, 1)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp2" oninput="handleOtpInput(this, 2)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp3" oninput="handleOtpInput(this, 3)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp4" oninput="handleOtpInput(this, 4)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp5" oninput="handleOtpInput(this, 5)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp6" oninput="handleOtpInput(this, 6)">
+                </div>
+
+                <div class="otp-info">
+                    <p id="otpTimer">Code expires in <span class="otp-timer" id="countdown">10:00</span></p>
+                    <p>
+                        Didn't receive it? 
+                        <a href="#" class="resend-link" id="resendLink" onclick="resendOTP(event)">Resend Code</a>
+                    </p>
+                </div>
+
+                <button type="button" class="btn-full" id="verifyOtpBtn" onclick="verifyOTP()">
+                    Verify Code
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" onclick="goBackToEmail(event)">← Change Email</a>
+                </div>
+            </div>
+
+            <!-- Step 3: Complete Signup -->
+            <div id="signupStep" class="auth-step">
+                <div class="modal-header">
+                    <h2>Complete Your Profile</h2>
+                    <p>Just one more step!</p>
+                </div>
+
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="fullName" 
+                            placeholder="John Doe" 
+                            required 
+                            autocomplete="name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••" 
+                            required 
+                            minlength="8"
+                            autocomplete="new-password"
+                        >
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Minimum 8 characters
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn-full" id="signupBtn">
+                        Create Account & Continue to Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal Overlay */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 3000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .auth-modal {
+        background: #111111;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: transparent;
+        border: none;
+        color: #A0A0A0;
+        font-size: 32px;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.3s;
+        z-index: 10;
+        font-weight: 300;
+    }
+
+    .modal-close:hover {
+        color: #FFFFFF;
+    }
+
+    .modal-content {
+        padding: 50px 40px 40px;
+    }
+
+    .auth-step {
+        display: none;
+    }
+
+    .auth-step.active {
+        display: block;
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .modal-header h2 {
+        font-size: 28px;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .modal-header p {
+        color: #A0A0A0;
+        font-size: 14px;
+    }
+
+    .modal-header strong {
+        color: #00D9FF;
+    }
+
+    .plan-badge {
+        background: rgba(123, 97, 255, 0.1);
+        border: 1px solid rgba(123, 97, 255, 0.3);
+        padding: 14px 18px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        text-align: center;
+        color: #A0A0A0;
+        font-size: 14px;
+    }
+
+    .plan-badge span {
+        color: #00D9FF;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #A0A0A0;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 14px 16px;
+        background: #1A1A1A;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #00D9FF;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .otp-inputs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 24px 0;
+    }
+
+    .otp-input {
+        width: 52px;
+        height: 60px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 600;
+        background: #1A1A1A;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        transition: all 0.3s;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #00D9FF;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .otp-info {
+        text-align: center;
+        margin: 20px 0 30px;
+    }
+
+    .otp-info p {
+        color: #A0A0A0;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .otp-timer {
+        color: #00D9FF;
+        font-weight: 600;
+    }
+
+    .resend-link {
+        color: #00D9FF;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .resend-link:hover {
+        color: #7B61FF;
+    }
+
+    .resend-link.disabled {
+        color: #505050;
+        cursor: not-allowed;
+    }
+
+    .btn-full {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-full:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(123, 97, 255, 0.4);
+    }
+
+    .btn-full:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        color: #A0A0A0;
+    }
+
+    .auth-footer a {
+        color: #00D9FF;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        color: #7B61FF;
+    }
+
+    .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Auth Modal State
+    let currentEmail = '';
+    let currentPlanId = '';
+    let currentPlanTitle = '';
+    let currentPrice = 0;
+    let otpTimer = null;
+    let otpCountdown = 600; // 10 minutes
+
+    function openAuthModal(planId, planTitle, price) {
+        currentPlanId = planId;
+        currentPlanTitle = planTitle;
+        currentPrice = price;
+
+        document.getElementById('planTitle').textContent = planTitle;
+        document.getElementById('selectedPlan').textContent = planTitle;
+        document.getElementById('selectedPrice').textContent = `₹${price.toLocaleString()}`;
+
+        showAuthStep('emailStep');
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('email').focus();
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('active');
+        resetAuthModal();
+    }
+
+    function resetAuthModal() {
+        document.getElementById('emailForm').reset();
+        document.getElementById('signupForm').reset();
+        clearOtpInputs();
+        if (otpTimer) {
+            clearInterval(otpTimer);
+            otpTimer = null;
+        }
+    }
+
+    function showAuthStep(stepId) {
+        document.querySelectorAll('.auth-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        document.getElementById(stepId).classList.add('active');
+    }
+
+    async function handleEmailSubmit(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const btn = document.getElementById('sendOtpBtn');
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Sending OTP<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.send_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    purpose: 'signup',
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                currentEmail = email;
+                document.getElementById('otpEmail').textContent = email;
+                showAuthStep('otpStep');
+                startOtpTimer();
+                document.getElementById('otp1').focus();
+            } else if (data.message && data.message.should_login) {
+                alert('Email already registered. Please login instead.');
+                window.location.href = '/login';
+            } else {
+                throw new Error(data.message?.error || 'Failed to send OTP');
+            }
+        } catch (error) {
+            console.error('Send OTP error:', error);
+            alert(error.message || 'Failed to send verification code. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Continue';
+        }
+    }
+
+    function handleOtpInput(input, position) {
+        // Only allow numbers
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        // Auto-focus next input
+        if (input.value.length === 1 && position < 6) {
+            document.getElementById(`otp${position + 1}`).focus();
+        }
+
+        // Auto-verify when all 6 digits entered
+        if (position === 6 && input.value.length === 1) {
+            verifyOTP();
+        }
+    }
+
+    function getOtpCode() {
+        let otp = '';
+        for (let i = 1; i <= 6; i++) {
+            otp += document.getElementById(`otp${i}`).value;
+        }
+        return otp;
+    }
+
+    function clearOtpInputs() {
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById(`otp${i}`).value = '';
+        }
+    }
+
+    async function verifyOTP() {
+        const otp = getOtpCode();
+
+        if (otp.length !== 6) {
+            alert('Please enter all 6 digits');
+            return;
+        }
+
+        const btn = document.getElementById('verifyOtpBtn');
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Verifying<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.verify_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    otp: otp,
+                    purpose: 'signup'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                if (otpTimer) {
+                    clearInterval(otpTimer);
+                }
+                showAuthStep('signupStep');
+                document.getElementById('fullName').focus();
+            } else {
+                throw new Error(data.message?.error || 'Invalid verification code');
+            }
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            alert(error.message || 'Verification failed. Please try again.');
+            clearOtpInputs();
+            document.getElementById('otp1').focus();
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Verify Code';
+        }
+    }
+
+    async function resendOTP(event) {
+        event.preventDefault();
+
+        const link = document.getElementById('resendLink');
+        if (link.classList.contains('disabled')) {
+            return;
+        }
+
+        try {
+            link.classList.add('disabled');
+            link.textContent = 'Sending...';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.resend_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    purpose: 'signup',
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                alert('New verification code sent!');
+                clearOtpInputs();
+                otpCountdown = 600;
+                startOtpTimer();
+                document.getElementById('otp1').focus();
+            } else if (data.message && data.message.wait_seconds) {
+                alert(`Please wait ${data.message.wait_seconds} seconds before requesting a new code.`);
+            } else {
+                throw new Error(data.message?.error || 'Failed to resend code');
+            }
+        } catch (error) {
+            console.error('Resend OTP error:', error);
+            alert(error.message || 'Failed to resend code. Please try again.');
+        } finally {
+            setTimeout(() => {
+                link.classList.remove('disabled');
+                link.textContent = 'Resend Code';
+            }, 30000); // 30 second cooldown
+        }
+    }
+
+    function startOtpTimer() {
+        otpCountdown = 600; // 10 minutes
+        updateTimerDisplay();
+
+        if (otpTimer) {
+            clearInterval(otpTimer);
+        }
+
+        otpTimer = setInterval(() => {
+            otpCountdown--;
+            updateTimerDisplay();
+
+            if (otpCountdown <= 0) {
+                clearInterval(otpTimer);
+                alert('Verification code expired. Please request a new one.');
+                goBackToEmail();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(otpCountdown / 60);
+        const seconds = otpCountdown % 60;
+        document.getElementById('countdown').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    async function handleSignup(event) {
+        event.preventDefault();
+
+        const fullName = document.getElementById('fullName').value.trim();
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('signupBtn');
+
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Creating Account<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.signup_with_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    full_name: fullName,
+                    password: password,
+                    otp: getOtpCode(),
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                // Account created! Now redirect to payment
+                alert('Account created successfully! Redirecting to payment...');
+                
+                // Login the user first
+                await loginUser(currentEmail, password);
+                
+                // Then redirect to payment flow
+                if (currentPrice > 0) {
+                    await initiatePayment(data.message.subscription_id);
+                } else {
+                    // Free plan - go to dashboard
+                    window.location.href = '/my-profile';
+                }
+            } else {
+                throw new Error(data.message?.error || 'Failed to create account');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert(error.message || 'Failed to create account. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Create Account & Continue to Payment';
+        }
+    }
+
+    async function loginUser(email, password) {
+        try {
+            const response = await fetch(`${window.location.origin}/api/method/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `usr=${encodeURIComponent(email)}&pwd=${encodeURIComponent(password)}`
+            });
+
+            const data = await response.json();
+
+            if (!data.message || data.message !== 'Logged In') {
+                throw new Error('Auto-login failed');
+            }
+        } catch (error) {
+            console.error('Auto-login error:', error);
+            // Non-fatal - user can login manually
+        }
+    }
+
+    async function initiatePayment(subscriptionId) {
+        try {
+            // Get invoice ID from subscription
+            const invoiceResponse = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.payment.get_subscription_invoice`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    subscription_id: subscriptionId
+                })
+            });
+
+            const invoiceData = await invoiceResponse.json();
+
+            if (!invoiceData.message || !invoiceData.message.invoice_id) {
+                throw new Error('Failed to get invoice');
+            }
+
+            // Initiate PayU payment
+            const paymentResponse = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    invoice_id: invoiceData.message.invoice_id,
+                    gateway: 'payu'
+                })
+            });
+
+            const paymentData = await paymentResponse.json();
+
+            if (paymentData.message && paymentData.message.success) {
+                // Submit PayU form
+                submitPayUForm(paymentData.message);
+            } else {
+                throw new Error('Payment initiation failed');
+            }
+        } catch (error) {
+            console.error('Payment initiation error:', error);
+            alert('Payment setup failed. Please try again from your dashboard.');
+            window.location.href = '/my-profile';
+        }
+    }
+
+    function submitPayUForm(paymentData) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = paymentData.payment_url;
+
+        Object.keys(paymentData.payment_data).forEach(key => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = paymentData.payment_data[key];
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function goBackToEmail(event) {
+        if (event) event.preventDefault();
+        showAuthStep('emailStep');
+        clearOtpInputs();
+        if (otpTimer) {
+            clearInterval(otpTimer);
+        }
+    }
+
+    function switchToLogin(event) {
+        event.preventDefault();
+        window.location.href = '/login';
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    // Close modal on outside click
+    document.getElementById('authModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAuthModal();
+        }
+    });
+
+    // Handle Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAuthModal();
+        }
+    });
+</script>
+<!-- OTP Authentication Modal -->
+<div id="authModal" class="modal-overlay">
+    <div class="auth-modal">
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        
+        <div class="modal-content">
+            <!-- Step 1: Email Input -->
+            <div id="emailStep" class="auth-step active">
+                <div class="modal-header">
+                    <h2>Subscribe to <span id="planTitle">Pro Plan</span></h2>
+                    <p>Enter your email to get started</p>
+                </div>
+
+                <div class="plan-badge">
+                    Selected Plan: <span id="selectedPlan">Pro Plan</span> - <span id="selectedPrice">₹849</span>
+                </div>
+
+                <form id="emailForm" onsubmit="handleEmailSubmit(event)">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="your@email.com" 
+                            required 
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-full" id="sendOtpBtn">
+                        Continue
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="#" onclick="switchToLogin(event)">Login</a>
+                </div>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div id="otpStep" class="auth-step">
+                <div class="modal-header">
+                    <h2>Enter Verification Code</h2>
+                    <p>We sent a 6-digit code to <strong id="otpEmail"></strong></p>
+                </div>
+
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-input" id="otp1" oninput="handleOtpInput(this, 1)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp2" oninput="handleOtpInput(this, 2)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp3" oninput="handleOtpInput(this, 3)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp4" oninput="handleOtpInput(this, 4)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp5" oninput="handleOtpInput(this, 5)">
+                    <input type="text" maxlength="1" class="otp-input" id="otp6" oninput="handleOtpInput(this, 6)">
+                </div>
+
+                <div class="otp-info">
+                    <p id="otpTimer">Code expires in <span class="otp-timer" id="countdown">10:00</span></p>
+                    <p>
+                        Didn't receive it? 
+                        <a href="#" class="resend-link" id="resendLink" onclick="resendOTP(event)">Resend Code</a>
+                    </p>
+                </div>
+
+                <button type="button" class="btn-full" id="verifyOtpBtn" onclick="verifyOTP()">
+                    Verify Code
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" onclick="goBackToEmail(event)">← Change Email</a>
+                </div>
+            </div>
+
+            <!-- Step 3: Complete Signup -->
+            <div id="signupStep" class="auth-step">
+                <div class="modal-header">
+                    <h2>Complete Your Profile</h2>
+                    <p>Just one more step!</p>
+                </div>
+
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="fullName" 
+                            placeholder="John Doe" 
+                            required 
+                            autocomplete="name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••" 
+                            required 
+                            minlength="8"
+                            autocomplete="new-password"
+                        >
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Minimum 8 characters
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn-full" id="signupBtn">
+                        Create Account & Continue to Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal Overlay */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 3000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .auth-modal {
+        background: #111111;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: transparent;
+        border: none;
+        color: #A0A0A0;
+        font-size: 32px;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.3s;
+        z-index: 10;
+        font-weight: 300;
+    }
+
+    .modal-close:hover {
+        color: #FFFFFF;
+    }
+
+    .modal-content {
+        padding: 50px 40px 40px;
+    }
+
+    .auth-step {
+        display: none;
+    }
+
+    .auth-step.active {
+        display: block;
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .modal-header h2 {
+        font-size: 28px;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .modal-header p {
+        color: #A0A0A0;
+        font-size: 14px;
+    }
+
+    .modal-header strong {
+        color: #00D9FF;
+    }
+
+    .plan-badge {
+        background: rgba(123, 97, 255, 0.1);
+        border: 1px solid rgba(123, 97, 255, 0.3);
+        padding: 14px 18px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        text-align: center;
+        color: #A0A0A0;
+        font-size: 14px;
+    }
+
+    .plan-badge span {
+        color: #00D9FF;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #A0A0A0;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 14px 16px;
+        background: #1A1A1A;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #00D9FF;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .otp-inputs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 24px 0;
+    }
+
+    .otp-input {
+        width: 52px;
+        height: 60px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 600;
+        background: #1A1A1A;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        transition: all 0.3s;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #00D9FF;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .otp-info {
+        text-align: center;
+        margin: 20px 0 30px;
+    }
+
+    .otp-info p {
+        color: #A0A0A0;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .otp-timer {
+        color: #00D9FF;
+        font-weight: 600;
+    }
+
+    .resend-link {
+        color: #00D9FF;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .resend-link:hover {
+        color: #7B61FF;
+    }
+
+    .resend-link.disabled {
+        color: #505050;
+        cursor: not-allowed;
+    }
+
+    .btn-full {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-full:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(123, 97, 255, 0.4);
+    }
+
+    .btn-full:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        color: #A0A0A0;
+    }
+
+    .auth-footer a {
+        color: #00D9FF;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        color: #7B61FF;
+    }
+
+    .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Auth Modal State
+    let currentEmail = '';
+    let currentPlanId = '';
+    let currentPlanTitle = '';
+    let currentPrice = 0;
+    let otpTimer = null;
+    let otpCountdown = 600; // 10 minutes
+
+    function openAuthModal(planId, planTitle, price) {
+        currentPlanId = planId;
+        currentPlanTitle = planTitle;
+        currentPrice = price;
+
+        document.getElementById('planTitle').textContent = planTitle;
+        document.getElementById('selectedPlan').textContent = planTitle;
+        document.getElementById('selectedPrice').textContent = `₹${price.toLocaleString()}`;
+
+        showAuthStep('emailStep');
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('email').focus();
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('active');
+        resetAuthModal();
+    }
+
+    function resetAuthModal() {
+        document.getElementById('emailForm').reset();
+        document.getElementById('signupForm').reset();
+        clearOtpInputs();
+        if (otpTimer) {
+            clearInterval(otpTimer);
+            otpTimer = null;
+        }
+    }
+
+    function showAuthStep(stepId) {
+        document.querySelectorAll('.auth-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        document.getElementById(stepId).classList.add('active');
+    }
+
+    async function handleEmailSubmit(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const btn = document.getElementById('sendOtpBtn');
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Sending OTP<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.send_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    purpose: 'signup',
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                currentEmail = email;
+                document.getElementById('otpEmail').textContent = email;
+                showAuthStep('otpStep');
+                startOtpTimer();
+                document.getElementById('otp1').focus();
+            } else if (data.message && data.message.should_login) {
+                alert('Email already registered. Please login instead.');
+                window.location.href = '/login';
+            } else {
+                throw new Error(data.message?.error || 'Failed to send OTP');
+            }
+        } catch (error) {
+            console.error('Send OTP error:', error);
+            alert(error.message || 'Failed to send verification code. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Continue';
+        }
+    }
+
+    function handleOtpInput(input, position) {
+        // Only allow numbers
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        // Auto-focus next input
+        if (input.value.length === 1 && position < 6) {
+            document.getElementById(`otp${position + 1}`).focus();
+        }
+
+        // Auto-verify when all 6 digits entered
+        if (position === 6 && input.value.length === 1) {
+            verifyOTP();
+        }
+    }
+
+    function getOtpCode() {
+        let otp = '';
+        for (let i = 1; i <= 6; i++) {
+            otp += document.getElementById(`otp${i}`).value;
+        }
+        return otp;
+    }
+
+    function clearOtpInputs() {
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById(`otp${i}`).value = '';
+        }
+    }
+
+    async function verifyOTP() {
+        const otp = getOtpCode();
+
+        if (otp.length !== 6) {
+            alert('Please enter all 6 digits');
+            return;
+        }
+
+        const btn = document.getElementById('verifyOtpBtn');
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Verifying<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.verify_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    otp: otp,
+                    purpose: 'signup'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                if (otpTimer) {
+                    clearInterval(otpTimer);
+                }
+                showAuthStep('signupStep');
+                document.getElementById('fullName').focus();
+            } else {
+                throw new Error(data.message?.error || 'Invalid verification code');
+            }
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            alert(error.message || 'Verification failed. Please try again.');
+            clearOtpInputs();
+            document.getElementById('otp1').focus();
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Verify Code';
+        }
+    }
+
+    async function resendOTP(event) {
+        event.preventDefault();
+
+        const link = document.getElementById('resendLink');
+        if (link.classList.contains('disabled')) {
+            return;
+        }
+
+        try {
+            link.classList.add('disabled');
+            link.textContent = 'Sending...';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.resend_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    purpose: 'signup',
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                alert('New verification code sent!');
+                clearOtpInputs();
+                otpCountdown = 600;
+                startOtpTimer();
+                document.getElementById('otp1').focus();
+            } else if (data.message && data.message.wait_seconds) {
+                alert(`Please wait ${data.message.wait_seconds} seconds before requesting a new code.`);
+            } else {
+                throw new Error(data.message?.error || 'Failed to resend code');
+            }
+        } catch (error) {
+            console.error('Resend OTP error:', error);
+            alert(error.message || 'Failed to resend code. Please try again.');
+        } finally {
+            setTimeout(() => {
+                link.classList.remove('disabled');
+                link.textContent = 'Resend Code';
+            }, 30000); // 30 second cooldown
+        }
+    }
+
+    function startOtpTimer() {
+        otpCountdown = 600; // 10 minutes
+        updateTimerDisplay();
+
+        if (otpTimer) {
+            clearInterval(otpTimer);
+        }
+
+        otpTimer = setInterval(() => {
+            otpCountdown--;
+            updateTimerDisplay();
+
+            if (otpCountdown <= 0) {
+                clearInterval(otpTimer);
+                alert('Verification code expired. Please request a new one.');
+                goBackToEmail();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(otpCountdown / 60);
+        const seconds = otpCountdown % 60;
+        document.getElementById('countdown').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    async function handleSignup(event) {
+        event.preventDefault();
+
+        const fullName = document.getElementById('fullName').value.trim();
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('signupBtn');
+
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = 'Creating Account<span class="btn-spinner"></span>';
+
+            const response = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.signup_with_otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: currentEmail,
+                    full_name: fullName,
+                    password: password,
+                    otp: getOtpCode(),
+                    plan_id: currentPlanId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.message && data.message.success) {
+                // Account created! Now redirect to payment
+                alert('Account created successfully! Redirecting to payment...');
+                
+                // Login the user first
+                await loginUser(currentEmail, password);
+                
+                // Then redirect to payment flow
+                if (currentPrice > 0) {
+                    await initiatePayment(data.message.subscription_id);
+                } else {
+                    // Free plan - go to dashboard
+                    window.location.href = '/my-profile';
+                }
+            } else {
+                throw new Error(data.message?.error || 'Failed to create account');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert(error.message || 'Failed to create account. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Create Account & Continue to Payment';
+        }
+    }
+
+    async function loginUser(email, password) {
+        try {
+            const response = await fetch(`${window.location.origin}/api/method/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `usr=${encodeURIComponent(email)}&pwd=${encodeURIComponent(password)}`
+            });
+
+            const data = await response.json();
+
+            if (!data.message || data.message !== 'Logged In') {
+                throw new Error('Auto-login failed');
+            }
+        } catch (error) {
+            console.error('Auto-login error:', error);
+            // Non-fatal - user can login manually
+        }
+    }
+
+    async function initiatePayment(subscriptionId) {
+        try {
+            // Get invoice ID from subscription
+            const invoiceResponse = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.payment.get_subscription_invoice`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    subscription_id: subscriptionId
+                })
+            });
+
+            const invoiceData = await invoiceResponse.json();
+
+            if (!invoiceData.message || !invoiceData.message.invoice_id) {
+                throw new Error('Failed to get invoice');
+            }
+
+            // Initiate PayU payment
+            const paymentResponse = await fetch(`${window.location.origin}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    invoice_id: invoiceData.message.invoice_id,
+                    gateway: 'payu'
+                })
+            });
+
+            const paymentData = await paymentResponse.json();
+
+            if (paymentData.message && paymentData.message.success) {
+                // Submit PayU form
+                submitPayUForm(paymentData.message);
+            } else {
+                throw new Error('Payment initiation failed');
+            }
+        } catch (error) {
+            console.error('Payment initiation error:', error);
+            alert('Payment setup failed. Please try again from your dashboard.');
+            window.location.href = '/my-profile';
+        }
+    }
+
+    function submitPayUForm(paymentData) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = paymentData.payment_url;
+
+        Object.keys(paymentData.payment_data).forEach(key => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = paymentData.payment_data[key];
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function goBackToEmail(event) {
+        if (event) event.preventDefault();
+        showAuthStep('emailStep');
+        clearOtpInputs();
+        if (otpTimer) {
+            clearInterval(otpTimer);
+        }
+    }
+
+    function switchToLogin(event) {
+        event.preventDefault();
+        window.location.href = '/login';
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    // Close modal on outside click
+    document.getElementById('authModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAuthModal();
+        }
+    });
+
+    // Handle Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAuthModal();
+        }
+    });
+</script>

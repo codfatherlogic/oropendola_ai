@@ -13,6 +13,71 @@ import hashlib
 
 
 @frappe.whitelist(allow_guest=True)
+def custom_login(usr, pwd, device="desktop"):
+	"""
+	Custom login method that overrides Frappe's default.
+	Forces website users to stay on website, not redirect to desk.
+	
+	Args:
+		usr (str): Username/email
+		pwd (str): Password
+		device (str): Device type (desktop/mobile)
+		
+	Returns:
+		dict: Login result
+	"""
+	try:
+		frappe.logger().info(f"custom_login called for user: {usr}")
+		frappe.clear_messages()
+		
+		# Create login manager
+		frappe.local.login_manager.user = usr
+		frappe.local.login_manager.authenticate(usr, pwd)
+		frappe.local.login_manager.post_login()
+		
+		# Get user roles after successful login
+		user = frappe.session.user
+		frappe.logger().info(f"Login successful for user: {user}")
+		
+		if user != "Guest":
+			user_roles = frappe.get_roles(user)
+			frappe.logger().info(f"User roles: {user_roles}")
+			
+			# Check if user has desk access
+			has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
+			frappe.logger().info(f"Has desk access: {has_desk_access}")
+			
+			# Force website redirect for non-admin users
+			if not has_desk_access:
+				# Set response to redirect to profile dashboard
+				frappe.local.response["home_page"] = "/profile"
+				frappe.local.response["message"] = "Logged In"
+				frappe.response["message"] = "Logged In"
+				frappe.response["home_page"] = "/profile"
+				frappe.logger().info("Redirecting website user to /profile")
+			else:
+				# Admin users can go to desk
+				frappe.local.response["message"] = "Logged In"
+				frappe.response["message"] = "Logged In"
+				frappe.response["home_page"] = "/app"
+				frappe.logger().info("Redirecting admin user to /app")
+		
+		frappe.logger().info(f"Final response: {frappe.response}")
+		return frappe.response
+		
+	except frappe.exceptions.AuthenticationError as e:
+		frappe.logger().error(f"Authentication failed for {usr}: {str(e)}")
+		frappe.clear_messages()
+		frappe.local.response["message"] = _("Incorrect password")
+		frappe.local.response["http_status_code"] = 401
+		raise
+	except Exception as e:
+		frappe.logger().error(f"Login error for {usr}: {str(e)}")
+		frappe.log_error(f"Custom login error: {str(e)}", "Custom Login")
+		raise
+
+
+@frappe.whitelist(allow_guest=True)
 def initiate_signin(email, redirect_uri=None):
 	"""
 	Initiate sign-in flow from VS Code extension.

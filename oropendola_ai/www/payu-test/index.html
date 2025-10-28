@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayU Integration Test - Oropendola AI</title>
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <style>
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --accent-primary: #7B61FF;
+            --accent-secondary: #00D9FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF, #00D9FF);
+            --border-color: #2A2A2A;
+            --success-color: #10B981;
+            --error-color: #EF4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .config-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .config-box h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--accent-primary);
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .config-value {
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .test-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status-box.success {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .status-box.error {
+            border-color: var(--error-color);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .info-box {
+            background: rgba(123, 97, 255, 0.1);
+            border-left: 4px solid var(--accent-primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .credentials-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .credentials-list li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .credentials-list strong {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .config-item {
+                flex-direction: column;
+            }
+            .config-value {
+                max-width: 100%;
+                text-align: left;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 PayU Integration Test</h1>
+        <p class="subtitle">Test PayU payment gateway integration with Oropendola AI</p>
+
+        <!-- Configuration Status -->
+        <div class="config-box">
+            <h2>📋 Current Configuration</h2>
+            <div class="config-item">
+                <span class="config-label">Merchant Key:</span>
+                <span class="config-value">qpRDIS</span>
+            </div>
+            <div class="config-item">
+                <span class="config-label">Merchant Salt:</span>
+                <span class="config-value">QHM4ROokHg4U9wAuGuuAIZjVjPV9142A</span>
+            </div>
+            <div class="config-item">
+                <span class="config-label">Mode:</span>
+                <span class="config-value">TEST</span>
+            </div>
+            <div class="config-item">
+                <span class="config-label">Payment URL:</span>
+                <span class="config-value">https://test.payu.in/_payment</span>
+            </div>
+            <div class="config-item">
+                <span class="config-label">Success Callback:</span>
+                <span class="config-value">https://oropendola.ai/api/method/oropendola_ai.oropendola_ai.api.payment.payu_success</span>
+            </div>
+            <div class="config-item">
+                <span class="config-label">Failure Callback:</span>
+                <span class="config-value">https://oropendola.ai/api/method/oropendola_ai.oropendola_ai.api.payment.payu_failure</span>
+            </div>
+        </div>
+
+        <!-- Test Information -->
+        <div class="info-box">
+            <p><strong>ℹ️ Test Instructions:</strong></p>
+            <p>1. Login to your account first</p>
+            <p>2. Select a plan and fill in your details</p>
+            <p>3. Click "Create Subscription" to test PayU checkout</p>
+            <p>4. Use PayU test cards for successful/failed transactions</p>
+        </div>
+
+        <!-- PayU Test Cards -->
+        <div class="config-box">
+            <h2>💳 PayU Test Cards</h2>
+            <ul class="credentials-list">
+                <li><strong>Success Card:</strong> 5123 4567 8901 2346 | CVV: 123 | Valid: Any future date</li>
+                <li><strong>Failure Card:</strong> 5123 4567 8901 2347 | CVV: 123 | Valid: Any future date</li>
+                <li><strong>Pending Card:</strong> 5123 4567 8901 2348 | CVV: 123 | Valid: Any future date</li>
+            </ul>
+        </div>
+
+        <!-- Test Form -->
+        <div class="test-form">
+            <h2 style="margin-bottom: 20px; color: var(--text-primary);">Create Test Subscription</h2>
+            
+            <div class="form-group">
+                <label for="plan">Select Plan</label>
+                <select id="plan">
+                    <option value="">Loading plans...</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="testPayU()" id="create-btn">
+                Create Subscription & Initiate Payment
+            </button>
+
+            <div id="status" class="status-box"></div>
+        </div>
+
+        <!-- Payment Form (Hidden) -->
+        <form id="payment-form" method="POST" action="" style="display: none;"></form>
+    </div>
+
+    <script>
+        let appPlans = [];
+
+        // Load plans on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPlans();
+        });
+
+        async function loadPlans() {
+            try {
+                const response = await fetch('/api/method/oropendola_ai.oropendola_ai.api.payment.get_plans');
+                const data = await response.json();
+                
+                if (data.message.success) {
+                    appPlans = data.message.plans;
+                    const planSelect = document.getElementById('plan');
+                    planSelect.innerHTML = '<option value="">Select a plan</option>';
+                    
+                    appPlans.forEach(plan => {
+                        const option = document.createElement('option');
+                        option.value = plan.name;
+                        option.textContent = `${plan.title} - ₹${plan.price}`;
+                        planSelect.appendChild(option);
+                    });
+                } else {
+                    showStatus('Failed to load plans', 'error');
+                }
+            } catch (error) {
+                showStatus('Error loading plans: ' + error.message, 'error');
+            }
+        }
+
+        async function testPayU() {
+            const planId = document.getElementById('plan').value;
+
+            if (!planId) {
+                showStatus('Please select a plan', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('create-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating subscription...';
+
+            try {
+                // Create subscription and invoice
+                const subResponse = await fetch('/api/method/oropendola_ai.oropendola_ai.api.payment.create_subscription_and_invoice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ plan_id: planId })
+                });
+
+                const subData = await subResponse.json();
+
+                if (subData.message.success) {
+                    if (subData.message.is_free) {
+                        showStatus('Free plan activated successfully!', 'success');
+                        btn.disabled = false;
+                        btn.textContent = 'Create Subscription & Initiate Payment';
+                        return;
+                    }
+
+                    // Initiate payment
+                    btn.textContent = 'Initiating payment...';
+                    const paymentResponse = await fetch('/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            invoice_id: subData.message.invoice_id,
+                            gateway: 'payu'
+                        })
+                    });
+
+                    const paymentData = await paymentResponse.json();
+
+                    if (paymentData.message.success) {
+                        submitPayUForm(paymentData.message);
+                    } else {
+                        showStatus('Payment initiation failed: ' + paymentData.message.error, 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Create Subscription & Initiate Payment';
+                    }
+                } else {
+                    showStatus('Subscription creation failed: ' + subData.message.error, 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Subscription & Initiate Payment';
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Create Subscription & Initiate Payment';
+            }
+        }
+
+        function submitPayUForm(paymentData) {
+            const form = document.getElementById('payment-form');
+            form.action = paymentData.payment_url;
+            form.innerHTML = '';
+
+            Object.keys(paymentData.payment_data).forEach(key => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = paymentData.payment_data[key];
+                form.appendChild(input);
+            });
+
+            showStatus('Redirecting to PayU checkout...', 'success');
+            
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
+        }
+
+        function showStatus(message, type) {
+            const statusBox = document.getElementById('status');
+            statusBox.textContent = message;
+            statusBox.className = `status-box ${type}`;
+            statusBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

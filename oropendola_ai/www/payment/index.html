@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Oropendola AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #111111;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 48px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .invoice-details {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            padding-top: 20px;
+            margin-top: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid #00D9FF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #FF5F56;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: var(--text-primary);
+        }
+
+        #payu-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="logo">Oropendola AI</div>
+        <h2>Complete Payment</h2>
+        
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p style="color: var(--text-secondary);">Loading payment details...</p>
+            </div>
+        </div>
+
+        <!-- PayU Form (hidden, will be submitted automatically) -->
+        <form id="payu-form" method="post" action="">
+            <input type="hidden" name="key" id="payu-key">
+            <input type="hidden" name="txnid" id="payu-txnid">
+            <input type="hidden" name="amount" id="payu-amount">
+            <input type="hidden" name="productinfo" id="payu-productinfo">
+            <input type="hidden" name="firstname" id="payu-firstname">
+            <input type="hidden" name="email" id="payu-email">
+            <input type="hidden" name="phone" id="payu-phone">
+            <input type="hidden" name="surl" id="payu-surl">
+            <input type="hidden" name="furl" id="payu-furl">
+            <input type="hidden" name="hash" id="payu-hash">
+            <input type="hidden" name="udf1" id="payu-udf1">
+            <input type="hidden" name="udf2" id="payu-udf2">
+            <input type="hidden" name="udf3" id="payu-udf3">
+            <input type="hidden" name="udf4" id="payu-udf4">
+            <input type="hidden" name="udf5" id="payu-udf5">
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let invoiceData = null;
+
+        // Get invoice ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceId = urlParams.get('invoice');
+
+        if (!invoiceId) {
+            showError('No invoice ID provided. Please return to pricing page.');
+        } else {
+            loadInvoiceAndInitiatePayment();
+        }
+
+        async function loadInvoiceAndInitiatePayment() {
+            try {
+                // Initiate PayU payment
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({
+                        invoice_id: invoiceId,
+                        gateway: 'payu'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.message && data.message.success) {
+                    displayInvoiceDetails(data.message);
+                } else {
+                    throw new Error(data.message?.error || 'Failed to initiate payment');
+                }
+            } catch (error) {
+                console.error('Payment initiation error:', error);
+                showError(error.message);
+            }
+        }
+
+        function displayInvoiceDetails(paymentData) {
+            invoiceData = paymentData;
+
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="invoice-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Invoice ID</span>
+                        <span class="detail-value">${paymentData.invoice_id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Subscription Plan</span>
+                        <span class="detail-value">${paymentData.payment_data.productinfo}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Transaction ID</span>
+                        <span class="detail-value">${paymentData.txnid}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount</span>
+                        <span class="detail-value">₹${parseFloat(paymentData.payment_data.amount).toLocaleString()}</span>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="proceedToPayU()">
+                    Proceed to PayU Payment
+                </button>
+                <div class="back-link">
+                    <a href="/pricing">← Back to Pricing</a>
+                </div>
+            `;
+        }
+
+        function proceedToPayU() {
+            if (!invoiceData) return;
+
+            const form = document.getElementById('payu-form');
+            const paymentData = invoiceData.payment_data;
+
+            // Set form action
+            form.action = invoiceData.payment_url;
+
+            // Populate form fields
+            document.getElementById('payu-key').value = paymentData.key;
+            document.getElementById('payu-txnid').value = paymentData.txnid;
+            document.getElementById('payu-amount').value = paymentData.amount;
+            document.getElementById('payu-productinfo').value = paymentData.productinfo;
+            document.getElementById('payu-firstname').value = paymentData.firstname;
+            document.getElementById('payu-email').value = paymentData.email;
+            document.getElementById('payu-phone').value = paymentData.phone;
+            document.getElementById('payu-surl').value = paymentData.surl;
+            document.getElementById('payu-furl').value = paymentData.furl;
+            document.getElementById('payu-hash').value = paymentData.hash;
+            document.getElementById('payu-udf1').value = paymentData.udf1 || '';
+            document.getElementById('payu-udf2').value = paymentData.udf2 || '';
+            document.getElementById('payu-udf3').value = paymentData.udf3 || '';
+            document.getElementById('payu-udf4').value = paymentData.udf4 || '';
+            document.getElementById('payu-udf5').value = paymentData.udf5 || '';
+
+            // Submit form
+            form.submit();
+        }
+
+        function showError(message) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="error">
+                    <h3>Payment Error</h3>
+                    <p>${message}</p>
+                </div>
+                <div class="back-link" style="margin-top: 32px;">
+                    <a href="/pricing">← Back to Pricing</a>
+                </div>
+            `;
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+    </script>
+</body>
+</html>

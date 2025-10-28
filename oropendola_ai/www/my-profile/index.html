@@ -1,0 +1,1015 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Oropendola AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <link rel="apple-touch-icon" href="/files/icon.png">
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Cache Buster Script -->
+    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1A1A1A;
+            --bg-card: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-tertiary: #666666;
+            --accent-primary: #00D9FF;
+            --accent-secondary: #7B61FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #27C93F;
+            --warning: #FFB800;
+            --error: #FF5F56;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 8px rgba(123, 97, 255, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 4px 12px rgba(123, 97, 255, 0.6));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-toggle:hover {
+            color: var(--accent-primary);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 80px 20px 20px;
+            transition: right 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 998;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-close:hover {
+            color: var(--error);
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mobile-menu-item {
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+
+        .mobile-menu-item:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .mobile-menu-item.logout {
+            background: transparent;
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .mobile-menu-item.logout:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Main Content */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 40px 60px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: var(--bg-secondary);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            min-height: 400px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card, .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover, .info-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            max-width: 800px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            padding: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .profile-details {
+            display: grid;
+            gap: 16px;
+        }
+
+        .detail-item {
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Billing Section */
+        .billing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .billing-card h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .plan-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .plan-price {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-upgrade {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Settings Section */
+        .settings-group {
+            margin-bottom: 32px;
+        }
+
+        .settings-group h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .setting-item {
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-label {
+            font-weight: 500;
+        }
+
+        .setting-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--accent-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            /* Header */
+            nav {
+                padding: 16px 20px;
+            }
+
+            .logo img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-links {
+                display: none; /* Hide desktop nav links */
+            }
+
+            .mobile-menu-toggle {
+                display: block; /* Show mobile menu toggle */
+            }
+
+            /* Main Content */
+            .dashboard-container {
+                padding: 90px 16px 40px;
+            }
+
+            .dashboard-header h1 {
+                font-size: 28px;
+                line-height: 1.2;
+            }
+
+            .dashboard-header p {
+                font-size: 14px;
+            }
+
+            /* Tabs */
+            .tabs {
+                overflow-x: auto;
+                gap: 4px;
+                padding: 4px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+            }
+
+            .tabs::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+
+            .tab {
+                min-width: 100px;
+                padding: 10px 16px;
+                font-size: 13px;
+                flex-shrink: 0;
+            }
+
+            /* Cards Grid */
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .stat-card, .info-card {
+                padding: 20px;
+            }
+
+            .stat-icon {
+                font-size: 28px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            /* Profile Section */
+            .profile-section {
+                max-width: 100%;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 28px;
+            }
+
+            .profile-info h2 {
+                font-size: 22px;
+            }
+
+            .profile-info p {
+                font-size: 14px;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 16px;
+            }
+
+            /* Billing Section */
+            .billing-card {
+                padding: 20px;
+            }
+
+            .billing-card h3 {
+                font-size: 20px;
+            }
+
+            .plan-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .plan-name {
+                font-size: 18px;
+            }
+
+            .plan-price {
+                font-size: 24px;
+            }
+
+            .btn-upgrade {
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            /* Settings Section */
+            .settings-group h3 {
+                font-size: 18px;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .toggle-switch {
+                align-self: flex-end;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .dashboard-header h1 {
+                font-size: 24px;
+            }
+
+            .dashboard-header p {
+                font-size: 13px;
+            }
+
+            .tab {
+                min-width: 90px;
+                padding: 8px 12px;
+                font-size: 12px;
+                gap: 4px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .profile-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI Logo">
+            </a>
+            <div class="nav-links">
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Open menu">
+                ☰
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">
+            ✕
+        </button>
+        <div class="mobile-menu-items">
+            <a href="#" class="mobile-menu-item" onclick="showTab('analytics'); closeMobileMenu();">
+                📊 Analytics
+            </a>
+            <a href="#" class="mobile-menu-item" onclick="showTab('profile'); closeMobileMenu();">
+                👤 Profile
+            </a>
+            <a href="#" class="mobile-menu-item" onclick="showTab('billing'); closeMobileMenu();">
+                💳 Billing
+            </a>
+            <a href="#" class="mobile-menu-item" onclick="showTab('settings'); closeMobileMenu();">
+                ⚙️ Settings
+            </a>
+            <button class="mobile-menu-item logout" onclick="handleLogout()">
+                🚪 Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>User <span class="gradient-text">Dashboard</span></h1>
+            <p>Manage your account, view analytics, and access all your profile settings</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('analytics')">
+                📊 Analytics
+            </button>
+            <button class="tab" onclick="showTab('profile')">
+                👤 Profile
+            </button>
+            <button class="tab" onclick="showTab('billing')">
+                💳 Billing
+            </button>
+            <button class="tab" onclick="showTab('settings')">
+                ⚙️ Settings
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content" class="tab-content">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentUser = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.message === 'Guest' || !data.message) {
+                    // Redirect to login if not authenticated
+                    window.location.replace('/login');
+                    return;
+                }
+                
+                currentUser = data.message;
+                showTab('analytics');
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.replace('/login');
+            }
+        });
+
+        // Tab switching
+        function showTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event?.target?.classList?.add('active') || 
+                document.querySelector(`.tab:nth-child(${tabName === 'analytics' ? 1 : tabName === 'profile' ? 2 : tabName === 'billing' ? 3 : 4})`).classList.add('active');
+
+            const content = document.getElementById('tab-content');
+            
+            switch(tabName) {
+                case 'analytics':
+                    content.innerHTML = `
+                        <div class="cards-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">📝</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Total Requests</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">⚡</div>
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Tokens Used</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-value">$0.00</div>
+                                <div class="stat-label">Total Spent</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">📦</div>
+                                <div class="stat-value">Free</div>
+                                <div class="stat-label">Current Plan</div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h3 style="margin-bottom: 16px;">Usage Overview</h3>
+                            <p style="color: var(--text-secondary);">Your usage statistics will appear here once you start making API requests.</p>
+                        </div>
+                    `;
+                    break;
+                
+                case 'profile':
+                    const initials = currentUser ? currentUser.substring(0, 2).toUpperCase() : 'U';
+                    content.innerHTML = `
+                        <div class="profile-section">
+                            <div class="profile-header">
+                                <div class="profile-avatar">${initials}</div>
+                                <div class="profile-info">
+                                    <h2>${currentUser || 'User'}</h2>
+                                    <p>AI Assistant User</p>
+                                </div>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <div>
+                                        <div class="detail-label">Email</div>
+                                        <div class="detail-value">${currentUser || 'Not available'}</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div>
+                                        <div class="detail-label">Account Status</div>
+                                        <div class="detail-value" style="color: var(--success);">Active</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div>
+                                        <div class="detail-label">Member Since</div>
+                                        <div class="detail-value">${new Date().toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div>
+                                        <div class="detail-label">Account Type</div>
+                                        <div class="detail-value">Individual</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'billing':
+                    content.innerHTML = `
+                        <div style="max-width: 800px;">
+                            <div class="billing-card">
+                                <h3>Current Subscription</h3>
+                                <div class="plan-info">
+                                    <div>
+                                        <div class="plan-name">Free Plan</div>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Basic AI features</p>
+                                    </div>
+                                    <div class="plan-price">$0<span style="font-size: 16px; font-weight: 500;">/mo</span></div>
+                                </div>
+                                <button class="btn-upgrade" onclick="window.location.href='/pricing'">
+                                    Upgrade to Pro
+                                </button>
+                            </div>
+                            <div class="billing-card">
+                                <h3>Billing History</h3>
+                                <p style="color: var(--text-secondary);">No billing history available.</p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'settings':
+                    content.innerHTML = `
+                        <div style="max-width: 800px;">
+                            <div class="settings-group">
+                                <h3>Preferences</h3>
+                                <div class="setting-item">
+                                    <div>
+                                        <div class="setting-label">Email Notifications</div>
+                                        <div class="setting-description">Receive email updates about your account</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <div>
+                                        <div class="setting-label">Usage Alerts</div>
+                                        <div class="setting-description">Get notified when approaching usage limits</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <h3>Security</h3>
+                                <div class="setting-item">
+                                    <div>
+                                        <div class="setting-label">Two-Factor Authentication</div>
+                                        <div class="setting-description">Add an extra layer of security</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // Logout handler
+        async function handleLogout() {
+            try {
+                await fetch(`${API_BASE}/api/method/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>

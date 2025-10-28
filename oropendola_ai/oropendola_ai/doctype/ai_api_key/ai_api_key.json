@@ -42,8 +42,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Subscription",
-   "options": "AI Subscription",
-   "reqd": 1
+   "options": "AI Subscription"
   },
   {
    "default": "Active",
@@ -152,7 +151,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-27 20:59:35.086836",
+ "modified": "2025-10-28 17:58:11.590483",
  "modified_by": "Administrator",
  "module": "Oropendola Ai",
  "name": "AI API Key",

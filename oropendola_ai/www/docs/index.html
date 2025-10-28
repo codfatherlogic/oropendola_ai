@@ -1,0 +1,647 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - Oropendola AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <link rel="apple-touch-icon" href="/files/icon.png">
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Cache Buster Script -->
+    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-tertiary: #666666;
+            --accent-primary: #00D9FF;
+            --accent-secondary: #7B61FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #27C93F;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 8px rgba(123, 97, 255, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 4px 12px rgba(123, 97, 255, 0.6));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(123, 97, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Hero Section */
+        .docs-hero {
+            padding: 140px 40px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .docs-hero h1 {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .docs-hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 60px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-card {
+            padding: 30px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(123, 97, 255, 0.15);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .content-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(123, 97, 255, 0.15);
+            border-color: rgba(123, 97, 255, 0.3);
+        }
+
+        .content-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .content-card h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .content-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .content-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .content-card ul li {
+            color: var(--text-secondary);
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        .content-card ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .learn-more {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: gap 0.3s;
+        }
+
+        .learn-more:hover {
+            gap: 12px;
+        }
+
+        /* Team Section */
+        .team-section {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            margin-bottom: 80px;
+        }
+
+        .team-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .team-content h2 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .team-content p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 24px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 60px 40px 40px;
+            background: var(--bg-secondary);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .footer-column a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-logo img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+        }
+
+        .company-info {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            margin-top: 16px;
+        }
+
+        .company-info strong {
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .docs-hero h1 {
+                font-size: 42px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs" class="active">Docs</a>
+                <a href="/login" class="btn-secondary">Sign In</a>
+                <a href="/login#signup" class="btn-primary">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="docs-hero">
+        <h1>
+            Building the future of <br>
+            <span class="gradient-text">AI-powered coding</span>
+        </h1>
+        <p>
+            Oropendola AI is revolutionizing how developers write code. Our mission is to make every developer 10x more productive through intelligent AI assistance.
+        </p>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10x</div>
+                <div class="stat-label">Faster Development</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5+</div>
+                <div class="stat-label">AI Models Integrated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">Uptime SLA</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support Available</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section class="content-section">
+        <h2 class="section-title">Get Started in <span class="gradient-text">Minutes</span></h2>
+        <div class="content-grid">
+            <div class="content-card">
+                <div class="content-icon">🚀</div>
+                <h3>Quick Start Guide</h3>
+                <p>Get up and running with Oropendola AI in less than 5 minutes. No complex setup required.</p>
+                <ul>
+                    <li>Create your account</li>
+                    <li>Install the VS Code extension</li>
+                    <li>Connect your API key</li>
+                    <li>Start coding with AI</li>
+                </ul>
+                <a href="/login#signup" class="learn-more">Get Started →</a>
+            </div>
+
+            <div class="content-card">
+                <div class="content-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>Complete API reference with examples in multiple programming languages.</p>
+                <ul>
+                    <li>RESTful API endpoints</li>
+                    <li>Authentication & security</li>
+                    <li>Rate limits & quotas</li>
+                    <li>Code examples</li>
+                </ul>
+                <a href="#" class="learn-more">View API Docs →</a>
+            </div>
+
+            <div class="content-card">
+                <div class="content-icon">🎓</div>
+                <h3>Tutorials & Guides</h3>
+                <p>Learn best practices and advanced techniques for AI-assisted development.</p>
+                <ul>
+                    <li>Video tutorials</li>
+                    <li>Step-by-step guides</li>
+                    <li>Use case examples</li>
+                    <li>Tips and tricks</li>
+                </ul>
+                <a href="#" class="learn-more">Browse Tutorials →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="content-section" style="background: var(--bg-secondary); padding: 80px 40px; border-radius: 24px; margin-bottom: 80px;">
+        <h2 class="section-title">Powerful <span class="gradient-text">Features</span></h2>
+        <div class="content-grid">
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">🧠</div>
+                <h3>Smart Code Completion</h3>
+                <p>AI that understands your codebase and provides context-aware suggestions in real-time.</p>
+            </div>
+
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">🔍</div>
+                <h3>Code Explanation</h3>
+                <p>Instantly understand any code snippet with plain English explanations.</p>
+            </div>
+
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">🛠️</div>
+                <h3>Intelligent Refactoring</h3>
+                <p>Improve code quality with AI-powered refactoring suggestions.</p>
+            </div>
+
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">🐛</div>
+                <h3>Bug Detection</h3>
+                <p>Find and fix bugs before they reach production with advanced AI analysis.</p>
+            </div>
+
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">⚡</div>
+                <h3>Multi-Model Routing</h3>
+                <p>Automatically select the best AI model for each task to optimize speed and quality.</p>
+            </div>
+
+            <div class="content-card" style="background: var(--bg-tertiary);">
+                <div class="content-icon">🔒</div>
+                <h3>Enterprise Security</h3>
+                <p>Your code stays private with enterprise-grade encryption and security.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="team-content">
+            <h2>Built by developers, <span class="gradient-text">for developers</span></h2>
+            <p>
+                We're a team of passionate developers who understand the challenges of modern software development. 
+                Oropendola AI was born from our own need for smarter, faster coding tools.
+            </p>
+            <p>
+                Our mission is to empower every developer with AI superpowers, making coding more productive, 
+                enjoyable, and accessible to everyone.
+            </p>
+            <p style="margin-top: 30px;">
+                <strong style="color: var(--text-primary);">CODFATHER LOGIC LLP</strong><br>
+                <span style="color: var(--text-tertiary);">Building the future of AI-powered development</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to code <span class="gradient-text">10x faster?</span></h2>
+        <p>Join thousands of developers already using Oropendola AI to build better software</p>
+        <div class="cta-buttons">
+            <a href="/login#signup" class="btn-primary" style="padding: 16px 32px; font-size: 16px;">
+                Start Free Trial
+            </a>
+            <a href="/pricing" class="btn-secondary" style="padding: 16px 32px; font-size: 16px;">
+                View Pricing
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-logo">
+                    <img src="/files/icon.png" alt="Oropendola AI Logo">
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    The AI-powered coding assistant that understands your codebase.
+                </p>
+                <div class="company-info">
+                    <strong>CODFATHER LOGIC LLP</strong>
+                    <a href="mailto:hello@oropendola.ai">hello@oropendola.ai</a><br>
+                    XIII/284A, Anjanasree Arcade<br>
+                    Nagampadom, Kottayam-686 001<br>
+                    Kerala, India
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Product</h4>
+                <a href="/#features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs">Documentation</a>
+                <a href="#">VS Code Extension</a>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <a href="/docs">About</a>
+                <a href="#">Blog</a>
+                <a href="#">Careers</a>
+                <a href="mailto:hello@oropendola.ai">Contact</a>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Security</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CODFATHER LOGIC LLP. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

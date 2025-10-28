@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Oropendola AI</title>
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <style>
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1E1E1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-muted: #707070;
+            --accent-primary: #7B61FF;
+            --accent-secondary: #00D9FF;
+            --accent-gradient: linear-gradient(135deg, #7B61FF, #00D9FF);
+            --border-color: #2A2A2A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 8px rgba(123, 97, 255, 0.4));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .policy-container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 130px 40px 100px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-header h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .policy-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 56px;
+        }
+
+        .toc {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 48px;
+        }
+
+        .toc-title {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+        }
+
+        .toc-list li { margin-bottom: 10px; }
+
+        .toc-list a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-primary);
+            padding-left: 8px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            scroll-margin-top: 120px;
+        }
+
+        .section-title {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 21px;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 14px;
+            color: var(--accent-primary);
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            line-height: 1.8;
+        }
+
+        .section ul, .section ol {
+            color: var(--text-secondary);
+            margin-left: 28px;
+            margin-bottom: 18px;
+        }
+
+        .section li {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(0, 217, 255, 0.05));
+            border-left: 4px solid var(--accent-primary);
+            padding: 24px;
+            margin: 28px 0;
+            border-radius: 10px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .contact-card {
+            background: var(--bg-tertiary);
+            padding: 32px;
+            border-radius: 14px;
+            margin-top: 28px;
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-card strong { color: var(--accent-primary); }
+
+        .contact-card a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+        }
+
+        .contact-card a:hover { text-decoration: underline; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .data-table thead tr { background: var(--bg-tertiary); }
+
+        .data-table th {
+            padding: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+        }
+
+        .section a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            .logo { font-size: 19px; }
+            .logo img { width: 36px; height: 36px; }
+            .nav-links { display: none; }
+            .policy-container { padding: 110px 24px 70px; }
+            .page-header h1 { font-size: 38px; }
+            .policy-content { padding: 36px 24px; }
+            .section-title { font-size: 26px; }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 32px; }
+            .policy-content { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/files/icon.png" alt="Oropendola AI">
+                Oropendola AI
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs">Docs</a>
+                <a href="/login">Sign In</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="policy-container">
+        <div class="page-header">
+            <h1>Privacy Policy</h1>
+            <p class="last-updated">Last Updated: January 15, 2025</p>
+        </div>
+
+        <div class="policy-content">
+            <nav class="toc">
+                <h2 class="toc-title">Table of Contents</h2>
+                <ul class="toc-list">
+                    <li><a href="#introduction">1. Introduction</a></li>
+                    <li><a href="#information-collection">2. Information We Collect</a></li>
+                    <li><a href="#how-we-use">3. How We Use Your Information</a></li>
+                    <li><a href="#code-privacy">4. Code Privacy & Security</a></li>
+                    <li><a href="#data-storage">5. Data Storage and Retention</a></li>
+                    <li><a href="#data-sharing">6. Data Sharing and Disclosure</a></li>
+                    <li><a href="#your-rights">7. Your Rights and Choices</a></li>
+                    <li><a href="#cookies">8. Cookies and Tracking</a></li>
+                    <li><a href="#security">9. Security Measures</a></li>
+                    <li><a href="#children">10. Children's Privacy</a></li>
+                    <li><a href="#international">11. International Data Transfers</a></li>
+                    <li><a href="#changes">12. Policy Updates</a></li>
+                    <li><a href="#contact">13. Contact Us</a></li>
+                </ul>
+            </nav>
+
+            <section class="section" id="introduction">
+                <h2 class="section-title">1. Introduction</h2>
+                <p>
+                    Welcome to Oropendola AI. We are committed to protecting your privacy and ensuring the security of your personal information and source code. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered coding assistant platform.
+                </p>
+                <p>
+                    Oropendola AI is developed and operated by <strong>CODFATHER LOGIC LLP</strong>, a limited liability partnership registered in Kerala, India.
+                </p>
+                <div class="highlight-box">
+                    <p><strong>Our Core Commitment:</strong> Your source code is yours. We do not use your proprietary code to train our AI models or share it with third parties without your explicit consent.</p>
+                </div>
+            </section>
+
+            <section class="section" id="information-collection">
+                <h2 class="section-title">2. Information We Collect</h2>
+                
+                <h3 class="section-subtitle">2.1 Account Information</h3>
+                <ul>
+                    <li>Full name and email address</li>
+                    <li>Password (encrypted and hashed)</li>
+                    <li>Company name and role (optional)</li>
+                </ul>
+
+                <h3 class="section-subtitle">2.2 Usage Data</h3>
+                <ul>
+                    <li>API request metadata and timestamps</li>
+                    <li>Feature usage statistics</li>
+                    <li>Session duration and frequency</li>
+                    <li>Error logs and performance metrics</li>
+                </ul>
+
+                <h3 class="section-subtitle">2.3 Code Metadata</h3>
+                <ul>
+                    <li>Programming languages used</li>
+                    <li>File types and extensions</li>
+                    <li>Code context (temporary, for AI completions)</li>
+                    <li>Repository structure (VS Code extension)</li>
+                </ul>
+                <p><strong>Important:</strong> We do not permanently store your source code unless you enable optional codebase indexing.</p>
+
+                <h3 class="section-subtitle">2.4 Payment Information</h3>
+                <ul>
+                    <li>Billing name and address</li>
+                    <li>Payment method (via Razorpay/PayU)</li>
+                    <li>Transaction history</li>
+                </ul>
+                <p><strong>Note:</strong> Credit card details are processed by PCI-DSS compliant providers only.</p>
+
+                <h3 class="section-subtitle">2.5 Device Information</h3>
+                <ul>
+                    <li>IP address (country-level geolocation)</li>
+                    <li>Browser and operating system</li>
+                    <li>Device identifiers (anonymized)</li>
+                    <li>VS Code version and configuration</li>
+                </ul>
+            </section>
+
+            <section class="section" id="how-we-use">
+                <h2 class="section-title">3. How We Use Your Information</h2>
+
+                <h3 class="section-subtitle">3.1 Service Delivery</h3>
+                <ul>
+                    <li>Provide AI-powered code completions and refactoring</li>
+                    <li>Route requests to optimal AI models</li>
+                    <li>Maintain service performance and reliability</li>
+                </ul>
+
+                <h3 class="section-subtitle">3.2 Account Management</h3>
+                <ul>
+                    <li>Manage accounts and authentication</li>
+                    <li>Generate API keys and access tokens</li>
+                    <li>Process subscription billing</li>
+                </ul>
+
+                <h3 class="section-subtitle">3.3 Communication</h3>
+                <ul>
+                    <li>Send service updates and security alerts</li>
+                    <li>Respond to support inquiries</li>
+                    <li>Share product updates (with consent)</li>
+                </ul>
+
+                <h3 class="section-subtitle">3.4 Analytics and Security</h3>
+                <ul>
+                    <li>Analyze usage patterns for improvements</li>
+                    <li>Monitor service health</li>
+                    <li>Detect and prevent fraud</li>
+                    <li>Ensure compliance and security</li>
+                </ul>
+            </section>
+
+            <section class="section" id="code-privacy">
+                <h2 class="section-title">4. Code Privacy & Security</h2>
+                
+                <div class="highlight-box">
+                    <p><strong>Zero Training Guarantee:</strong> Your proprietary source code is NEVER used to train our AI models or improve services for other users.</p>
+                </div>
+
+                <h3 class="section-subtitle">4.1 Code Processing</h3>
+                <ul>
+                    <li><strong>Temporary Processing:</strong> Code sent to AI providers for real-time completions only</li>
+                    <li><strong>TLS 1.3 Encryption:</strong> All code encrypted during transmission</li>
+                    <li><strong>Immediate Deletion:</strong> Code deleted after processing (seconds)</li>
+                    <li><strong>Isolated Processing:</strong> No cross-user data sharing</li>
+                </ul>
+
+                <h3 class="section-subtitle">4.2 Optional Codebase Indexing</h3>
+                <ul>
+                    <li>Full control over indexed files</li>
+                    <li>AES-256 encrypted storage</li>
+                    <li>Delete anytime from dashboard</li>
+                    <li>Never shared with third parties</li>
+                </ul>
+
+                <h3 class="section-subtitle">4.3 Enterprise Privacy</h3>
+                <ul>
+                    <li>Dedicated AI model instances</li>
+                    <li>On-premises deployment options</li>
+                    <li>Custom retention policies</li>
+                    <li>Advanced audit logging</li>
+                </ul>
+            </section>
+
+            <section class="section" id="data-storage">
+                <h2 class="section-title">5. Data Storage and Retention</h2>
+
+                <h3 class="section-subtitle">5.1 Storage Locations</h3>
+                <ul>
+                    <li><strong>Primary:</strong> India (Mumbai) - AWS</li>
+                    <li><strong>Backup:</strong> Singapore - AWS</li>
+                    <li>ISO 27001 and SOC 2 certified</li>
+                </ul>
+
+                <h3 class="section-subtitle">5.2 Retention Periods</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Retention Period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Account Information</td>
+                            <td>Until deletion + 30 days</td>
+                        </tr>
+                        <tr>
+                            <td>Usage Logs</td>
+                            <td>90 days (anonymized after 30)</td>
+                        </tr>
+                        <tr>
+                            <td>Code Contexts</td>
+                            <td>Immediate deletion</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Records</td>
+                            <td>7 years (legal requirement)</td>
+                        </tr>
+                        <tr>
+                            <td>Support Tickets</td>
+                            <td>3 years</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="section" id="data-sharing">
+                <h2 class="section-title">6. Data Sharing and Disclosure</h2>
+
+                <h3 class="section-subtitle">6.1 AI Service Providers</h3>
+                <ul>
+                    <li><strong>OpenAI:</strong> GPT-4 completions</li>
+                    <li><strong>Anthropic:</strong> Claude completions</li>
+                    <li><strong>Google:</strong> Gemini completions</li>
+                </ul>
+                <div class="highlight-box">
+                    <p><strong>API Protection:</strong> All partners committed to NOT training on enterprise API data.</p>
+                </div>
+
+                <h3 class="section-subtitle">6.2 Payment Processors</h3>
+                <ul>
+                    <li>Razorpay (PCI-DSS Level 1)</li>
+                    <li>PayU (alternative gateway)</li>
+                </ul>
+
+                <h3 class="section-subtitle">6.3 Service Providers</h3>
+                <ul>
+                    <li>Cloud hosting (AWS, Google Cloud)</li>
+                    <li>Email delivery (SendGrid, AWS SES)</li>
+                    <li>Analytics (Google Analytics - anonymized)</li>
+                    <li>Customer support (encrypted)</li>
+                </ul>
+
+                <h3 class="section-subtitle">6.4 Legal Requirements</h3>
+                <p>We may disclose information to:</p>
+                <ul>
+                    <li>Comply with legal obligations</li>
+                    <li>Protect rights and safety</li>
+                    <li>Prevent fraud and abuse</li>
+                </ul>
+            </section>
+
+            <section class="section" id="your-rights">
+                <h2 class="section-title">7. Your Rights and Choices</h2>
+
+                <h3 class="section-subtitle">7.1 Access and Portability</h3>
+                <ul>
+                    <li>View all personal data</li>
+                    <li>Download data (JSON, CSV)</li>
+                    <li>Request usage logs</li>
+                </ul>
+                <p><strong>Access via:</strong> <a href="/my-profile">Dashboard</a> → Settings → Data Export</p>
+
+                <h3 class="section-subtitle">7.2 Correction and Updates</h3>
+                <ul>
+                    <li>Update profile anytime</li>
+                    <li>Correct inaccurate data</li>
+                    <li>Email: hello@oropendola.ai</li>
+                </ul>
+
+                <h3 class="section-subtitle">7.3 Deletion</h3>
+                <ul>
+                    <li><strong>Self-Service:</strong> Dashboard → Delete Account</li>
+                    <li><strong>Email:</strong> privacy@oropendola.ai</li>
+                    <li><strong>Timeline:</strong> 30 days</li>
+                </ul>
+
+                <h3 class="section-subtitle">7.4 Opt-Out Options</h3>
+                <ul>
+                    <li>Marketing emails (unsubscribe link)</li>
+                    <li>Analytics (Settings → Privacy)</li>
+                    <li>Cookies (browser settings)</li>
+                </ul>
+            </section>
+
+            <section class="section" id="cookies">
+                <h2 class="section-title">8. Cookies and Tracking</h2>
+
+                <h3 class="section-subtitle">8.1 Types of Cookies</h3>
+                <ul>
+                    <li><strong>Essential:</strong> Authentication and security (required)</li>
+                    <li><strong>Analytics:</strong> Usage patterns (optional)</li>
+                    <li><strong>Preference:</strong> Settings and language (optional)</li>
+                </ul>
+
+                <h3 class="section-subtitle">8.2 Third-Party Cookies</h3>
+                <ul>
+                    <li>Google Analytics (anonymized IP)</li>
+                    <li>Payment gateway session cookies</li>
+                </ul>
+
+                <h3 class="section-subtitle">8.3 Cookie Management</h3>
+                <ul>
+                    <li>Cookie consent banner (first visit)</li>
+                    <li>Settings → Privacy → Cookies</li>
+                    <li>Browser settings</li>
+                </ul>
+            </section>
+
+            <section class="section" id="security">
+                <h2 class="section-title">9. Security Measures</h2>
+
+                <h3 class="section-subtitle">9.1 Technical Safeguards</h3>
+                <ul>
+                    <li>TLS 1.3 encryption (transit)</li>
+                    <li>AES-256 encryption (rest)</li>
+                    <li>Multi-factor authentication (MFA)</li>
+                    <li>Rate limiting and IP whitelisting</li>
+                    <li>24/7 security monitoring</li>
+                </ul>
+
+                <h3 class="section-subtitle">9.2 Organizational Safeguards</h3>
+                <ul>
+                    <li>Regular security audits</li>
+                    <li>Employee training</li>
+                    <li>Incident response plan</li>
+                    <li>Privacy-by-design</li>
+                </ul>
+
+                <h3 class="section-subtitle">9.3 Certifications</h3>
+                <ul>
+                    <li>ISO 27001 (in progress)</li>
+                    <li>SOC 2 Type II (in progress)</li>
+                    <li>GDPR compliance</li>
+                </ul>
+            </section>
+
+            <section class="section" id="children">
+                <h2 class="section-title">10. Children's Privacy</h2>
+                <p>
+                    Oropendola AI is not intended for individuals under 16. We do not knowingly collect information from children. If we discover such data, we will promptly delete it. Contact us at privacy@oropendola.ai if you believe we have collected children's data.
+                </p>
+            </section>
+
+            <section class="section" id="international">
+                <h2 class="section-title">11. International Data Transfers</h2>
+                <p>
+                    Our primary storage is in India, but some service providers (AI models, cloud infrastructure) operate in the US and EU.
+                </p>
+                <p>We protect international transfers through:</p>
+                <ul>
+                    <li>Standard Contractual Clauses (SCCs)</li>
+                    <li>Data Processing Agreements (DPAs)</li>
+                    <li>GDPR compliance for EU data</li>
+                    <li>Encryption during transfer</li>
+                </ul>
+            </section>
+
+            <section class="section" id="changes">
+                <h2 class="section-title">12. Policy Updates</h2>
+                <p>We may update this Privacy Policy periodically. Changes will be notified via:</p>
+                <ul>
+                    <li>Email notification (material changes)</li>
+                    <li>In-app notification</li>
+                    <li>Updated "Last Updated" date</li>
+                </ul>
+                <p>Continued use after changes constitutes acceptance. If you disagree, please delete your account.</p>
+            </section>
+
+            <section class="section" id="contact">
+                <h2 class="section-title">13. Contact Us</h2>
+                <p>For privacy inquiries or concerns, please contact us:</p>
+
+                <div class="contact-card">
+                    <p><strong>CODFATHER LOGIC LLP</strong></p>
+                    <p>
+                        XIII/284A, Anjanasree Arcade<br>
+                        Nagampadom, Kottayam-686 001<br>
+                        Kerala, India
+                    </p>
+                    <p style="margin-top: 16px;">
+                        <strong>General:</strong> <a href="mailto:hello@oropendola.ai">hello@oropendola.ai</a>
+                    </p>
+                    <p style="margin-top: 16px;">
+                        <strong>Response Time:</strong> 48 hours (business days)
+                    </p>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 24px;">
+                    <p><strong>Your Privacy Matters:</strong> We are committed to transparency and protecting your rights. Don't hesitate to reach out with any concerns.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

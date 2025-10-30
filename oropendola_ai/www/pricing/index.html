@@ -23,6 +23,9 @@
     </script>
     <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
     
+    <!-- Dynamic Navigation Script -->
+    <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -331,6 +334,11 @@
             border-color: #FF5F56;
         }
 
+        .alert.info {
+            border-color: #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+        }
+
         /* Modal Styles */
         .modal-overlay {
             display: none;
@@ -584,13 +592,239 @@
             vertical-align: middle;
         }
 
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .mobile-menu-toggle:hover {
+            color: var(--accent-primary);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 80px 24px 24px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .mobile-menu-close:hover {
+            color: var(--accent-primary);
+            transform: rotate(90deg);
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mobile-menu-item {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        .mobile-menu-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateX(-4px);
+        }
+
+        .mobile-menu-item.primary {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+            justify-content: center;
+            font-size: 18px;
+            padding: 18px 20px;
+        }
+
+        .mobile-menu-item.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(123, 97, 255, 0.4);
+        }
+
         @media (max-width: 768px) {
-            .pricing-hero h1 { font-size: 40px; }
-            .pricing-grid { grid-template-columns: 1fr; }
-            .auth-modal { width: 95%; padding: 20px; }
-            .modal-content { padding: 40px 20px 20px; }
-            .otp-inputs { gap: 8px; }
-            .otp-input { width: 44px; height: 52px; font-size: 20px; }
+            nav {
+                padding: 16px 24px;
+            }
+
+            .logo img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .pricing-hero {
+                padding: 120px 24px 40px;
+            }
+
+            .pricing-hero h1 {
+                font-size: 36px;
+                line-height: 1.2;
+            }
+
+            .pricing-hero p {
+                font-size: 16px;
+            }
+
+            .pricing-section {
+                padding: 20px 24px 80px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .plan-card {
+                padding: 32px 24px;
+            }
+
+            .price {
+                font-size: 40px;
+            }
+
+            .plan-features {
+                font-size: 14px;
+            }
+
+            .modal-content {
+                padding: 40px 24px 24px;
+            }
+
+            .otp-inputs {
+                gap: 6px;
+            }
+
+            .otp-input {
+                width: 42px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .auth-modal {
+                width: 95%;
+                max-height: 85vh;
+            }
+
+            .modal-header h2 {
+                font-size: 24px;
+            }
+
+            .form-group input {
+                font-size: 16px; /* Prevent iOS zoom */
+            }
+
+            .btn-full {
+                min-height: 48px; /* Touch-friendly */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pricing-hero h1 {
+                font-size: 28px;
+            }
+
+            .pricing-hero {
+                padding: 100px 20px 32px;
+            }
+
+            .pricing-section {
+                padding: 20px 20px 60px;
+            }
+
+            .plan-card {
+                padding: 28px 20px;
+            }
+
+            .price {
+                font-size: 36px;
+            }
+
+            .modal-content {
+                padding: 36px 20px 20px;
+            }
+
+            .otp-inputs {
+                gap: 4px;
+            }
+
+            .otp-input {
+                width: 38px;
+                height: 46px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -602,14 +836,44 @@
                 <img src="/files/icon.png" alt="Oropendola AI Logo">
             </a>
             <div class="nav-links">
-                <a href="/#features">Features</a>
+                <a href="/features">Features</a>
                 <a href="/pricing">Pricing</a>
                 <a href="/docs">Docs</a>
                 <a href="/login" class="btn-secondary">Sign In</a>
                 <a href="/login#signup" class="btn-primary">Get Started</a>
             </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Open menu">
+                ☰
+            </button>
         </nav>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">
+            ✕
+        </button>
+        <div class="mobile-menu-items">
+            <a href="/features" class="mobile-menu-item">
+                Features <span>→</span>
+            </a>
+            <a href="/pricing" class="mobile-menu-item">
+                Pricing <span>→</span>
+            </a>
+            <a href="/docs" class="mobile-menu-item">
+                Docs <span>→</span>
+            </a>
+            <a href="/login" class="mobile-menu-item">
+                Sign In <span>→</span>
+            </a>
+            <a href="/login#signup" class="mobile-menu-item primary">
+                Get Started
+            </a>
+        </div>
+    </div>
 
     <!-- Pricing Hero -->
     <section class="pricing-hero">
@@ -752,12 +1016,24 @@
                         </div>
 
                         <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp1" oninput="handleOtpInput(this, 1, 'forgot')">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp2" oninput="handleOtpInput(this, 2, 'forgot')">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp3" oninput="handleOtpInput(this, 3, 'forgot')">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp4" oninput="handleOtpInput(this, 4, 'forgot')">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp5" oninput="handleOtpInput(this, 5, 'forgot')">
-                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp6" oninput="handleOtpInput(this, 6, 'forgot')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp1" 
+                                   oninput="handleOtpInput(this, 1, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 1, 'forgotOtp')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp2" 
+                                   oninput="handleOtpInput(this, 2, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 2, 'forgotOtp')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp3" 
+                                   oninput="handleOtpInput(this, 3, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 3, 'forgotOtp')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp4" 
+                                   oninput="handleOtpInput(this, 4, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 4, 'forgotOtp')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp5" 
+                                   oninput="handleOtpInput(this, 5, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 5, 'forgotOtp')">
+                            <input type="text" maxlength="1" class="otp-input" id="forgotOtp6" 
+                                   oninput="handleOtpInput(this, 6, 'forgotOtp')" 
+                                   onkeydown="handleOtpKeydown(event, 6, 'forgotOtp')">
                         </div>
 
                         <div class="otp-info">
@@ -827,12 +1103,24 @@
                     </div>
 
                     <div class="otp-inputs">
-                        <input type="text" maxlength="1" class="otp-input" id="otp1" oninput="handleOtpInput(this, 1)">
-                        <input type="text" maxlength="1" class="otp-input" id="otp2" oninput="handleOtpInput(this, 2)">
-                        <input type="text" maxlength="1" class="otp-input" id="otp3" oninput="handleOtpInput(this, 3)">
-                        <input type="text" maxlength="1" class="otp-input" id="otp4" oninput="handleOtpInput(this, 4)">
-                        <input type="text" maxlength="1" class="otp-input" id="otp5" oninput="handleOtpInput(this, 5)">
-                        <input type="text" maxlength="1" class="otp-input" id="otp6" oninput="handleOtpInput(this, 6)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp1" 
+                               oninput="handleOtpInput(this, 1)" 
+                               onkeydown="handleOtpKeydown(event, 1)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp2" 
+                               oninput="handleOtpInput(this, 2)" 
+                               onkeydown="handleOtpKeydown(event, 2)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp3" 
+                               oninput="handleOtpInput(this, 3)" 
+                               onkeydown="handleOtpKeydown(event, 3)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp4" 
+                               oninput="handleOtpInput(this, 4)" 
+                               onkeydown="handleOtpKeydown(event, 4)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp5" 
+                               oninput="handleOtpInput(this, 5)" 
+                               onkeydown="handleOtpKeydown(event, 5)">
+                        <input type="text" maxlength="1" class="otp-input" id="otp6" 
+                               oninput="handleOtpInput(this, 6)" 
+                               onkeydown="handleOtpKeydown(event, 6)">
                     </div>
 
                     <div class="otp-info">
@@ -1259,9 +1547,14 @@
                     startOtpTimer();
                     setTimeout(() => document.getElementById('otp1').focus(), 100);
                 } else if (data.message && data.message.should_login) {
-                    alert('Email already registered. Switching to login...');
+                    // Email already registered - automatically switch to login tab
                     switchAuthMode('login');
                     document.getElementById('loginEmail').value = email;
+                    // Show a friendly alert
+                    setTimeout(() => {
+                        showAlert('This email is already registered. Please login with your password.', 'info');
+                    }, 300);
+                    setTimeout(() => document.getElementById('loginPassword').focus(), 400);
                 } else {
                     throw new Error(data.message?.error || 'Failed to send OTP');
                 }
@@ -1292,13 +1585,15 @@
                 });
                 const data = await response.json();
                 
-                if (data.message === 'Logged In') {
-                    // Login successful
-                    alert('Login successful! Redirecting...');
-                    // Close modal and redirect to subscription page or dashboard
-                    closeAuthModal();
-                    setTimeout(() => {
-                        window.location.href = '/my-profile';
+                if (response.ok && (data.message === 'Logged In' || data.message === 'No App')) {
+                    // Login successful - proceed with subscription flow
+                    currentEmail = email;
+                    showAlert('Login successful! Processing subscription...', 'success');
+                    
+                    // Close modal and proceed to payment
+                    setTimeout(async () => {
+                        closeAuthModal();
+                        await processSubscriptionAfterAuth();
                     }, 1000);
                 } else if (data.exc) {
                     throw new Error('Invalid email or password');
@@ -1307,10 +1602,60 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert(error.message || 'Login failed. Please try again.');
+                showAlert(error.message || 'Login failed. Please try again.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Login';
+            }
+        }
+
+        // Process subscription after successful authentication
+        async function processSubscriptionAfterAuth() {
+            try {
+                // Check if user already has active subscription
+                const checkResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.get_my_subscription`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const checkData = await checkResponse.json();
+                
+                if (checkData.message && checkData.message.has_subscription) {
+                    showAlert('You already have an active subscription!', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/my-profile';
+                    }, 2000);
+                    return;
+                }
+                
+                // Create subscription and invoice
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.create_subscription_and_invoice`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({ plan_id: currentPlanId })
+                });
+                const data = await response.json();
+                
+                if (data.message && data.message.success) {
+                    if (data.message.is_free) {
+                        // Free plan - redirect to dashboard
+                        showAlert('Subscription activated!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/my-profile';
+                        }, 1500);
+                    } else {
+                        // Paid plan - initiate payment
+                        await initiatePayment(data.message.invoice_id);
+                    }
+                } else {
+                    throw new Error(data.message?.error || 'Failed to create subscription');
+                }
+            } catch (error) {
+                console.error('Subscription processing error:', error);
+                showAlert(error.message || 'Failed to process subscription', 'error');
             }
         }
 
@@ -1354,7 +1699,7 @@
         }
 
         async function verifyForgotOTP() {
-            const otp = '';
+            let otp = '';
             for (let i = 1; i <= 6; i++) {
                 otp += document.getElementById(`forgotOtp${i}`).value;
             }
@@ -1409,12 +1754,12 @@
             const btn = document.getElementById('resetBtn');
 
             if (newPassword !== confirmPassword) {
-                alert('Passwords do not match');
+                showAlert('Passwords do not match', 'error');
                 return;
             }
 
             if (newPassword.length < 8) {
-                alert('Password must be at least 8 characters');
+                showAlert('Password must be at least 8 characters', 'error');
                 return;
             }
 
@@ -1431,17 +1776,20 @@
                 const data = await response.json();
                 
                 if (data.message && data.message.success) {
-                    alert('Password reset successfully! Redirecting to login...');
-                    closeAuthModal();
+                    // Show success message
+                    showAlert('✅ Password reset successfully! Redirecting to login...', 'success');
+                    
+                    // Close modal and redirect after delay
                     setTimeout(() => {
+                        closeAuthModal();
                         window.location.href = '/login';
-                    }, 1000);
+                    }, 2000);
                 } else {
                     throw new Error(data.message?.error || 'Failed to reset password');
                 }
             } catch (error) {
                 console.error('Reset password error:', error);
-                alert(error.message || 'Failed to reset password. Please try again.');
+                showAlert(error.message || 'Failed to reset password. Please try again.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Reset Password';
@@ -1469,13 +1817,54 @@
 
         let forgotOtpTimer = null;
 
-        function handleOtpInput(input, position) {
+        // Enhanced OTP input handling with backspace support
+        function handleOtpInput(input, position, prefix = 'otp') {
+            // Only allow digits
             input.value = input.value.replace(/[^0-9]/g, '');
+            
+            // Auto-advance to next field when digit is entered
             if (input.value.length === 1 && position < 6) {
-                document.getElementById(`otp${position + 1}`).focus();
+                const nextInput = document.getElementById(`${prefix}${position + 1}`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
             }
-            if (position === 6 && input.value.length === 1) {
+            
+            // Auto-submit on last digit (for main OTP flow)
+            if (position === 6 && input.value.length === 1 && prefix === 'otp') {
                 verifyOTP();
+            }
+        }
+
+        // Handle backspace for OTP inputs
+        function handleOtpKeydown(event, position, prefix = 'otp') {
+            const input = event.target;
+            
+            // Handle backspace
+            if (event.key === 'Backspace') {
+                if (input.value === '' && position > 1) {
+                    // Move to previous input if current is empty
+                    const prevInput = document.getElementById(`${prefix}${position - 1}`);
+                    if (prevInput) {
+                        prevInput.focus();
+                        // Select the content so it can be overwritten
+                        setTimeout(() => prevInput.select(), 10);
+                    }
+                }
+            }
+            // Handle left arrow key
+            else if (event.key === 'ArrowLeft' && position > 1) {
+                const prevInput = document.getElementById(`${prefix}${position - 1}`);
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+            // Handle right arrow key
+            else if (event.key === 'ArrowRight' && position < 6) {
+                const nextInput = document.getElementById(`${prefix}${position + 1}`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
             }
         }
 
@@ -1588,33 +1977,48 @@
             const fullName = document.getElementById('authFullName').value.trim();
             const password = document.getElementById('authPassword').value;
             const btn = document.getElementById('signupBtn');
+            
             if (password.length < 8) {
-                alert('Password must be at least 8 characters long');
+                showAlert('Password must be at least 8 characters long', 'error');
                 return;
             }
+            
             try {
                 btn.disabled = true;
                 btn.innerHTML = 'Creating Account<span class="btn-spinner"></span>';
+                
+                // Create account with OTP
                 const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.signup_with_otp`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email: currentEmail, full_name: fullName, password: password, otp: getOtpCode(), plan_id: currentPlanId})
+                    body: JSON.stringify({
+                        email: currentEmail,
+                        full_name: fullName,
+                        password: password,
+                        otp: getOtpCode(),
+                        plan_id: currentPlanId
+                    })
                 });
                 const data = await response.json();
+                
                 if (data.message && data.message.success) {
-                    alert('Account created successfully! Redirecting to payment...');
+                    showAlert('Account created successfully!', 'success');
+                    
+                    // Auto-login
                     await loginUser(currentEmail, password);
-                    if (currentPrice > 0) {
-                        await initiatePayment(data.message.subscription_id);
-                    } else {
-                        window.location.href = '/my-profile';
-                    }
+                    
+                    // Close modal and proceed to payment
+                    setTimeout(async () => {
+                        closeAuthModal();
+                        await processSubscriptionAfterAuth();
+                    }, 1000);
                 } else {
                     throw new Error(data.message?.error || 'Failed to create account');
                 }
             } catch (error) {
                 console.error('Signup error:', error);
-                alert(error.message || 'Failed to create account. Please try again.');
+                showAlert(error.message || 'Failed to create account. Please try again.', 'error');
+            } finally {
                 btn.disabled = false;
                 btn.textContent = 'Create Account & Continue to Payment';
             }
@@ -1628,7 +2032,7 @@
                     body: `usr=${encodeURIComponent(email)}&pwd=${encodeURIComponent(password)}`
                 });
                 const data = await response.json();
-                if (!data.message || data.message !== 'Logged In') throw new Error('Auto-login failed');
+                if (!response.ok || (data.message !== 'Logged In' && data.message !== 'No App')) throw new Error('Auto-login failed');
             } catch (error) {
                 console.error('Auto-login error:', error);
             }
@@ -1694,6 +2098,26 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeAuthModal();
         });
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>

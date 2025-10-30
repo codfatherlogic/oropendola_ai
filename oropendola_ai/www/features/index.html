@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oropendola AI - Code Faster with AI</title>
+    <title>Features - Oropendola AI</title>
     <meta name="description" content="The AI-powered coding assistant that understands your codebase. Write code faster, fix bugs instantly, and build better software.">
     
     <!-- Cache Control -->
@@ -79,28 +79,6 @@
             to { opacity: 1; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes glow {
-            0%, 100% { 
-                box-shadow: 0 0 20px var(--glow-purple), 0 0 40px var(--glow-cyan);
-            }
-            50% { 
-                box-shadow: 0 0 30px var(--glow-purple), 0 0 60px var(--glow-cyan);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
         /* Header */
         header {
             position: fixed;
@@ -142,6 +120,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            text-decoration: none;
         }
 
         .logo img {
@@ -330,16 +309,16 @@
             box-shadow: 0 8px 25px rgba(123, 97, 255, 0.4);
         }
 
-        /* Hero Section */
-        .hero {
-            padding: 200px 40px 120px;
+        /* Features Hero Section */
+        .features-hero {
+            padding: 160px 40px 80px;
             max-width: 1400px;
             margin: 0 auto;
             text-align: center;
             position: relative;
         }
 
-        .hero::before {
+        .features-hero::before {
             content: '';
             position: absolute;
             top: 0;
@@ -352,7 +331,7 @@
             z-index: -1;
         }
 
-        .hero h1 {
+        .features-hero h1 {
             font-size: 80px;
             font-weight: 900;
             line-height: 1.1;
@@ -370,7 +349,7 @@
             display: inline-block;
         }
 
-        .hero p {
+        .features-hero p {
             font-size: 22px;
             color: var(--text-secondary);
             max-width: 720px;
@@ -379,77 +358,6 @@
             font-weight: 400;
             animation: fadeInUp 0.8s ease-out 0.2s both;
         }
-
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 80px;
-            animation: fadeInUp 0.8s ease-out 0.4s both;
-        }
-
-        /* Demo Video/Image */
-        .demo-section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px 120px;
-            animation: fadeInUp 1s ease-out 0.6s both;
-        }
-
-        .demo-container {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 10px;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-            position: relative;
-            transition: all 0.5s ease;
-        }
-
-        .demo-container:hover {
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7),
-                        0 0 50px rgba(123, 97, 255, 0.15),
-                        0 0 100px rgba(0, 217, 255, 0.1);
-            transform: translateY(-5px);
-        }
-
-        .demo-window {
-            background: var(--bg-tertiary);
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 8px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .control {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .control.red { background: #FF5F56; }
-        .control.yellow { background: #FFBD2E; }
-        .control.green { background: #27C93F; }
-
-        .demo-content {
-            padding: 40px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.8;
-            color: #A0A0A0;
-        }
-
-        .code-line { margin-bottom: 8px; }
-        .comment { color: #6A9955; }
-        .keyword { color: #569CD6; }
-        .string { color: #CE9178; }
-        .function { color: #DCDCAA; }
 
         /* Features Section */
         .features {
@@ -541,24 +449,30 @@
             line-height: 1.7;
         }
 
-        /* Pricing CTA */
-        .pricing-cta {
+        /* CTA Section */
+        .cta-section {
             padding: 120px 40px;
             max-width: 900px;
             margin: 0 auto;
             text-align: center;
         }
 
-        .pricing-cta h2 {
+        .cta-section h2 {
             font-size: 56px;
             font-weight: 700;
             margin-bottom: 24px;
         }
 
-        .pricing-cta p {
+        .cta-section p {
             font-size: 20px;
             color: var(--text-secondary);
             margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
         }
 
         /* Footer */
@@ -710,14 +624,14 @@
                 display: block;
             }
 
-            .hero {
-                padding: 160px 24px 80px;
+            .features-hero {
+                padding: 120px 24px 60px;
             }
-            .hero h1 { 
+            .features-hero h1 { 
                 font-size: 48px;
                 line-height: 1.15;
             }
-            .hero p { 
+            .features-hero p { 
                 font-size: 18px;
                 margin-bottom: 32px;
             }
@@ -748,20 +662,14 @@
             .social-links {
                 justify-content: center;
             }
-            .nav-links { 
-                display: none;
-            }
             .cta-buttons { 
                 flex-direction: column;
                 gap: 16px;
             }
-            .demo-section {
-                padding: 0 24px 80px;
-            }
         }
 
         @media (max-width: 480px) {
-            .hero h1 {
+            .features-hero h1 {
                 font-size: 40px;
             }
             nav {
@@ -774,7 +682,7 @@
     <!-- Header -->
     <header>
         <nav>
-            <a href="/" class="logo" style="text-decoration: none; cursor: pointer;">
+            <a href="/" class="logo">
                 <img src="/files/icon.png" alt="Oropendola AI Logo">
             </a>
             <div class="nav-links">
@@ -802,70 +710,36 @@
             <a href="/features" class="mobile-menu-item" onclick="closeMobileMenu()">
                 Features <span>→</span>
             </a>
-            <a href="/pricing" class="mobile-menu-item">
+            <a href="/pricing" class="mobile-menu-item" onclick="closeMobileMenu()">
                 Pricing <span>→</span>
             </a>
-            <a href="/docs" class="mobile-menu-item">
+            <a href="/docs" class="mobile-menu-item" onclick="closeMobileMenu()">
                 Docs <span>→</span>
             </a>
-            <a href="/login" class="mobile-menu-item">
+            <a href="/login" class="mobile-menu-item" onclick="closeMobileMenu()">
                 Sign In <span>→</span>
             </a>
-            <a href="/login#signup" class="mobile-menu-item primary">
+            <a href="/login#signup" class="mobile-menu-item primary" onclick="closeMobileMenu()">
                 Get Started
             </a>
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Features Hero Section -->
+    <section class="features-hero">
         <h1>
-            Code faster with <br>
-            <span class="gradient-text">AI that knows your code</span>
+            Built for developers, <br>
+            <span class="gradient-text">powered by AI</span>
         </h1>
         <p>
-            Oropendola AI is your intelligent coding assistant. Write, debug, and refactor code 
-            with an AI that understands your entire codebase. Boost your productivity 10x.
+            Oropendola AI is your intelligent coding assistant. Get smart code completion, 
+            instant explanations, and powerful refactoring tools to boost your productivity.
         </p>
-        <div class="cta-buttons">
-            <a href="/login#signup" class="btn-primary" style="padding: 16px 32px; font-size: 16px;">
-                Start Free Trial
-            </a>
-            <a href="#features" class="btn-secondary" style="padding: 16px 32px; font-size: 16px;">
-                See How It Works
-            </a>
-        </div>
     </section>
 
-    <!-- Demo Section -->
-    <section class="demo-section">
-        <div class="demo-container">
-            <div class="demo-window">
-                <div class="window-controls">
-                    <div class="control red"></div>
-                    <div class="control yellow"></div>
-                    <div class="control green"></div>
-                </div>
-                <div class="demo-content">
-                    <div class="code-line"><span class="comment">// Oropendola AI understands your code</span></div>
-                    <div class="code-line"><span class="keyword">const</span> <span class="function">analyzeUserData</span> = <span class="keyword">async</span> (userId) => {</div>
-                    <div class="code-line">  <span class="comment">// AI suggestion: Add error handling ↓</span></div>
-                    <div class="code-line">  <span class="keyword">try</span> {</div>
-                    <div class="code-line">    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetchUserData</span>(userId);</div>
-                    <div class="code-line">    <span class="keyword">return</span> <span class="function">processAnalytics</span>(data);</div>
-                    <div class="code-line">  } <span class="keyword">catch</span> (error) {</div>
-                    <div class="code-line">    <span class="function">logger</span>.<span class="function">error</span>(<span class="string">'Failed to analyze user'</span>, error);</div>
-                    <div class="code-line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">AnalyticsError</span>(error);</div>
-                    <div class="code-line">  }</div>
-                    <div class="code-line">};</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <h2 class="section-title">Built for developers, <span class="gradient-text">powered by AI</span></h2>
+    <!-- Features Grid Section -->
+    <section class="features">
+        <h2 class="section-title">Powerful <span class="gradient-text">AI-driven features</span></h2>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">🧠</div>
@@ -900,13 +774,16 @@
         </div>
     </section>
 
-    <!-- Pricing CTA -->
-    <section class="pricing-cta">
+    <!-- CTA Section -->
+    <section class="cta-section">
         <h2>Ready to <span class="gradient-text">code faster?</span></h2>
         <p>Join thousands of developers using Oropendola AI to build better software</p>
         <div class="cta-buttons">
             <a href="/pricing" class="btn-primary" style="padding: 16px 32px; font-size: 16px;">
                 View Pricing
+            </a>
+            <a href="/login#signup" class="btn-secondary" style="padding: 16px 32px; font-size: 16px;">
+                Start Free Trial
             </a>
         </div>
     </section>
@@ -1000,73 +877,13 @@
         </div>
     </footer>
 
+    <!-- Mobile Menu Toggle Script -->
     <script>
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        // Header scroll effect
-        const header = document.querySelector('header');
-        let lastScroll = 0;
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            
-            if (currentScroll > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-            
-            lastScroll = currentScroll;
-        });
-
-        // Intersection Observer for fade-in animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe feature cards
-        document.addEventListener('DOMContentLoaded', () => {
-            const featureCards = document.querySelectorAll('.feature-card');
-            featureCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                card.style.transition = `all 0.6s ease ${index * 0.1}s`;
-                observer.observe(card);
-            });
-        });
-
-        // Mobile menu functions
         function toggleMobileMenu() {
             const menu = document.querySelector('.mobile-menu');
             const overlay = document.querySelector('.mobile-menu-overlay');
             menu.classList.toggle('active');
             overlay.classList.toggle('active');
-            
-            // Prevent body scroll when menu is open
-            if (menu.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
         }
 
         function closeMobileMenu() {
@@ -1074,8 +891,17 @@
             const overlay = document.querySelector('.mobile-menu-overlay');
             menu.classList.remove('active');
             overlay.classList.remove('active');
-            document.body.style.overflow = '';
         }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 </html>

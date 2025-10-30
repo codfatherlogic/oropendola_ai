@@ -11,15 +11,16 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-add_to_apps_screen = [
-	{
-		"name": "oropendola_ai",
-		"logo": "/files/icon.png",
-		"title": "Oropendola AI",
-		"route": "/app",
-		"has_permission": "oropendola_ai.oropendola_ai.api.permission.has_app_permission"
-	}
-]
+# Disabled - prevent 'No App' error for website users
+# add_to_apps_screen = [
+# 	{
+# 		"name": "oropendola_ai",
+# 		"logo": "/files/icon.png",
+# 		"title": "Oropendola AI",
+# 		"route": "/app",
+# 		"has_permission": "oropendola_ai.oropendola_ai.api.permission.has_app_permission"
+# 	}
+# ]
 
 # Includes in <head>
 # ------------------
@@ -32,7 +33,7 @@ add_to_apps_screen = [
 # web_include_css = "/assets/oropendola_ai/css/oropendola_ai.css"
 web_include_js = [
     "/assets/oropendola_ai/js/cache-buster.js",
-    "/assets/oropendola_ai/js/security-redirect.js",
+    # "/assets/oropendola_ai/js/security-redirect.js",  # Disabled - causing homepage redirect issues
     "/assets/oropendola_ai/js/force_redirect.js"
 ]
 
@@ -180,15 +181,16 @@ scheduler_events = {
 
 # Overriding Methods
 # ------------------------------
-# Override login method directly
-override_whitelisted_methods = {
-	"frappe.auth.get_logged_user": "oropendola_ai.oropendola_ai.api.auth.custom_login"
-}
+# Disabled - using Frappe's default login instead
+# override_whitelisted_methods = {
+# 	"frappe.auth.get_logged_user": "oropendola_ai.oropendola_ai.api.auth.custom_login"
+# }
 
 # Use auth hooks to intercept login
-auth_hooks = [
-	"oropendola_ai.oropendola_ai.utils.auth_hooks.validate_auth"
-]
+# Disabled - causing redirect issues
+# auth_hooks = [
+# 	"oropendola_ai.oropendola_ai.utils.auth_hooks.validate_auth"
+# ]
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
@@ -213,11 +215,13 @@ after_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_header
 
 # Session Events
 # ----------------
-on_session_creation = "oropendola_ai.oropendola_ai.utils.session_utils.on_session_creation"
+# Disabled - was interfering with login
+# on_session_creation = "oropendola_ai.oropendola_ai.utils.session_utils.on_session_creation"
 
 # Boot Session
 # ----------------
-extend_bootinfo = "oropendola_ai.oropendola_ai.utils.session_utils.extend_bootinfo"
+# Disabled - was causing 'No App' error during login
+# extend_bootinfo = "oropendola_ai.oropendola_ai.utils.session_utils.extend_bootinfo"
 
 # Job Events
 # ----------

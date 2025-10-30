@@ -7,8 +7,35 @@ from frappe import _
 
 def after_install():
 	"""Called after app installation"""
+	create_website_user_role()
 	create_default_model_profiles()
 	create_default_plans()
+
+
+def create_website_user_role():
+	"""Create Website User role if it doesn't exist - required for website users to log in"""
+	if frappe.db.exists("Role", "Website User"):
+		print("⊙ Website User role already exists")
+		return
+	
+	try:
+		# Create the Website User role with desk_access = 0
+		role = frappe.get_doc({
+			"doctype": "Role",
+			"name": "Website User",
+			"desk_access": 0
+		})
+		role.insert(ignore_permissions=True)
+		frappe.db.commit()
+		print("✓ Created Website User role")
+		return True
+	except Exception as e:
+		frappe.log_error(
+			message=f"Failed to create Website User role: {str(e)}",
+			title="Website User Role Creation Failed"
+		)
+		print(f"✗ Failed to create Website User role: {str(e)}")
+		return False
 
 
 @frappe.whitelist()

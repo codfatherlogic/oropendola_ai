@@ -529,12 +529,15 @@ def reset_password_with_otp(email, password):
 				"error": "Email not found. Please sign up first."
 			}
 		
-		# Get user and update password
-		user = frappe.get_doc("User", email)
-		user.set_password(password)
-		user.save()
+		# Update password using Frappe's update_password method
+		from frappe.utils.password import update_password
+		update_password(user=email, pwd=password, logout_all_sessions=1)
 		
 		frappe.db.commit()
+		
+		# Delete OTP after successful password reset
+		cache_key = f"otp:{email}:reset_password"
+		frappe.cache().delete_value(cache_key)
 		
 		frappe.logger().info(f"Password reset successfully for {email}")
 		

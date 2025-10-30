@@ -15,6 +15,9 @@
     <!-- Cache Buster Script -->
     <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
     
+    <!-- Dynamic Navigation Script -->
+    <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -732,6 +735,10 @@
                 <img src="/files/icon.png" alt="Oropendola AI Logo">
             </a>
             <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/docs">Docs</a>
+                <a href="/my-profile" class="active">My Profile</a>
                 <button class="btn-logout" onclick="handleLogout()">Logout</button>
             </div>
             <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Open menu">
@@ -749,16 +756,29 @@
             ✕
         </button>
         <div class="mobile-menu-items">
-            <a href="#" class="mobile-menu-item" onclick="showTab('analytics'); closeMobileMenu();">
+            <a href="/#features" class="mobile-menu-item">
+                ✨ Features
+            </a>
+            <a href="/pricing" class="mobile-menu-item">
+                💎 Pricing
+            </a>
+            <a href="/docs" class="mobile-menu-item">
+                📚 Docs
+            </a>
+            <a href="/my-profile" class="mobile-menu-item" style="background: var(--bg-card); border-color: var(--accent-primary); color: var(--accent-primary);">
+                👤 My Profile
+            </a>
+            <div style="border-top: 1px solid var(--border-color); margin: 8px 0;"></div>
+            <a href="#" class="mobile-menu-item" onclick="showTab('analytics'); closeMobileMenu(); event.preventDefault();">
                 📊 Analytics
             </a>
-            <a href="#" class="mobile-menu-item" onclick="showTab('profile'); closeMobileMenu();">
+            <a href="#" class="mobile-menu-item" onclick="showTab('profile'); closeMobileMenu(); event.preventDefault();">
                 👤 Profile
             </a>
-            <a href="#" class="mobile-menu-item" onclick="showTab('billing'); closeMobileMenu();">
+            <a href="#" class="mobile-menu-item" onclick="showTab('billing'); closeMobileMenu(); event.preventDefault();">
                 💳 Billing
             </a>
-            <a href="#" class="mobile-menu-item" onclick="showTab('settings'); closeMobileMenu();">
+            <a href="#" class="mobile-menu-item" onclick="showTab('settings'); closeMobileMenu(); event.preventDefault();">
                 ⚙️ Settings
             </a>
             <button class="mobile-menu-item logout" onclick="handleLogout()">

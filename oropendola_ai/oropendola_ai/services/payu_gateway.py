@@ -214,12 +214,10 @@ class PayUGateway:
 			invoice.db_set("amount_paid", float(response_data.get("amount", 0)), update_modified=False)
 			invoice.db_set("payment_method", response_data.get("mode", ""), update_modified=False)
 			
-			# Update subscription
+			# Update subscription using centralized renewal logic
 			if invoice.subscription:
-				subscription = frappe.get_doc("AI Subscription", invoice.subscription)
-				subscription.db_set("status", "Active", update_modified=False)
-				subscription.db_set("amount_paid", float(response_data.get("amount", 0)), update_modified=False)
-				subscription.db_set("last_payment_date", frappe.utils.now(), update_modified=False)
+				from oropendola_ai.oropendola_ai.api.subscription_renewal import apply_payment_to_subscription
+				apply_payment_to_subscription(invoice.name)
 			
 			frappe.db.commit()
 			

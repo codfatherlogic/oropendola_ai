@@ -135,7 +135,7 @@ def create_subscription_and_invoice(plan_id: str):
 			"billing_email": frappe.db.get_value("User", user, "email"),
 			"daily_quota_limit": plan.requests_limit_per_day,
 			"daily_quota_remaining": plan.requests_limit_per_day,
-			"auto_renew": 1,
+			"auto_renew": 0,  # Auto-renewal disabled by default
 			"created_by_user": user
 		})
 		subscription.insert(ignore_permissions=True)

@@ -1,12 +1,18 @@
 /**
- * Global Security Redirect Script
+ * Global Security Redirect Script v2.1
  * Ensures authenticated users are always on /my-profile
  * Redirects guest users to /login
  * Optimized to prevent browser history navigation flicker
+ * Updated: Allows authenticated users to access homepage and public pages
+ * Build: 2025-01-29-FINAL
  */
 
 (function() {
     'use strict';
+    
+    // VERSION CHECK - If you see old version in console, clear browser cache!
+    const SCRIPT_VERSION = '2.1-FINAL-20250129';
+    console.log('🛡️ Security Redirect Script Version:', SCRIPT_VERSION);
     
     // List of allowed public pages (no redirect needed for guests)
     const PUBLIC_PAGES = [
@@ -106,15 +112,17 @@
                 return;
             }
             
-            // Authenticated non-admin on homepage - redirect to dashboard immediately
-            if (!isAdmin && isHomepage) {
-                performRedirect('/my-profile', '🔄 Redirecting authenticated user from homepage to dashboard');
+            // Homepage and public pages are allowed for all authenticated users
+            if (isHomepage || isPublicPage) {
+                console.log('✅ Authenticated user viewing public page:', currentPath);
+                console.log('   User:', user);
+                console.log('   Is Admin:', isAdmin);
+                console.log('   Allowing access to public content');
                 return;
             }
             
-            // Authenticated non-admin on any page except dashboard or public pages
-            // Redirect to dashboard
-            if (!isAdmin && !isDashboard && !isPublicPage) {
+            // Authenticated non-admin on any other page - redirect to dashboard
+            if (!isAdmin && !isDashboard) {
                 performRedirect('/my-profile', `🔄 Redirecting authenticated user to dashboard from: ${currentPath}`);
                 return;
             }

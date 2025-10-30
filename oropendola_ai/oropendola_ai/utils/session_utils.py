@@ -5,42 +5,8 @@ import frappe
 
 def on_session_creation(login_manager):
 	"""
-	Called after user session is created.
-	Override default desk redirect to keep users on website.
-	"""
-	# Get logged in user
-	user = frappe.session.user
-	
-	# Don't process for Guest or Administrator
-	if user in ["Administrator", "Guest"]:
-		return
-	
-	# Get user roles
-	user_roles = frappe.get_roles(user)
-	
-	# Check if user has desk access
-	has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
-	
-	# For website users (customers), force redirect to profile dashboard
-	if not has_desk_access:
-		# Clear any existing redirect
-		if hasattr(frappe.local, "response"):
-			frappe.local.response["home_page"] = "/my-profile"
-		
-		# Set redirect location directly
-		if hasattr(login_manager, "redirect_to"):
-			login_manager.redirect_to = "/my-profile"
-		
-		# Force the response
-		frappe.local.flags.redirect_location = "/my-profile"
-		
-		# Log for debugging
-		frappe.logger().info(f"Session created for website user {user}, redirecting to /my-profile")
-
-
-def extend_bootinfo(bootinfo):
-	"""
-	Extend boot info to force website users to homepage.
+	Called after user session is created (after login).
+	Set redirect location for website users to /my-profile.
 	"""
 	user = frappe.session.user
 	
@@ -53,11 +19,32 @@ def extend_bootinfo(bootinfo):
 	# Check if user has desk access
 	has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
 	
-	# For website users, set home_page to profile dashboard
+	# For website users, set redirect to profile
 	if not has_desk_access:
-		bootinfo["home_page"] = "/my-profile"
-		bootinfo["desk_theme"] = None  # Disable desk theme
-		# Remove desk access
+		# Set the redirect location
+		if hasattr(login_manager, "redirect_to"):
+			login_manager.redirect_to = "/my-profile"
+		frappe.logger().info(f"Session created for website user {user}, will redirect to /my-profile")
+
+
+def extend_bootinfo(bootinfo):
+	"""
+	Extend boot info - DON'T set home_page to avoid 'No App' error.
+	"""
+	user = frappe.session.user
+	
+	if user == "Guest":
+		return
+	
+	# Get user roles
+	user_roles = frappe.get_roles(user)
+	
+	# Check if user has desk access
+	has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
+	
+	# For website users, just remove desk access - DON'T set home_page
+	if not has_desk_access:
+		# Remove desk access modules
 		if "modules" in bootinfo:
 			bootinfo["modules"] = []
 		if "all_apps" in bootinfo:

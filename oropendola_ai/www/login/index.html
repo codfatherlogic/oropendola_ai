@@ -319,9 +319,88 @@
             to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 480px) {
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 16px;
+            }
+
+            .logo-section {
+                margin-bottom: 32px;
+            }
+
+            .logo img {
+                width: 64px;
+                height: 64px;
+            }
+
             .auth-box {
                 padding: 32px 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .tabs {
+                margin-bottom: 24px;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 12px 14px;
+            }
+
+            .btn-submit {
+                padding: 16px;
+                font-size: 16px;
+                min-height: 48px; /* Touch-friendly */
+            }
+
+            .password-toggle input {
+                padding-right: 50px;
+            }
+
+            .toggle-password {
+                min-width: 44px; /* Touch target */
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 28px 20px;
+            }
+
+            .logo img {
+                width: 56px;
+                height: 56px;
+            }
+
+            .tagline {
+                font-size: 13px;
+            }
+
+            h2 {
+                font-size: 18px;
             }
         }
     </style>
@@ -503,33 +582,31 @@
 
                 const data = await response.json();
 
-                if (response.ok && data.message === 'Logged In') {
+                if (response.ok && (data.message === 'Logged In' || data.message === 'No App')) {
                     showAlert('Login successful! Redirecting...', 'success');
                     
-                    // Check if response includes home_page
-                    let homePage = data.home_page || data.message?.home_page;
+                    // Determine redirect based on user
+                    let redirectUrl = '/';
                     
-                    // Force /my-profile for non-admin users (safety check)
-                    if (!homePage || homePage === '/' || homePage.includes('/app') || homePage.includes('/desk')) {
-                        // Check if this is an admin login
-                        if (email.toLowerCase() === 'administrator' || email.toLowerCase().includes('admin')) {
-                            homePage = '/app';
-                        } else {
-                            homePage = '/my-profile';
-                        }
+                    if (email.toLowerCase() === 'administrator' || email.toLowerCase() === 'admin') {
+                        // Admin users go to /app
+                        redirectUrl = '/app';
+                    } else {
+                        // All other users (customers/website users) go to /my-profile
+                        redirectUrl = '/my-profile';
                     }
                     
-                    console.log('🔑 Login successful, redirecting to:', homePage);
+                    // Check for redirect-to parameter
+                    const urlRedirect = new URLSearchParams(window.location.search).get('redirect-to');
+                    if (urlRedirect && !urlRedirect.includes('/app') && !urlRedirect.includes('/desk')) {
+                        redirectUrl = urlRedirect;
+                    }
                     
-                    // Redirect based on server response
+                    console.log('🔑 Login successful, redirecting to:', redirectUrl);
+                    
+                    // Wait a moment then redirect
                     setTimeout(() => {
-                        const urlRedirect = new URLSearchParams(window.location.search).get('redirect-to');
-                        const finalRedirect = urlRedirect || homePage;
-                        
-                        console.log('🎯 Final redirect URL:', finalRedirect);
-                        
-                        // Force full page reload
-                        window.location.replace(finalRedirect);
+                        window.location.href = redirectUrl;
                     }, 500);
                 } else {
                     throw new Error(data.message || data.exc || 'Invalid email or password');

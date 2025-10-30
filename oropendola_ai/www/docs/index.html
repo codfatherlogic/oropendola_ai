@@ -16,6 +16,9 @@
     <!-- Cache Buster Script -->
     <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
     
+    <!-- Dynamic Navigation Script -->
+    <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -130,6 +133,122 @@
             background: transparent;
             color: var(--text-primary);
             border: 1px solid var(--border-color);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .mobile-menu-toggle:hover {
+            color: var(--accent-primary);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 80px 24px 24px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .mobile-menu-close:hover {
+            color: var(--accent-primary);
+            transform: rotate(90deg);
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mobile-menu-item {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        .mobile-menu-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateX(-4px);
+        }
+
+        .mobile-menu-item.primary {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+            justify-content: center;
+            font-size: 18px;
+            padding: 18px 20px;
+        }
+
+        .mobile-menu-item.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(123, 97, 255, 0.4);
         }
 
         /* Hero Section */
@@ -407,25 +526,130 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            nav {
+                padding: 16px 24px;
+            }
+
+            .logo img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .docs-hero {
+                padding: 120px 24px 60px;
+            }
+
             .docs-hero h1 {
-                font-size: 42px;
+                font-size: 36px;
+            }
+
+            .docs-hero p {
+                font-size: 16px;
+            }
+
+            .stats-section {
+                padding: 40px 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+
+            .stat-number {
+                font-size: 36px;
+            }
+
+            .content-section {
+                padding: 60px 24px;
             }
 
             .section-title {
-                font-size: 36px;
+                font-size: 32px;
+                margin-bottom: 40px;
             }
 
             .content-grid {
                 grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .content-card {
+                padding: 32px 24px;
+            }
+
+            .team-section {
+                padding: 60px 24px;
+                margin-bottom: 60px;
+            }
+
+            .team-content h2 {
+                font-size: 32px;
+            }
+
+            .cta-section {
+                padding: 80px 24px;
+            }
+
+            .cta-section h2 {
+                font-size: 40px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: 16px;
             }
 
             .footer-content {
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
+        }
 
-            .nav-links {
-                display: none;
+        @media (max-width: 480px) {
+            .docs-hero h1 {
+                font-size: 32px;
+            }
+
+            .docs-hero {
+                padding: 100px 20px 50px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .content-card {
+                padding: 28px 20px;
+            }
+
+            .content-card h3 {
+                font-size: 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 32px;
+            }
+
+            .cta-section {
+                padding: 60px 20px;
             }
         }
     </style>
@@ -438,14 +662,44 @@
                 <img src="/files/icon.png" alt="Oropendola AI Logo">
             </a>
             <div class="nav-links">
-                <a href="/#features">Features</a>
+                <a href="/features">Features</a>
                 <a href="/pricing">Pricing</a>
                 <a href="/docs" class="active">Docs</a>
                 <a href="/login" class="btn-secondary">Sign In</a>
                 <a href="/login#signup" class="btn-primary">Get Started</a>
             </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Open menu">
+                ☰
+            </button>
         </nav>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">
+            ✕
+        </button>
+        <div class="mobile-menu-items">
+            <a href="/features" class="mobile-menu-item">
+                Features <span>→</span>
+            </a>
+            <a href="/pricing" class="mobile-menu-item">
+                Pricing <span>→</span>
+            </a>
+            <a href="/docs" class="mobile-menu-item">
+                Docs <span>→</span>
+            </a>
+            <a href="/login" class="mobile-menu-item">
+                Sign In <span>→</span>
+            </a>
+            <a href="/login#signup" class="mobile-menu-item primary">
+                Get Started
+            </a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="docs-hero">
@@ -620,7 +874,7 @@
             </div>
             <div class="footer-column">
                 <h4>Product</h4>
-                <a href="/#features">Features</a>
+                <a href="/features">Features</a>
                 <a href="/pricing">Pricing</a>
                 <a href="/docs">Documentation</a>
                 <a href="#">VS Code Extension</a>
@@ -643,5 +897,24 @@
             <p>&copy; 2025 CODFATHER LOGIC LLP. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            const menu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    </script>
 </body>
 </html>

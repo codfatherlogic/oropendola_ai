@@ -16,7 +16,8 @@ import hashlib
 def custom_login(usr, pwd, device="desktop"):
 	"""
 	Custom login method that overrides Frappe's default.
-	Forces website users to stay on website, not redirect to desk.
+	Does NOT set home_page to avoid 'No App' error.
+	Let the frontend (login.html) handle redirect logic.
 	
 	Args:
 		usr (str): Username/email
@@ -43,24 +44,11 @@ def custom_login(usr, pwd, device="desktop"):
 			user_roles = frappe.get_roles(user)
 			frappe.logger().info(f"User roles: {user_roles}")
 			
-			# Check if user has desk access
-			has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
-			frappe.logger().info(f"Has desk access: {has_desk_access}")
-			
-			# Force website redirect for non-admin users
-			if not has_desk_access:
-				# Set response to redirect to profile dashboard
-				frappe.local.response["home_page"] = "/profile"
-				frappe.local.response["message"] = "Logged In"
-				frappe.response["message"] = "Logged In"
-				frappe.response["home_page"] = "/profile"
-				frappe.logger().info("Redirecting website user to /profile")
-			else:
-				# Admin users can go to desk
-				frappe.local.response["message"] = "Logged In"
-				frappe.response["message"] = "Logged In"
-				frappe.response["home_page"] = "/app"
-				frappe.logger().info("Redirecting admin user to /app")
+			# Just return success - DON'T set home_page
+			# Frontend (login.html) will handle redirect based on roles
+			frappe.local.response["message"] = "Logged In"
+			frappe.response["message"] = "Logged In"
+			frappe.logger().info("Login successful, response sent to frontend")
 		
 		frappe.logger().info(f"Final response: {frappe.response}")
 		return frappe.response

@@ -12,6 +12,7 @@ def validate_auth():
 	"""
 	Called after successful authentication to set proper redirects.
 	This runs AFTER LoginManager.authenticate() succeeds.
+	DOES NOT set home_page to avoid redirect issues on public pages.
 	"""
 	try:
 		user = frappe.session.user
@@ -27,25 +28,11 @@ def validate_auth():
 		# Check if user has desk access
 		has_desk_access = "System Manager" in user_roles or "Administrator" in user_roles
 		
-		# For website users, force redirect to profile
+		# Just log the user type - don't force redirects
 		if not has_desk_access:
-			# Override the default home page
-			frappe.local.response["home_page"] = "/my-profile"
-			frappe.response["home_page"] = "/my-profile"
-			
-			# Clear the "No App" message
-			frappe.local.response["message"] = "Logged In"
-			frappe.response["message"] = "Logged In"
-			
-			frappe.logger().info(f"Auth hook - Redirecting {user} to /my-profile")
+			frappe.logger().info(f"Auth hook - Website user {user} authenticated")
 		else:
-			# Admin users go to desk
-			frappe.local.response["home_page"] = "/app"
-			frappe.response["home_page"] = "/app"
-			frappe.local.response["message"] = "Logged In"
-			frappe.response["message"] = "Logged In"
-			
-			frappe.logger().info(f"Auth hook - Redirecting {user} to /app")
+			frappe.logger().info(f"Auth hook - Admin user {user} authenticated")
 			
 	except Exception as e:
 		frappe.logger().error(f"Auth hook error: {str(e)}")

@@ -5,7 +5,7 @@ import frappe
 
 def get_context(context):
 	"""
-	Context for custom login page
+	Context for custom login page with social login support
 	"""
 	context.no_cache = 1
 	context.show_sidebar = False
@@ -19,9 +19,19 @@ def get_context(context):
 		frappe.local.flags.redirect_location = redirect_to
 		raise frappe.Redirect
 	
-	context.title = "Sign In - Oropendola AI"
+	# Add social login configuration
+	try:
+		social_providers = frappe.db.get_all(
+			'Social Login Key',
+			filters={'enabled': 1},
+			fields=['provider']
+		)
+		context.social_login_enabled = len(social_providers) > 0
+		context.social_providers_count = len(social_providers)
+	except Exception:
+		context.social_login_enabled = False
+		context.social_providers_count = 0
 	
-	return context
 	context.title = "Sign In - Oropendola AI"
 	
 	return context

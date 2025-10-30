@@ -1090,6 +1090,25 @@
                         </button>
                     </form>
 
+                    <!-- Social Login Divider -->
+                    <div style="display: flex; align-items: center; gap: 16px; margin: 24px 0; opacity: 0.6;">
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                        <span style="font-size: 12px; color: var(--text-secondary);">Or continue with</span>
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    </div>
+
+                    <!-- Social Login Buttons -->
+                    <div id="socialLoginContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                        <button type="button" class="social-login-btn" onclick="initiatePricingSocialLogin('google', event)" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-weight: 500;">
+                            <img src="https://oropendola.ai/files/google.png" alt="Google" style="height: 20px; width: auto;">
+                            <span>Continue with Google</span>
+                        </button>
+                        <button type="button" class="social-login-btn" onclick="initiatePricingSocialLogin('github', event)" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-weight: 500;">
+                            <img src="https://oropendola.ai/files/github.png" alt="GitHub" style="height: 20px; width: auto;">
+                            <span>Continue with GitHub</span>
+                        </button>
+                    </div>
+
                     <div class="auth-footer">
                         <span id="footerText">Already have an account? <a href="#" onclick="switchAuthMode('login'); return false;">Login here</a></span>
                     </div>
@@ -1441,6 +1460,63 @@
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
             return '';
+        }
+
+        // === SOCIAL LOGIN FOR PRICING ===
+        async function initiatePricingSocialLogin(provider, event) {
+            event.preventDefault();
+            const btn = event.currentTarget;
+            
+            try {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                
+                const apiUrl = `${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.social_login.initiate_social_login`;
+                console.log('📱 Initiating social login from pricing for:', provider, 'with redirect_to: pricing');
+                
+                // Build request payload with redirect_to='pricing'
+                const payload = { 
+                    provider: provider,
+                    redirect_to: 'pricing'  // This ensures redirect to /pricing after auth
+                };
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                console.log('📱 Social login response:', result);
+                
+                // Handle both possible response structures
+                let authUrl = null;
+                if (result.message && result.message.auth_url) {
+                    authUrl = result.message.auth_url;
+                } else if (result.auth_url) {
+                    authUrl = result.auth_url;
+                }
+                
+                console.log('📱 Extracted auth_url:', authUrl);
+                
+                if (authUrl) {
+                    console.log('📱 Redirecting to OAuth URL for pricing flow:', authUrl);
+                    // Redirect to the OAuth authorization URL
+                    // This will eventually redirect back to /pricing after authentication
+                    window.location.href = authUrl;
+                } else {
+                    console.error('❌ No auth_url found in response:', result);
+                    throw new Error('Could not initiate social login');
+                }
+            } catch (error) {
+                console.error('❌ Social login error:', error);
+                showAlert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login failed. Please try email instead.`, 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
         }
 
         // === MODAL FUNCTIONS ===

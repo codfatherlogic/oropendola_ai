@@ -778,6 +778,9 @@
             <a href="#" class="mobile-menu-item" onclick="showTab('billing'); closeMobileMenu(); event.preventDefault();">
                 💳 Billing
             </a>
+            <a href="#" class="mobile-menu-item" onclick="showTab('support'); closeMobileMenu(); event.preventDefault();">
+                🎫 Support
+            </a>
             <a href="#" class="mobile-menu-item" onclick="showTab('settings'); closeMobileMenu(); event.preventDefault();">
                 ⚙️ Settings
             </a>
@@ -804,6 +807,9 @@
             </button>
             <button class="tab" onclick="showTab('billing')">
                 💳 Billing
+            </button>
+            <button class="tab" onclick="showTab('support')">
+                🎫 Support
             </button>
             <button class="tab" onclick="showTab('settings')">
                 ⚙️ Settings
@@ -950,47 +956,92 @@
                     `;
                     break;
                 
-                case 'settings':
+                case 'support':
                     content.innerHTML = `
-                        <div style="max-width: 800px;">
-                            <div class="settings-group">
-                                <h3>Preferences</h3>
-                                <div class="setting-item">
-                                    <div>
-                                        <div class="setting-label">Email Notifications</div>
-                                        <div class="setting-description">Receive email updates about your account</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
+                        <div style="margin-bottom: 40px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                <div>
+                                    <h2 style="font-size: 28px; margin: 0 0 8px 0;">🎫 My Support Tickets</h2>
+                                    <p style="color: var(--text-secondary); margin: 0;">Track your support requests and get help from our team</p>
                                 </div>
-                                <div class="setting-item">
-                                    <div>
-                                        <div class="setting-label">Usage Alerts</div>
-                                        <div class="setting-description">Get notified when approaching usage limits</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
+                                <button onclick="openTicketModal()" style="background: var(--accent-gradient); color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                    🎫 Create New Ticket
+                                </button>
                             </div>
-                            <div class="settings-group">
-                                <h3>Security</h3>
-                                <div class="setting-item">
-                                    <div>
-                                        <div class="setting-label">Two-Factor Authentication</div>
-                                        <div class="setting-description">Add an extra layer of security</div>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox">
-                                        <span class="slider"></span>
-                                    </label>
+
+                            <div id="tickets-list" style="margin-top: 24px;">
+                                <div class="loading" style="text-align: center; padding: 60px;">
+                                    <div class="spinner"></div>
+                                    <p style="color: var(--text-secondary);">Loading your tickets...</p>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Ticket Modal -->
+                        <div id="ticketModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 3000; overflow-y: auto;" onclick="if(event.target.id === 'ticketModal') closeTicketModal()">
+                            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; width: 90%; max-width: 600px; margin: 40px auto; padding: 40px; position: relative;">
+                                <button onclick="closeTicketModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 28px; cursor: pointer;">&times;</button>
+                                
+                                <h2 style="margin: 0 0 8px 0;">Create Support Ticket</h2>
+                                <p style="color: var(--text-secondary); margin-bottom: 24px;">Fill out the form below and we'll get back to you soon</p>
+
+                                <form id="ticketForm" onsubmit="submitTicket(event)">
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Full Name</label>
+                                        <input type="text" id="ticketName" placeholder="Your name" required style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box;">
+                                    </div>
+
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Category</label>
+                                        <select id="ticketCategory" required style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box;">
+                                            <option value="">Select a category...</option>
+                                            <option value="General Inquiry">General Inquiry</option>
+                                            <option value="Technical Support">Technical Support</option>
+                                            <option value="Billing & Payments">Billing & Payments</option>
+                                            <option value="Feature Request">Feature Request</option>
+                                            <option value="Bug Report">Bug Report</option>
+                                            <option value="API Integration">API Integration</option>
+                                            <option value="Enterprise Solutions">Enterprise Solutions</option>
+                                            <option value="Partnership">Partnership</option>
+                                            <option value="Account Issues">Account Issues</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Subject</label>
+                                        <input type="text" id="ticketSubject" placeholder="Brief description of your issue" required style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box;">
+                                    </div>
+
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Priority</label>
+                                        <select id="ticketPriority" style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box;">
+                                            <option value="Low">Low</option>
+                                            <option value="Medium" selected>Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="margin-bottom: 24px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Description</label>
+                                        <textarea id="ticketDescription" placeholder="Describe your issue in detail..." required rows="6" style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+                                    </div>
+
+                                    <div style="margin-bottom: 24px;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Attachments (Optional)</label>
+                                        <input type="file" id="ticketAttachments" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.txt,.zip" style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px dashed var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box; cursor: pointer;">
+                                        <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">Supported formats: PDF, DOC, DOCX, PNG, JPG, GIF, TXT, ZIP (up to 5 files)</small>
+                                    </div>
+
+                                    <button type="submit" style="width: 100%; background: var(--accent-gradient); color: white; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                                        Submit Ticket
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     `;
+                    loadUserTickets();
                     break;
             }
         }
@@ -1030,6 +1081,180 @@
             menu.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        // Support Ticket Functions
+        function openTicketModal() {
+            document.getElementById('ticketModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTicketModal() {
+            document.getElementById('ticketModal').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('ticketForm').reset();
+        }
+
+        async function submitTicket(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('ticketName').value;
+            const category = document.getElementById('ticketCategory').value;
+            const subject = document.getElementById('ticketSubject').value;
+            const description = document.getElementById('ticketDescription').value;
+            const priority = document.getElementById('ticketPriority').value;
+            const files = document.getElementById('ticketAttachments').files;
+            
+            try {
+                // First create the ticket
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.create_support_ticket`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_name: name,
+                        category: category,
+                        subject: subject,
+                        description: description,
+                        priority: priority
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.message || !result.message.success) {
+                    alert('Error: ' + (result.message?.message || 'Failed to create ticket'));
+                    return;
+                }
+
+                const ticketId = result.message.ticket_id;
+                
+                // Upload attachments if any
+                if (files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('doctype', 'AI Support Ticket');
+                    formData.append('docname', ticketId);
+                    
+                    for (let file of files) {
+                        formData.append('file', file);
+                    }
+                    
+                    try {
+                        await fetch(`${API_BASE}/api/method/frappe.client.attach_file`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                            },
+                            credentials: 'include',
+                            body: formData
+                        });
+                    } catch (attachError) {
+                        console.warn('Warning: Files uploaded but attachment linking failed:', attachError);
+                    }
+                }
+                
+                alert('Ticket created successfully! Ticket ID: ' + ticketId);
+                closeTicketModal();
+                loadUserTickets();
+            } catch (error) {
+                console.error('Error submitting ticket:', error);
+                alert('Failed to submit ticket. Please try again.');
+            }
+        }
+
+        async function loadUserTickets() {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.get_user_tickets`, {
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                const ticketsContainer = document.getElementById('tickets-list');
+                
+                if (!result.message || !result.message.success) {
+                    ticketsContainer.innerHTML = '<p style="color: var(--text-secondary);">Unable to load tickets</p>';
+                    return;
+                }
+                
+                const tickets = result.message.tickets || [];
+                
+                if (tickets.length === 0) {
+                    ticketsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: 12px;">
+                            <p style="font-size: 18px; margin-bottom: 12px;">📭 No support tickets yet</p>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;">Create your first support ticket to get help from our team</p>
+                            <button onclick="openTicketModal()" style="background: var(--accent-gradient); color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                Create First Ticket
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary);">
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">TICKET</th>
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">SUBJECT</th>
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">CATEGORY</th>
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">STATUS</th>
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">PRIORITY</th>
+                                    <th style="padding: 16px; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">CREATED</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                tickets.forEach(ticket => {
+                    const statusColor = ticket.status === 'Open' ? 'var(--warning)' : ticket.status === 'Resolved' ? 'var(--success)' : 'var(--text-secondary)';
+                    const priorityColor = ticket.priority === 'Critical' ? '#FF5F56' : ticket.priority === 'High' ? 'var(--warning)' : ticket.priority === 'Medium' ? 'var(--accent-primary)' : 'var(--text-secondary)';
+                    const createdDate = new Date(ticket.created_date).toLocaleDateString();
+                    
+                    html += `
+                        <tr style="border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="viewTicketDetails('${ticket.name}')" onmouseover="this.style.backgroundColor='var(--bg-tertiary)'" onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 16px; color: var(--accent-primary); font-weight: 600;">${ticket.name}</td>
+                            <td style="padding: 16px; color: var(--text-primary);">${ticket.subject}</td>
+                            <td style="padding: 16px; color: var(--text-secondary);">${ticket.category}</td>
+                            <td style="padding: 16px;">
+                                <span style="background: rgba(0,217,255,0.1); color: ${statusColor}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">${ticket.status}</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                <span style="color: ${priorityColor}; font-weight: 600;">${ticket.priority}</span>
+                            </td>
+                            <td style="padding: 16px; color: var(--text-secondary);">${createdDate}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                ticketsContainer.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+                const ticketsContainer = document.getElementById('tickets-list');
+                ticketsContainer.innerHTML = '<p style="color: var(--text-secondary);">Error loading tickets</p>';
+            }
+        }
+
+        function viewTicketDetails(ticketId) {
+            // Could open a detailed view modal in future
+            console.log('Viewing ticket:', ticketId);
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
         }
     </script>
 </body>

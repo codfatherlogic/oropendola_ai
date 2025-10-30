@@ -385,22 +385,106 @@
             }
         }
 
+        /* Social Login Styles */
+        .social-login-section {
+            margin-top: 24px;
+        }
+
+        .social-login-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0 24px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .social-login-divider::before,
+        .social-login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .social-login-divider::before {
+            margin-right: 12px;
+        }
+
+        .social-login-divider::after {
+            margin-left: 12px;
+        }
+
+        .social-login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-login-btn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .social-login-btn:hover {
+            background: var(--bg-secondary);
+            border-color: #7B61FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 97, 255, 0.2);
+        }
+
+        .social-login-btn.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .social-login-icon {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: 24px;
+            line-height: 1;
+        }
+
+        .social-login-icon img {
+            height: 24px;
+            width: auto;
+            max-width: 100px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .social-login-label {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
         @media (max-width: 480px) {
-            .auth-box {
-                padding: 28px 20px;
+            .social-login-btn {
+                padding: 14px 16px;
+                font-size: 14px;
             }
 
-            .logo img {
-                width: 56px;
-                height: 56px;
-            }
-
-            .tagline {
-                font-size: 13px;
-            }
-
-            h2 {
-                font-size: 18px;
+            .social-login-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
             }
         }
     </style>
@@ -475,6 +559,14 @@
                     <button type="submit" class="btn-submit" id="signup-btn">Create Account</button>
                 </form>
             </div>
+
+            <!-- Social Login Section -->
+            <div id="social-login-section" class="social-login-section" style="display: none;">
+                <div class="social-login-divider">or continue with</div>
+                <div class="social-login-buttons" id="social-login-buttons">
+                    <!-- Social buttons will be dynamically loaded here -->
+                </div>
+            </div>
         </div>
 
         <!-- Back to Home -->
@@ -507,6 +599,105 @@
             window.location.hash = tab;
         }
 
+        // Load and render social login providers
+        async function loadSocialLoginProviders() {
+            try {
+                const apiUrl = `${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.social_login.get_social_login_providers`;
+                console.log('📱 Loading social login providers from:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                console.log('📱 Social login API response:', result);
+                
+                if (result.message && result.message.providers && result.message.providers.length > 0) {
+                    console.log('📱 Found', result.message.providers.length, 'social login providers');
+                    renderSocialLoginButtons(result.message.providers);
+                } else {
+                    console.log('📱 No social login providers configured');
+                }
+            } catch (error) {
+                console.warn('❌ Could not load social login providers:', error);
+            }
+        }
+
+        // Render social login buttons
+        function renderSocialLoginButtons(providers) {
+            const container = document.getElementById('social-login-buttons');
+            const section = document.getElementById('social-login-section');
+            
+            if (!container || providers.length === 0) return;
+            
+            let html = '';
+            providers.forEach(provider => {
+                html += `
+                    <button type="button" class="social-login-btn" onclick="initiateSocialLogin('${provider.provider}', event)" title="Sign in with ${provider.name}">
+                        <img src="${provider.icon}" alt="${provider.name}" class="social-login-icon">
+                        <span class="social-login-label">Sign in with ${provider.name}</span>
+                    </button>
+                `;
+            });
+            
+            container.innerHTML = html;
+            section.style.display = 'block';
+        }
+
+        // Initiate social login flow
+        async function initiateSocialLogin(provider, event) {
+            event.preventDefault();
+            const btn = event.currentTarget;
+            
+            try {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                
+                const apiUrl = `${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.social_login.initiate_social_login`;
+                console.log('📱 Initiating social login for:', provider);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ provider: provider }),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                console.log('📱 Social login initiation response:', result);
+                console.log('📱 Response structure:', JSON.stringify(result, null, 2));
+                
+                // Handle both possible response structures
+                let authUrl = null;
+                if (result.message && result.message.auth_url) {
+                    authUrl = result.message.auth_url;
+                } else if (result.auth_url) {
+                    authUrl = result.auth_url;
+                } else if (result.message && typeof result.message === 'object' && result.message.auth_url) {
+                    authUrl = result.message.auth_url;
+                }
+                
+                console.log('📱 Extracted auth_url:', authUrl);
+                
+                if (authUrl) {
+                    console.log('📱 Redirecting to OAuth URL:', authUrl);
+                    // Redirect to the OAuth authorization URL
+                    window.location.href = authUrl;
+                } else {
+                    console.error('❌ No auth_url found in response:', result);
+                    throw new Error('Could not initiate social login - auth_url missing');
+                }
+            } catch (error) {
+                console.error('❌ Social login error:', error);
+                console.error('❌ Error details:', error.message);
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                showAlert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login is not available. Please use email/password.`);
+            }
+        }
+
         // Handle hash on page load
         window.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1);
@@ -524,6 +715,9 @@
                 sessionStorage.setItem('selected_plan', plan);
                 switchTab('signup');
             }
+
+            // Load social login providers
+            loadSocialLoginProviders();
         });
 
         // Toggle password visibility

@@ -33,7 +33,7 @@ app_license = "mit"
 # web_include_css = "/assets/oropendola_ai/css/oropendola_ai.css"
 web_include_js = [
     "/assets/oropendola_ai/js/cache-buster.js",
-    # "/assets/oropendola_ai/js/security-redirect.js",  # Disabled - causing homepage redirect issues
+    "/assets/oropendola_ai/js/security-redirect.js",
     "/assets/oropendola_ai/js/force_redirect.js"
 ]
 

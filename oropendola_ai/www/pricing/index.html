@@ -2037,37 +2037,56 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const btn = document.getElementById('loginBtn');
-            
+
+            // Validate inputs
+            if (!email || !password) {
+                showAlert('Please enter both email and password', 'error');
+                return;
+            }
+
             try {
                 btn.disabled = true;
                 btn.innerHTML = 'Logging In<span class="btn-spinner"></span>';
-                
+
+                console.log('Attempting login for:', email);
+
                 // Call login API
                 const response = await fetch(`${API_BASE}/api/method/login`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
                     body: `usr=${encodeURIComponent(email)}&pwd=${encodeURIComponent(password)}`
                 });
+
                 const data = await response.json();
-                
+                console.log('Login response:', response.status, data);
+
                 if (response.ok && (data.message === 'Logged In' || data.message === 'No App')) {
                     // Login successful - proceed with subscription flow
                     currentEmail = email;
                     showAlert('Login successful! Processing subscription...', 'success');
-                    
+
                     // Close modal and proceed to payment
                     setTimeout(async () => {
                         closeAuthModal();
                         await processSubscriptionAfterAuth();
                     }, 1000);
+                } else if (response.status === 401) {
+                    // Authentication failed
+                    throw new Error('Invalid email or password. Please check your credentials and try again.');
                 } else if (data.exc) {
-                    throw new Error('Invalid email or password');
+                    // Server error with exception
+                    const errorMsg = data._server_messages ? JSON.parse(data._server_messages)[0] : 'Login failed';
+                    throw new Error(errorMsg || 'Invalid credentials. Please try again.');
                 } else {
-                    throw new Error('Login failed. Please try again.');
+                    throw new Error(data.message || 'Login failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert(error.message || 'Login failed. Please try again.', 'error');
+                showAlert(error.message || 'Login failed. Please check your credentials.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Login';

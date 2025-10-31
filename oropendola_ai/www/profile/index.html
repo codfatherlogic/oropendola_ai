@@ -14,7 +14,7 @@
     <meta http-equiv="Expires" content="0">
     
     <!-- Cache Buster Script -->
-    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    <script src="/assets/oropendola_ai/js/cache-buster.js?v=3.0"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -643,6 +643,12 @@
                 }
 
                 currentUser = data.message;
+
+                // Redirect Administrator to /app
+                if (currentUser === 'Administrator') {
+                    window.location.replace('/app');
+                    return;
+                }
             } catch (error) {
                 console.error('Error loading user:', error);
                 window.location.href = '/login';
@@ -859,6 +865,8 @@
                                         <input type="file" id="ticketAttachments" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.txt,.zip" style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px dashed var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; box-sizing: border-box; cursor: pointer;">
                                         <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">Supported formats: PDF, DOC, DOCX, PNG, JPG, GIF, TXT, ZIP (up to 5 files)</small>
                                     </div>
+
+                                    <button type="submit" style="width: 100%; padding: 14px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
                                         Submit Ticket
                                     </button>
                                 </form>
@@ -934,34 +942,64 @@
 
         async function submitTicket(event) {
             event.preventDefault();
-            
+
             const name = document.getElementById('ticketName').value;
             const category = document.getElementById('ticketCategory').value;
             const subject = document.getElementById('ticketSubject').value;
             const description = document.getElementById('ticketDescription').value;
             const priority = document.getElementById('ticketPriority').value;
             const files = document.getElementById('ticketAttachments').files;
-            
+
             try {
-                // First create the ticket
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.create_support_ticket`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        user_name: name,
-                        category: category,
-                        subject: subject,
-                        description: description,
-                        priority: priority
-                    })
+                // Prepare URL-encoded form data for Frappe whitelisted method
+                const params = new URLSearchParams();
+                params.append('user_name', name);
+                params.append('category', category);
+                params.append('subject', subject);
+                params.append('description', description);
+                params.append('priority', priority);
+
+                // First create the ticket using GET to avoid Expect: 100-continue
+                const url = `${API_BASE}/api/method/oropendola_ai.api.support_tickets.create_support_ticket?${params.toString()}`;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.withCredentials = true;
+
+                const response = await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve({
+                                ok: true,
+                                status: xhr.status,
+                                json: () => Promise.resolve(JSON.parse(xhr.responseText)),
+                                text: () => Promise.resolve(xhr.responseText)
+                            });
+                        } else {
+                            resolve({
+                                ok: false,
+                                status: xhr.status,
+                                json: () => Promise.resolve({}),
+                                text: () => Promise.resolve(xhr.responseText)
+                            });
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Network error'));
+                    xhr.send();
                 });
-                
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    alert('Error: Server returned status ' + response.status);
+                    return;
+                }
+
                 const result = await response.json();
-                
+                console.log('Result:', result);
+
                 if (!result.message || !result.message.success) {
                     alert('Error: ' + (result.message?.message || 'Failed to create ticket'));
                     return;
@@ -1004,7 +1042,7 @@
 
         async function loadUserTickets() {
             try {
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.get_user_tickets`, {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.api.support_tickets.get_user_tickets`, {
                     credentials: 'include'
                 });
                 

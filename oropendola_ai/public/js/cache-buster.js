@@ -21,28 +21,38 @@
         if (typeof url === 'string' && !url.startsWith('/') && !url.includes(window.location.hostname)) {
             return originalFetch.apply(this, arguments);
         }
-        
+
+        // Don't modify API calls to avoid interfering with POST requests
+        if (typeof url === 'string' && url.includes('/api/method/')) {
+            return originalFetch.apply(this, arguments);
+        }
+
         // Add cache buster to URL
         const urlObj = new URL(url, window.location.origin);
         urlObj.searchParams.set('_t', Date.now());
         urlObj.searchParams.set('_cb', CACHE_BUSTER);
-        
+
         // Add aggressive no-cache headers
         const newOptions = options || {};
         newOptions.headers = newOptions.headers || {};
         newOptions.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0';
         newOptions.headers['Pragma'] = 'no-cache';
         newOptions.headers['Expires'] = '0';
-        
+
         // Force cache mode to no-store
         newOptions.cache = 'no-store';
-        
+
         return originalFetch.call(this, urlObj.toString(), newOptions);
     };
     
     // Override XMLHttpRequest
     const originalXHROpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+        // Don't modify API calls
+        if (typeof url === 'string' && url.includes('/api/method/')) {
+            return originalXHROpen.apply(this, [method, url, async, user, password]);
+        }
+
         if (typeof url === 'string' && (url.startsWith('/') || url.includes(window.location.hostname))) {
             const urlObj = new URL(url, window.location.origin);
             urlObj.searchParams.set('_t', Date.now());

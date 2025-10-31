@@ -13,7 +13,7 @@
     <meta http-equiv="Expires" content="0">
     
     <!-- Cache Buster Script -->
-    <script src="/assets/oropendola_ai/js/cache-buster.js"></script>
+    <script src="/assets/oropendola_ai/js/cache-buster.js?v=3.0"></script>
     
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
@@ -839,8 +839,15 @@
                     window.location.replace('/login');
                     return;
                 }
-                
+
                 currentUser = data.message;
+
+                // Redirect Administrator to /app
+                if (currentUser === 'Administrator') {
+                    window.location.replace('/app');
+                    return;
+                }
+
                 showTab('analytics');
             } catch (error) {
                 console.error('Auth check failed:', error);
@@ -892,68 +899,40 @@
                     break;
                 
                 case 'profile':
-                    const initials = currentUser ? currentUser.substring(0, 2).toUpperCase() : 'U';
                     content.innerHTML = `
-                        <div class="profile-section">
-                            <div class="profile-header">
-                                <div class="profile-avatar">${initials}</div>
-                                <div class="profile-info">
-                                    <h2>${currentUser || 'User'}</h2>
-                                    <p>AI Assistant User</p>
-                                </div>
-                            </div>
-                            <div class="profile-details">
-                                <div class="detail-item">
-                                    <div>
-                                        <div class="detail-label">Email</div>
-                                        <div class="detail-value">${currentUser || 'Not available'}</div>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div>
-                                        <div class="detail-label">Account Status</div>
-                                        <div class="detail-value" style="color: var(--success);">Active</div>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div>
-                                        <div class="detail-label">Member Since</div>
-                                        <div class="detail-value">${new Date().toLocaleDateString()}</div>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div>
-                                        <div class="detail-label">Account Type</div>
-                                        <div class="detail-value">Individual</div>
-                                    </div>
-                                </div>
+                        <div style="max-width: 900px; margin: 0 auto;">
+                            <h2 style="font-size: 28px; margin: 0 0 24px 0;">👤 Profile Information</h2>
+                            <p style="color: var(--text-secondary); margin: 0 0 32px 0;">Manage your account, view analytics, and access all your profile settings</p>
+
+                            <div class="loading" style="text-align: center; padding: 60px;">
+                                <div class="spinner"></div>
+                                <p style="color: var(--text-secondary); margin-top: 16px;">Loading profile...</p>
                             </div>
                         </div>
                     `;
+                    loadUserProfile();
                     break;
                 
                 case 'billing':
                     content.innerHTML = `
-                        <div style="max-width: 800px;">
-                            <div class="billing-card">
-                                <h3>Current Subscription</h3>
-                                <div class="plan-info">
-                                    <div>
-                                        <div class="plan-name">Free Plan</div>
-                                        <p style="color: var(--text-secondary); margin-top: 4px;">Basic AI features</p>
-                                    </div>
-                                    <div class="plan-price">$0<span style="font-size: 16px; font-weight: 500;">/mo</span></div>
+                        <div style="max-width: 1200px; margin: 0 auto;">
+                            <div style="display: flex; align-items: center; margin-bottom: 24px;">
+                                <div style="width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                                    <span style="font-size: 24px;">💳</span>
                                 </div>
-                                <button class="btn-upgrade" onclick="window.location.href='/pricing'">
-                                    Upgrade to Pro
-                                </button>
+                                <div>
+                                    <h2 style="font-size: 28px; margin: 0;">Billing & Subscription</h2>
+                                    <p style="color: var(--text-secondary); margin: 4px 0 0 0;">Manage your subscription and payment history</p>
+                                </div>
                             </div>
-                            <div class="billing-card">
-                                <h3>Billing History</h3>
-                                <p style="color: var(--text-secondary);">No billing history available.</p>
+
+                            <div class="loading" style="text-align: center; padding: 60px;">
+                                <div class="spinner"></div>
+                                <p style="color: var(--text-secondary); margin-top: 16px;">Loading billing information...</p>
                             </div>
                         </div>
                     `;
+                    loadBillingInfo();
                     break;
                 
                 case 'support':
@@ -1043,6 +1022,29 @@
                     `;
                     loadUserTickets();
                     break;
+
+                case 'settings':
+                    content.innerHTML = `
+                        <div style="max-width: 900px; margin: 0 auto;">
+                            <!-- Header -->
+                            <div style="display: flex; align-items: center; margin-bottom: 32px;">
+                                <div style="width: 56px; height: 56px; background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px; border: 1px solid var(--border-color);">
+                                    <span style="font-size: 28px;">⚙️</span>
+                                </div>
+                                <div>
+                                    <h2 style="font-size: 28px; margin: 0 0 4px 0;">Account Settings</h2>
+                                    <p style="color: var(--text-secondary); margin: 0; font-size: 14px;">Manage your account preferences</p>
+                                </div>
+                            </div>
+
+                            <div class="loading" style="text-align: center; padding: 60px;">
+                                <div class="spinner"></div>
+                                <p style="color: var(--text-secondary); margin-top: 16px;">Loading settings...</p>
+                            </div>
+                        </div>
+                    `;
+                    loadAccountSettings();
+                    break;
             }
         }
 
@@ -1097,36 +1099,66 @@
 
         async function submitTicket(event) {
             event.preventDefault();
-            
+
             const name = document.getElementById('ticketName').value;
             const category = document.getElementById('ticketCategory').value;
             const subject = document.getElementById('ticketSubject').value;
             const description = document.getElementById('ticketDescription').value;
             const priority = document.getElementById('ticketPriority').value;
             const files = document.getElementById('ticketAttachments').files;
-            
+
             try {
-                // First create the ticket
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.create_support_ticket`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        user_name: name,
-                        category: category,
-                        subject: subject,
-                        description: description,
-                        priority: priority
-                    })
+                // Prepare URL-encoded form data for Frappe whitelisted method
+                const params = new URLSearchParams();
+                params.append('user_name', name);
+                params.append('category', category);
+                params.append('subject', subject);
+                params.append('description', description);
+                params.append('priority', priority);
+
+                // First create the ticket using GET to avoid Expect: 100-continue
+                const url = `${API_BASE}/api/method/oropendola_ai.api.support_tickets.create_support_ticket?${params.toString()}`;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.withCredentials = true;
+
+                const response = await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve({
+                                ok: true,
+                                status: xhr.status,
+                                json: () => Promise.resolve(JSON.parse(xhr.responseText)),
+                                text: () => Promise.resolve(xhr.responseText)
+                            });
+                        } else {
+                            resolve({
+                                ok: false,
+                                status: xhr.status,
+                                json: () => Promise.resolve({}),
+                                text: () => Promise.resolve(xhr.responseText)
+                            });
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Network error'));
+                    xhr.send();
                 });
-                
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    showNotification('Error: Server returned status ' + response.status, 'error');
+                    return;
+                }
+
                 const result = await response.json();
-                
+                console.log('Result:', result);
+
                 if (!result.message || !result.message.success) {
-                    alert('Error: ' + (result.message?.message || 'Failed to create ticket'));
+                    showNotification('Error: ' + (result.message?.message || 'Failed to create ticket'), 'error');
                     return;
                 }
 
@@ -1155,27 +1187,137 @@
                         console.warn('Warning: Files uploaded but attachment linking failed:', attachError);
                     }
                 }
-                
-                alert('Ticket created successfully! Ticket ID: ' + ticketId);
+
+                // Show success notification
+                showNotification('Ticket created successfully! Ticket ID: ' + ticketId, 'success');
+
+                // Close modal and refresh tickets list
                 closeTicketModal();
                 loadUserTickets();
             } catch (error) {
                 console.error('Error submitting ticket:', error);
-                alert('Failed to submit ticket. Please try again.');
+                showNotification('Failed to submit ticket. Please try again.', 'error');
             }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.getElementById('notification-toast');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = 'notification-toast';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                font-weight: 600;
+                font-size: 15px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease-out;
+                ${type === 'success' ? 'background: linear-gradient(135deg, #27C93F 0%, #1ea832 100%); color: white;' :
+                  type === 'error' ? 'background: linear-gradient(135deg, #FF5F56 0%, #e63946 100%); color: white;' :
+                  'background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);'}
+            `;
+            notification.textContent = message;
+
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(notification);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
         }
 
         async function loadUserTickets() {
             try {
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support_tickets.get_user_tickets`, {
-                    credentials: 'include'
-                });
-                
-                const result = await response.json();
                 const ticketsContainer = document.getElementById('tickets-list');
-                
+
+                // Use XMLHttpRequest with explicit GET to avoid Expect: 100-continue
+                const url = `${API_BASE}/api/method/oropendola_ai.api.support_tickets.get_user_tickets`;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.withCredentials = true;
+
+                const response = await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        console.log('Load tickets response status:', xhr.status);
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve({
+                                ok: true,
+                                status: xhr.status,
+                                json: () => Promise.resolve(JSON.parse(xhr.responseText))
+                            });
+                        } else {
+                            console.error('Load tickets error status:', xhr.status, xhr.responseText);
+                            resolve({
+                                ok: false,
+                                status: xhr.status,
+                                json: () => Promise.resolve({})
+                            });
+                        }
+                    };
+                    xhr.onerror = () => {
+                        console.error('Load tickets network error');
+                        reject(new Error('Network error'));
+                    };
+                    xhr.send();
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to load tickets - HTTP', response.status);
+                    ticketsContainer.innerHTML = '<p style="color: var(--text-secondary);">Unable to load tickets (HTTP ' + response.status + ')</p>';
+                    return;
+                }
+
+                const result = await response.json();
+                console.log('Tickets result (full JSON):', JSON.stringify(result, null, 2));
+                console.log('result.message (full):', JSON.stringify(result.message, null, 2));
+
                 if (!result.message || !result.message.success) {
-                    ticketsContainer.innerHTML = '<p style="color: var(--text-secondary);">Unable to load tickets</p>';
+                    console.error('Tickets API returned error!');
+                    console.error('Error message:', result.message?.message || 'No error message provided');
+                    console.error('Full response:', JSON.stringify(result, null, 2));
+
+                    // Show the actual error message to user
+                    const errorMsg = result.message?.message || 'Unable to load tickets';
+                    ticketsContainer.innerHTML = `<p style="color: var(--text-secondary);">${errorMsg}</p>`;
                     return;
                 }
                 
@@ -1213,7 +1355,7 @@
                 tickets.forEach(ticket => {
                     const statusColor = ticket.status === 'Open' ? 'var(--warning)' : ticket.status === 'Resolved' ? 'var(--success)' : 'var(--text-secondary)';
                     const priorityColor = ticket.priority === 'Critical' ? '#FF5F56' : ticket.priority === 'High' ? 'var(--warning)' : ticket.priority === 'Medium' ? 'var(--accent-primary)' : 'var(--text-secondary)';
-                    const createdDate = new Date(ticket.created_date).toLocaleDateString();
+                    const createdDate = new Date(ticket.creation).toLocaleDateString();
                     
                     html += `
                         <tr style="border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="viewTicketDetails('${ticket.name}')" onmouseover="this.style.backgroundColor='var(--bg-tertiary)'" onmouseout="this.style.backgroundColor='transparent'">
@@ -1248,6 +1390,544 @@
         function viewTicketDetails(ticketId) {
             // Could open a detailed view modal in future
             console.log('Viewing ticket:', ticketId);
+        }
+
+        async function loadUserProfile() {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `${API_BASE}/api/method/oropendola_ai.api.user_profile.get_user_profile`, true);
+                xhr.withCredentials = true;
+
+                const response = await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve({
+                                ok: true,
+                                json: () => Promise.resolve(JSON.parse(xhr.responseText))
+                            });
+                        } else {
+                            resolve({ ok: false });
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Network error'));
+                    xhr.send();
+                });
+
+                if (!response.ok) {
+                    document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading profile</p>';
+                    return;
+                }
+
+                const result = await response.json();
+                if (!result.message || !result.message.success) {
+                    document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading profile</p>';
+                    return;
+                }
+
+                const profile = result.message.profile;
+                const initials = profile.full_name ? profile.full_name.substring(0, 2).toUpperCase() :
+                                 profile.email.substring(0, 2).toUpperCase();
+
+                const memberSince = new Date(profile.creation).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                const subscriptionEndDate = profile.subscription.end_date ?
+                    new Date(profile.subscription.end_date).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    }) : 'N/A';
+
+                const subscriptionStartDate = profile.subscription.start_date ?
+                    new Date(profile.subscription.start_date).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    }) : memberSince;
+
+                document.getElementById('tab-content').innerHTML = `
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <div class="profile-section">
+                            <div class="profile-header" style="margin-bottom: 32px;">
+                                <div class="profile-avatar" style="width: 120px; height: 120px; font-size: 48px;">${initials}</div>
+                                <div class="profile-info" style="margin-left: 24px;">
+                                    <h2 style="font-size: 32px; margin: 0 0 8px 0;">${profile.full_name || profile.email}</h2>
+                                    <p style="color: var(--text-secondary); margin: 0 0 8px 0;">${profile.email}</p>
+                                    <div style="display: inline-block; padding: 4px 12px; background: rgba(39, 201, 63, 0.1); border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--success);">
+                                        ${profile.subscription.status}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="detail-item" style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                    <div class="detail-icon" style="font-size: 32px; margin-bottom: 12px;">📱</div>
+                                    <div class="detail-label" style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">MOBILE NO</div>
+                                    <div class="detail-value" style="font-size: 18px; font-weight: 600;">${profile.mobile_no || profile.phone || 'Not provided'}</div>
+                                </div>
+
+                                <div class="detail-item" style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                    <div class="detail-icon" style="font-size: 32px; margin-bottom: 12px;">💳</div>
+                                    <div class="detail-label" style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">SUBSCRIPTION TYPE</div>
+                                    <div class="detail-value" style="font-size: 18px; font-weight: 600;">${profile.subscription.type}</div>
+                                </div>
+
+                                <div class="detail-item" style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                    <div class="detail-icon" style="font-size: 32px; margin-bottom: 12px;">📅</div>
+                                    <div class="detail-label" style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">JOINING DATE</div>
+                                    <div class="detail-value" style="font-size: 18px; font-weight: 600;">${memberSince}</div>
+                                </div>
+
+                                <div class="detail-item" style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                    <div class="detail-icon" style="font-size: 32px; margin-bottom: 12px;">📆</div>
+                                    <div class="detail-label" style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">SUBSCRIPTION PURCHASE DATE</div>
+                                    <div class="detail-value" style="font-size: 18px; font-weight: 600;">${subscriptionStartDate}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading profile</p>';
+            }
+        }
+
+        async function loadAccountSettings() {
+            try {
+                // Fetch user profile
+                const xhrProfile = new XMLHttpRequest();
+                xhrProfile.open('GET', '/api/method/oropendola_ai.api.user_profile.get_user_profile', false);
+                xhrProfile.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                xhrProfile.send();
+
+                const profileResult = JSON.parse(xhrProfile.responseText);
+
+                if (!profileResult.message || !profileResult.message.success) {
+                    document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading account settings</p>';
+                    return;
+                }
+
+                const profile = profileResult.message.profile;
+
+                // Fetch billing info for subscription plan
+                const xhrBilling = new XMLHttpRequest();
+                xhrBilling.open('GET', '/api/method/oropendola_ai.api.billing.get_billing_info', false);
+                xhrBilling.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                xhrBilling.send();
+
+                const billingResult = JSON.parse(xhrBilling.responseText);
+                const subscriptionPlan = billingResult.message?.current_plan?.plan_type || '1 Day Trial';
+
+                // Check deletion status
+                const xhrDeletion = new XMLHttpRequest();
+                xhrDeletion.open('GET', '/api/method/oropendola_ai.api.account_deletion.get_deletion_status', false);
+                xhrDeletion.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                xhrDeletion.send();
+
+                const deletionResult = JSON.parse(xhrDeletion.responseText);
+                const hasPendingDeletion = deletionResult.message?.has_pending_deletion || false;
+                const deletionDate = deletionResult.message?.deletion_date || '';
+
+                // Build pending deletion banner if applicable
+                const deletionBanner = hasPendingDeletion ? `
+                    <div style="background: rgba(251, 191, 36, 0.1); border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="font-size: 32px;">⚠️</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px; color: #f59e0b;">Account Deletion Scheduled</div>
+                                <div style="color: var(--text-primary); font-size: 14px;">Your account is scheduled for deletion on <strong>${deletionDate}</strong>. You can cancel this request anytime before that date.</div>
+                            </div>
+                        </div>
+                        <button onclick="cancelAccountDeletion()" style="background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap;">
+                            Cancel Deletion
+                        </button>
+                    </div>
+                ` : '';
+
+                document.getElementById('tab-content').innerHTML = `
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <!-- Header -->
+                        <div style="display: flex; align-items: center; margin-bottom: 32px;">
+                            <div style="width: 56px; height: 56px; background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px; border: 1px solid var(--border-color);">
+                                <span style="font-size: 28px;">⚙️</span>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 28px; margin: 0 0 4px 0;">Account Settings</h2>
+                                <p style="color: var(--text-secondary); margin: 0; font-size: 14px;">Manage your account preferences</p>
+                            </div>
+                        </div>
+
+                        ${deletionBanner}
+
+                        <!-- Profile Information Section -->
+                        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 20px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 24px 0;">Profile Information</h3>
+
+                            <!-- Full Name -->
+                            <div style="margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <label style="font-weight: 600; font-size: 14px;">Full Name</label>
+                                    <button onclick="editFullName()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 16px;">✏️</span> Edit
+                                    </button>
+                                </div>
+                                <div id="fullNameDisplay" style="font-size: 16px; color: var(--text-primary);">${profile.full_name || 'Not set'}</div>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div>
+                                <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Email Address</label>
+                                <input type="email" value="${profile.email}" disabled style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); font-size: 14px; box-sizing: border-box; cursor: not-allowed; opacity: 0.6;">
+                                <small style="display: block; margin-top: 8px; color: var(--text-tertiary); font-size: 12px;">Email cannot be changed</small>
+                            </div>
+                        </div>
+
+                        <!-- Account Type Section -->
+                        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 20px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 16px 0;">Account Type</h3>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;">${subscriptionPlan}</div>
+                                    <div style="color: var(--text-tertiary); font-size: 14px;">Current subscription plan</div>
+                                </div>
+                                <button onclick="upgradePlan()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.2s;">
+                                    Upgrade Plan
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Danger Zone Section -->
+                        <div style="background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: 16px; padding: 28px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: #dc2626;">Danger Zone</h3>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Delete Account</div>
+                                    <div style="color: var(--text-tertiary); font-size: 14px;">Permanently delete your account and all data</div>
+                                </div>
+                                <button onclick="deleteAccount()" style="background: #dc2626; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading account settings:', error);
+                document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading account settings</p>';
+            }
+        }
+
+        async function loadBillingInfo() {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/api/method/oropendola_ai.api.billing.get_billing_info', false);
+                xhr.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                xhr.send();
+
+                const result = JSON.parse(xhr.responseText);
+
+                if (!result.message || !result.message.success) {
+                    document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading billing information</p>';
+                    return;
+                }
+
+                const data = result.message;
+                const currentPlan = data.current_plan;
+                const history = data.history || [];
+
+                const expiresOn = currentPlan.expires_on ?
+                    new Date(currentPlan.expires_on).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    }) : 'N/A';
+
+                // Build subscription history HTML
+                let historyHTML = '';
+                if (history.length > 0) {
+                    historyHTML = history.map(item => {
+                        const transactionDate = new Date(item.creation).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                        });
+
+                        const statusColor = item.status === 'Active' ? 'var(--success)' :
+                                          item.status === 'Trial' ? 'var(--success)' :
+                                          item.status === 'Expired' ? 'var(--text-tertiary)' :
+                                          'var(--warning)';
+
+                        const statusBgColor = item.status === 'Active' ? 'rgba(39, 201, 63, 0.1)' :
+                                            item.status === 'Trial' ? 'rgba(39, 201, 63, 0.1)' :
+                                            item.status === 'Expired' ? 'rgba(128, 128, 128, 0.1)' :
+                                            'rgba(255, 193, 7, 0.1)';
+
+                        const planName = item.plan_name || '1 Day Trial';
+                        const price = item.price ? `₹${parseFloat(item.price).toFixed(2)}` : '₹0.00';
+
+                        return `
+                            <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">${planName}</div>
+                                    <div style="color: var(--text-tertiary); font-size: 14px;">${transactionDate}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="display: inline-block; padding: 6px 16px; background: ${statusBgColor}; border-radius: 12px; font-size: 14px; font-weight: 600; color: ${statusColor}; margin-bottom: 8px;">
+                                        ${item.status}
+                                    </div>
+                                    <div style="font-weight: 600; font-size: 16px; color: var(--text-primary);">${price}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    historyHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No subscription history available</p>';
+                }
+
+                document.getElementById('tab-content').innerHTML = `
+                    <div style="max-width: 1200px; margin: 0 auto;">
+                        <!-- Header -->
+                        <div style="display: flex; align-items: center; margin-bottom: 32px;">
+                            <div style="width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                                <span style="font-size: 24px;">💳</span>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 28px; margin: 0 0 4px 0;">Billing & Subscription</h2>
+                                <p style="color: var(--text-secondary); margin: 0; font-size: 14px;">Manage your subscription and payment history</p>
+                            </div>
+                        </div>
+
+                        <!-- Current Plan Section -->
+                        <div style="background: var(--bg-secondary); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 24px;">
+                            <h3 style="font-size: 18px; margin: 0 0 20px 0; font-weight: 600;">Current Plan</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <div style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">PLAN TYPE</div>
+                                    <div style="font-size: 20px; font-weight: 600;">${currentPlan.plan_type}</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-tertiary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">EXPIRES ON</div>
+                                    <div style="font-size: 20px; font-weight: 600;">${expiresOn}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subscription History Section -->
+                        <div>
+                            <h3 style="font-size: 18px; margin: 0 0 16px 0; font-weight: 600;">Subscription History</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                ${historyHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading billing info:', error);
+                document.getElementById('tab-content').innerHTML = '<p style="color: var(--text-secondary);">Error loading billing information</p>';
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Remove existing toast if any
+            const existingToast = document.getElementById('toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.id = 'toast-notification';
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-weight: 600;
+                font-size: 14px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Settings page helper functions
+        function editFullName() {
+            const currentName = document.getElementById('fullNameDisplay').innerText;
+            const defaultName = currentName === 'Not set' ? '' : currentName;
+
+            // Create modal HTML
+            const modalHTML = `
+                <div id="editNameModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center;" onclick="if(event.target.id === 'editNameModal') closeEditNameModal()">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; width: 90%; max-width: 500px; padding: 32px;" onclick="event.stopPropagation()">
+                        <h2 style="margin: 0 0 8px 0; font-size: 24px;">Edit Full Name</h2>
+                        <p style="color: var(--text-secondary); margin: 0 0 24px 0; font-size: 14px;">Update your display name</p>
+
+                        <form id="editNameForm" onsubmit="saveFullName(event)">
+                            <div style="margin-bottom: 24px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Full Name</label>
+                                <input type="text" id="newFullNameInput" value="${defaultName}" required style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 16px; box-sizing: border-box;">
+                            </div>
+
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button type="button" onclick="closeEditNameModal()" style="padding: 12px 24px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-weight: 600; font-size: 14px;">
+                                    Cancel
+                                </button>
+                                <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to page
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHTML;
+            document.body.appendChild(modalContainer);
+
+            // Focus input
+            setTimeout(() => {
+                document.getElementById('newFullNameInput').focus();
+                document.getElementById('newFullNameInput').select();
+            }, 100);
+        }
+
+        function closeEditNameModal() {
+            const modal = document.getElementById('editNameModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function saveFullName(event) {
+            event.preventDefault();
+
+            const newName = document.getElementById('newFullNameInput').value.trim();
+
+            if (!newName) {
+                showToast('Please enter a valid name', 'error');
+                return;
+            }
+
+            // Update full name via API
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/method/oropendola_ai.api.update_profile.update_full_name', false);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+
+            const data = {
+                full_name: newName
+            };
+
+            xhr.send(JSON.stringify(data));
+
+            if (xhr.status === 200) {
+                const result = JSON.parse(xhr.responseText);
+                if (result.message && result.message.success) {
+                    document.getElementById('fullNameDisplay').innerText = newName;
+                    showToast('Full name updated successfully!', 'success');
+                    closeEditNameModal();
+                } else {
+                    showToast(result.message?.message || 'Failed to update full name', 'error');
+                }
+            } else {
+                showToast('Failed to update full name. Please try again.', 'error');
+            }
+        }
+
+        function upgradePlan() {
+            showToast('Redirecting to upgrade page...', 'info');
+            // Redirect to billing/upgrade page or show upgrade modal
+            window.location.href = '/pricing';
+        }
+
+        function deleteAccount() {
+            const confirmed = confirm(
+                'ACCOUNT DELETION REQUEST\n\n' +
+                'Your account will be scheduled for deletion with a 30-day grace period.\n\n' +
+                'During this time:\n' +
+                '• Your subscriptions will be cancelled\n' +
+                '• Your API keys will be disabled\n' +
+                '• You can cancel the deletion request anytime\n\n' +
+                'After 30 days, all your data will be permanently deleted.\n\n' +
+                'Do you want to proceed?'
+            );
+
+            if (confirmed) {
+                const doubleConfirm = prompt(
+                    'To confirm, please type "DELETE" in capital letters:'
+                );
+
+                if (doubleConfirm === 'DELETE') {
+                    showToast('Processing your deletion request...', 'info');
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/api/method/oropendola_ai.api.account_deletion.request_account_deletion', false);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                    xhr.send();
+
+                    if (xhr.status === 200) {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.message && result.message.success) {
+                            showToast(result.message.message, 'success');
+                            // Reload settings to show deletion banner
+                            setTimeout(() => {
+                                loadAccountSettings();
+                            }, 2000);
+                        } else {
+                            showToast(result.message?.message || 'Failed to process deletion request', 'error');
+                        }
+                    } else {
+                        showToast('Failed to submit deletion request. Please contact support.', 'error');
+                    }
+                } else if (doubleConfirm !== null) {
+                    showToast('Account deletion cancelled - confirmation text did not match', 'info');
+                }
+            }
+        }
+
+        function cancelAccountDeletion() {
+            const confirmed = confirm(
+                'Are you sure you want to cancel your account deletion request?\n\n' +
+                'Your account will be reactivated and your subscriptions will be restored.'
+            );
+
+            if (confirmed) {
+                showToast('Cancelling deletion request...', 'info');
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/method/oropendola_ai.api.account_deletion.cancel_account_deletion', false);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-Frappe-CSRF-Token', getCookie('csrf_token'));
+                xhr.send();
+
+                if (xhr.status === 200) {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.message && result.message.success) {
+                        showToast(result.message.message, 'success');
+                        // Reload settings to remove deletion banner
+                        setTimeout(() => {
+                            loadAccountSettings();
+                        }, 1500);
+                    } else {
+                        showToast(result.message?.message || 'Failed to cancel deletion', 'error');
+                    }
+                } else {
+                    showToast('Failed to cancel deletion request. Please contact support.', 'error');
+                }
+            }
         }
 
         function getCookie(name) {

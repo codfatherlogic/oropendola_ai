@@ -5,18 +5,18 @@ import frappe
 from frappe import _
 
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=False, methods=['GET', 'POST'])
 def create_support_ticket(user_name, subject, description, category, priority="Medium"):
 	"""
 	Create a new support ticket
-	
+
 	Args:
 		user_name: User's full name
 		subject: Ticket subject
 		description: Detailed description
 		category: Issue category
 		priority: Priority level (Low, Medium, High, Critical)
-	
+
 	Returns:
 		Dictionary with success status and ticket details
 	"""
@@ -93,7 +93,7 @@ def create_support_ticket(user_name, subject, description, category, priority="M
 		}
 
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=False, methods=['GET', 'POST'])
 def get_user_tickets():
 	"""
 	Get all support tickets for the current user
@@ -107,8 +107,8 @@ def get_user_tickets():
 		tickets = frappe.db.get_list(
 			'AI Support Ticket',
 			filters={'user_email': user_email},
-			fields=['name', 'subject', 'category', 'priority', 'status', 'created_date', 'description'],
-			order_by='created_date desc'
+			fields=['name', 'subject', 'category', 'priority', 'status', 'creation', 'modified', 'description'],
+			order_by='creation desc'
 		)
 		
 		return {

@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"bPAvRYRnGX\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Oropendola</span>\",\"col\":12}},{\"id\":\"Tvu9SkD2Ge\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Model Profile\",\"col\":3}},{\"id\":\"V80jHX44lV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Usage Log\",\"col\":3}},{\"id\":\"PT3lmimgMq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Invoice\",\"col\":3}},{\"id\":\"o19gXZFu2o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Plan\",\"col\":3}},{\"id\":\"asb90mP4KY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI API Key\",\"col\":3}},{\"id\":\"YZ6zUgyB8W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Customer\",\"col\":3}},{\"id\":\"VxrtD_jqxr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Subscription\",\"col\":3}}]",
+ "content": "[{\"id\":\"bPAvRYRnGX\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Oropendola</span>\",\"col\":12}},{\"id\":\"Tvu9SkD2Ge\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Model Profile\",\"col\":3}},{\"id\":\"V80jHX44lV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Usage Log\",\"col\":3}},{\"id\":\"PT3lmimgMq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Invoice\",\"col\":3}},{\"id\":\"o19gXZFu2o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Plan\",\"col\":3}},{\"id\":\"asb90mP4KY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI API Key\",\"col\":3}},{\"id\":\"YZ6zUgyB8W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Customer\",\"col\":3}},{\"id\":\"VxrtD_jqxr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Subscription\",\"col\":3}},{\"id\":\"5pIpBry0RC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Support Ticket\",\"col\":3}}]",
  "creation": "2025-10-27 21:23:07.217023",
  "custom_blocks": [],
  "docstatus": 0,
@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "Oropendola",
  "links": [],
- "modified": "2025-10-27 21:27:36.817843",
+ "modified": "2025-10-31 13:06:54.864050",
  "modified_by": "Administrator",
  "module": "Oropendola Ai",
  "name": "Oropendola",
@@ -25,6 +25,14 @@
  "roles": [],
  "sequence_id": 1.0,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "AI Support Ticket",
+   "link_to": "AI Support Ticket",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
   {
    "color": "Grey",
    "doc_view": "List",

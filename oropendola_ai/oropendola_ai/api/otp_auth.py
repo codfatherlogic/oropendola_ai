@@ -326,14 +326,36 @@ def signup_with_otp(email, full_name, password, otp, plan_id=None):
 		})
 		customer.flags.ignore_permissions = True
 		customer.insert()
-		
-		# If plan selected, create subscription
+
+		# Create AI Subscription with status "Pending" if plan selected
+		# Subscription will be activated after successful payment
 		subscription_id = None
 		if plan_id:
-			subscription_result = create_subscription_for_customer(email, plan_id)
-			if subscription_result.get("success"):
-				subscription_id = subscription_result.get("subscription_id")
-		
+			try:
+				plan = frappe.get_doc("AI Plan", plan_id)
+
+				subscription = frappe.get_doc({
+					"doctype": "AI Subscription",
+					"user": email,
+					"plan": plan.name,
+					"status": "Pending",  # Will be Active after payment
+					"start_date": frappe.utils.today(),
+					"end_date": frappe.utils.add_days(frappe.utils.today(), plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None,
+					"billing_email": email,
+					"daily_quota_limit": plan.requests_limit_per_day,
+					"daily_quota_remaining": 0,  # No quota until payment
+					"auto_renew": 0,
+					"created_by_user": user.name
+				})
+				subscription.flags.ignore_permissions = True
+				subscription.insert()
+				subscription_id = subscription.name
+
+				frappe.logger().info(f"Pending subscription created: {subscription_id} for user {email}")
+			except Exception as e:
+				frappe.log_error(f"Failed to create pending subscription: {str(e)}", "Signup Subscription Error")
+				# Don't fail signup if subscription creation fails
+
 		frappe.db.commit()
 		
 		# Send welcome email
@@ -357,46 +379,6 @@ def signup_with_otp(email, full_name, password, otp, plan_id=None):
 		return {
 			"success": False,
 			"error": error_msg  # Return actual error, not generic message
-		}
-
-
-def create_subscription_for_customer(email, plan_id):
-	"""Create subscription for customer"""
-	try:
-		# Get customer
-		customer = frappe.get_doc("AI Customer", {"email": email})
-		
-		# Get plan
-		plan = frappe.get_doc("AI Plan", plan_id)
-		
-		# Create subscription
-		subscription = frappe.get_doc({
-			"doctype": "AI Subscription",
-			"user": email,
-			"customer": customer.name,
-			"plan": plan.name,
-			"status": "Pending",  # Will be Active after payment
-			"start_date": frappe.utils.nowdate(),
-			"end_date": frappe.utils.add_days(frappe.utils.nowdate(), plan.duration_days),
-			"daily_quota_limit": plan.requests_limit_per_day,
-			"daily_quota_remaining": plan.requests_limit_per_day,
-			"monthly_budget_limit": plan.monthly_budget_limit or 0,
-			"monthly_budget_used": 0,
-			"auto_renew": 1
-		})
-		subscription.flags.ignore_permissions = True
-		subscription.insert()
-		
-		return {
-			"success": True,
-			"subscription_id": subscription.name
-		}
-		
-	except Exception as e:
-		frappe.log_error(f"Failed to create subscription: {str(e)}", "Subscription Error")
-		return {
-			"success": False,
-			"error": str(e)
 		}
 
 

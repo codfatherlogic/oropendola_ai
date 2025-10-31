@@ -15,11 +15,30 @@
      */
     async function checkAuth() {
         try {
+            // Quick check: Is user logged in? (check sid cookie)
+            const isLoggedIn = document.cookie.includes('sid=');
+
+            if (!isLoggedIn) {
+                // Not logged in - skip API call to avoid 403 errors
+                currentUser = null;
+                isAuthenticated = false;
+                return false;
+            }
+
+            // User has session cookie, verify with server
             const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
                 credentials: 'include'
             });
+
+            // If response not OK, session likely expired
+            if (!response.ok) {
+                currentUser = null;
+                isAuthenticated = false;
+                return false;
+            }
+
             const data = await response.json();
-            
+
             if (data.message && data.message !== 'Guest') {
                 currentUser = data.message;
                 isAuthenticated = true;
@@ -27,10 +46,10 @@
                 currentUser = null;
                 isAuthenticated = false;
             }
-            
+
             return isAuthenticated;
         } catch (error) {
-            console.error('Auth check failed:', error);
+            // Silently handle errors - likely authentication issues
             isAuthenticated = false;
             return false;
         }

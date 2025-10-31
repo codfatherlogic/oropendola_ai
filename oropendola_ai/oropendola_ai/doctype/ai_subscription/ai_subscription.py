@@ -38,7 +38,7 @@ class AISubscription(Document):
 		
 		if not self.end_date:
 			plan = frappe.get_doc("AI Plan", self.plan)
-			if plan.duration_days > 0:
+			if plan.duration_days and plan.duration_days > 0:
 				self.end_date = add_days(self.start_date, plan.duration_days)
 				
 			if plan.is_trial:
@@ -46,11 +46,21 @@ class AISubscription(Document):
 				self.trial_end_date = self.end_date
 	
 	def set_quota(self):
-		"""Initialize daily quota"""
+		"""Initialize daily quota - only give quota if subscription is Active or Trial"""
 		plan = frappe.get_doc("AI Plan", self.plan)
-		self.daily_quota_limit = plan.requests_limit_per_day
-		self.daily_quota_remaining = plan.requests_limit_per_day if plan.requests_limit_per_day > 0 else -1
-		self.priority_score = plan.priority_score
+		self.daily_quota_limit = plan.requests_limit_per_day or 0
+
+		# Only give quota if subscription is Active, Trial, or if it's a free plan
+		is_free_plan = (plan.price or 0) == 0 and (plan.is_free or False)
+		if self.status in ["Active", "Trial"] or is_free_plan:
+			quota_limit = plan.requests_limit_per_day or 0
+			self.daily_quota_remaining = quota_limit if quota_limit > 0 else -1
+		else:
+			# Pending subscriptions get 0 quota until payment is completed
+			self.daily_quota_remaining = 0
+			frappe.logger().info(f"Subscription {self.name} is {self.status} - quota set to 0")
+
+		self.priority_score = plan.priority_score or 0
 	
 	def validate_dates(self):
 		"""Validate subscription dates"""
@@ -66,16 +76,25 @@ class AISubscription(Document):
 		"""Update quota limits from plan if changed"""
 		if self.has_value_changed("plan"):
 			plan = frappe.get_doc("AI Plan", self.plan)
-			self.daily_quota_limit = plan.requests_limit_per_day
-			self.priority_score = plan.priority_score
+			self.daily_quota_limit = plan.requests_limit_per_day or 0
+			self.priority_score = plan.priority_score or 0
 	
 	def create_api_key(self):
-		"""Generate and create API key for this subscription"""
+		"""Generate and create API key for this subscription - only for Active/Trial subscriptions"""
+		# Check if we should create API key based on subscription status
+		plan = frappe.get_doc("AI Plan", self.plan)
+
+		# Only create API key if subscription is Active, Trial, or it's a free plan
+		is_free_plan = (plan.price or 0) == 0 and (plan.is_free or False)
+		if self.status not in ["Active", "Trial"] and not is_free_plan:
+			frappe.logger().info(f"Skipping API key creation for {self.status} subscription {self.name} - will create after payment")
+			return
+
 		try:
 			# Generate secure API key
 			raw_key = secrets.token_urlsafe(32)
 			key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
-			
+
 			# Create AI API Key document
 			api_key_doc = frappe.get_doc({
 				"doctype": "AI API Key",
@@ -87,16 +106,16 @@ class AISubscription(Document):
 				"created_by": frappe.session.user
 			})
 			api_key_doc.insert(ignore_permissions=True)
-			
+
 			# Link API key to subscription
 			self.db_set("api_key_link", api_key_doc.name)
-			
+
 			# Store raw key in cache temporarily (5 minutes) for user to retrieve
 			cache_key = f"api_key_raw:{self.name}"
 			frappe.cache().set_value(cache_key, raw_key, expires_in_sec=300)
-			
+
 			frappe.msgprint(f"API Key generated successfully. Retrieve it immediately as it won't be shown again.")
-			
+
 		except Exception as e:
 			frappe.log_error(f"Failed to create API key for subscription {self.name}: {str(e)}")
 			frappe.throw("Failed to generate API key. Please contact support.")
@@ -138,15 +157,43 @@ class AISubscription(Document):
 		self.cancelled_at = frappe.utils.now()
 		if reason:
 			self.cancellation_reason = reason
-		
+
 		# Revoke API key
 		if self.api_key_link:
 			api_key = frappe.get_doc("AI API Key", self.api_key_link)
 			api_key.status = "Revoked"
 			api_key.save(ignore_permissions=True)
-		
+
 		self.save(ignore_permissions=True)
-	
+
+	def activate_after_payment(self):
+		"""
+		Activate subscription after successful payment.
+		This method is called when payment is confirmed successful.
+		"""
+		frappe.logger().info(f"Activating subscription {self.name} after payment")
+
+		# Set status to Active
+		self.status = "Active"
+
+		# Set quota (will now give full quota since status is Active)
+		self.set_quota()
+
+		# Create API key (will now create since status is Active)
+		if not self.api_key_link:
+			self.create_api_key()
+
+		# Update last payment date
+		self.last_payment_date = today()
+
+		# Save the changes
+		self.save(ignore_permissions=True)
+		frappe.db.commit()
+
+		frappe.logger().info(f"Subscription {self.name} activated successfully - Status: {self.status}, Quota: {self.daily_quota_remaining}, API Key: {self.api_key_link}")
+
+		return True
+
 	def get_plan_details(self):
 		"""Get plan configuration"""
 		return frappe.get_doc("AI Plan", self.plan)

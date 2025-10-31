@@ -19,26 +19,26 @@ class AIPlan(Document):
 	
 	def validate_pricing(self):
 		"""Ensure price is positive"""
-		if self.price < 0:
+		if self.price is not None and self.price < 0:
 			frappe.throw("Price cannot be negative")
-		
-		if self.duration_days < 0:
+
+		if self.duration_days is not None and self.duration_days < 0:
 			frappe.throw("Duration cannot be negative")
 	
 	def validate_quotas(self):
 		"""Validate quota limits"""
-		if self.requests_limit_per_day < -1:
+		if self.requests_limit_per_day is not None and self.requests_limit_per_day < -1:
 			frappe.throw("Requests limit must be -1 (unlimited) or positive integer")
-		
-		if self.rate_limit_qps and self.rate_limit_qps < 0:
+
+		if self.rate_limit_qps is not None and self.rate_limit_qps < 0:
 			frappe.throw("Rate limit must be 0 (no limit) or positive integer")
 	
 	def validate_priority(self):
 		"""Ensure priority score is reasonable"""
-		if self.priority_score < 0:
+		if self.priority_score is not None and self.priority_score < 0:
 			frappe.throw("Priority score cannot be negative")
-		
-		if self.priority_score > 100:
+
+		if self.priority_score is not None and self.priority_score > 100:
 			frappe.throw("Priority score cannot exceed 100")
 	
 	def get_daily_quota(self):

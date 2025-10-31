@@ -1,0 +1,252 @@
+/**
+ * Payment Modal Styles
+ * Embedded payment modal with gateway selector
+ */
+
+/* Modal Customization */
+#payment-modal .modal-dialog {
+	max-width: 600px;
+}
+
+#payment-modal .modal-content {
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+#payment-modal .modal-header {
+	border-bottom: 1px solid #e9ecef;
+	padding: 1.5rem;
+}
+
+#payment-modal .modal-title {
+	font-weight: 600;
+	color: #1a202c;
+}
+
+#payment-modal .modal-body {
+	padding: 2rem;
+	min-height: 300px;
+}
+
+#payment-modal .modal-footer {
+	border-top: 1px solid #e9ecef;
+	padding: 1rem 1.5rem;
+}
+
+/* Gateway Selector */
+.gateway-selector {
+	width: 100%;
+}
+
+.plan-summary {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border: none !important;
+}
+
+.gateway-options {
+	margin-top: 1rem;
+}
+
+.gateway-card {
+	transition: all 0.3s ease;
+	border-color: #dee2e6 !important;
+}
+
+.gateway-option.available .gateway-card:hover {
+	border-color: #667eea !important;
+	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+	transform: translateY(-2px);
+}
+
+.gateway-option.available .gateway-card {
+	cursor: pointer;
+}
+
+.gateway-option.coming-soon .gateway-card {
+	cursor: not-allowed;
+	background-color: #f8f9fa;
+}
+
+.gateway-card h6 {
+	font-weight: 600;
+	color: #1a202c;
+}
+
+.gateway-card .badge {
+	font-size: 0.75rem;
+	padding: 0.25rem 0.5rem;
+}
+
+.gateway-card .fa-chevron-right {
+	color: #667eea;
+	font-size: 1.25rem;
+}
+
+/* PayU Bolt Container */
+.payu-bolt-container {
+	width: 100%;
+}
+
+#payu-bolt-embed {
+	background-color: #f8f9fa;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#payu-bolt-embed iframe {
+	width: 100%;
+	min-height: 400px;
+	border: none;
+	border-radius: 8px;
+}
+
+/* Loading State */
+.spinner-border {
+	width: 3rem;
+	height: 3rem;
+}
+
+/* Success State */
+.fa-check-circle {
+	color: #28a745;
+}
+
+/* Alert Customization */
+#payment-modal .alert {
+	border-radius: 8px;
+	padding: 1rem;
+}
+
+/* Button Styles */
+#payment-modal .btn {
+	border-radius: 6px;
+	padding: 0.5rem 1.5rem;
+	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+#payment-modal .btn-primary {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border: none;
+}
+
+#payment-modal .btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#payment-modal .btn-secondary {
+	background-color: #6c757d;
+	border: none;
+}
+
+#payment-modal .btn-secondary:hover {
+	background-color: #5a6268;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+	#payment-modal .modal-dialog {
+		margin: 0.5rem;
+		max-width: calc(100% - 1rem);
+	}
+
+	#payment-modal .modal-body {
+		padding: 1rem;
+	}
+
+	.gateway-card {
+		padding: 1rem !important;
+	}
+
+	.gateway-card h6 {
+		font-size: 0.95rem;
+	}
+
+	.gateway-card p {
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 576px) {
+	#payment-modal .modal-dialog {
+		margin: 0;
+		max-width: 100%;
+	}
+
+	#payment-modal .modal-content {
+		border-radius: 0;
+		height: 100vh;
+	}
+
+	#payu-bolt-embed {
+		min-height: 350px;
+	}
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.gateway-option {
+	animation: fadeIn 0.3s ease;
+}
+
+.gateway-option:nth-child(1) {
+	animation-delay: 0.1s;
+}
+
+.gateway-option:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.gateway-option:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+/* Accessibility */
+.gateway-option.available .gateway-card:focus {
+	outline: 2px solid #667eea;
+	outline-offset: 2px;
+}
+
+/* Dark Mode Support (if needed) */
+@media (prefers-color-scheme: dark) {
+	#payment-modal .modal-content {
+		background-color: #1a202c;
+		color: #e2e8f0;
+	}
+
+	#payment-modal .modal-header,
+	#payment-modal .modal-footer {
+		border-color: #2d3748;
+	}
+
+	.gateway-card {
+		background-color: #2d3748;
+		border-color: #4a5568 !important;
+		color: #e2e8f0;
+	}
+
+	.gateway-card h6 {
+		color: #e2e8f0;
+	}
+
+	.gateway-option.coming-soon .gateway-card {
+		background-color: #2d3748;
+	}
+
+	#payu-bolt-embed {
+		background-color: #2d3748;
+	}
+}

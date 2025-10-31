@@ -21,15 +21,16 @@ class PayUGateway:
 	"""
 	
 	def __init__(self):
-		"""Initialize PayU gateway with credentials from site config"""
-		# Get credentials from site config
-		self.merchant_key = frappe.conf.get("payu_merchant_key")
-		self.merchant_salt = frappe.conf.get("payu_merchant_salt")
-		self.mode = frappe.conf.get("payu_mode", "test")
-		
+		"""Initialize PayU gateway with credentials from Oropendola Settings"""
+		# Get credentials from Oropendola Settings
+		settings = frappe.get_single("Oropendola Settings")
+		self.merchant_key = settings.payu_merchant_key
+		self.merchant_salt = settings.get_password("payu_merchant_salt")
+		self.mode = settings.payu_mode or "test"
+
 		if not all([self.merchant_key, self.merchant_salt]):
-			frappe.throw("PayU credentials not configured. Please add payu_merchant_key and payu_merchant_salt to site_config.json")
-		
+			frappe.throw("PayU credentials not configured. Please configure PayU settings in Oropendola Settings")
+
 		# Set endpoint based on mode
 		if self.mode == "production":
 			self.base_url = "https://secure.payu.in"
@@ -89,7 +90,7 @@ class PayUGateway:
 		try:
 			invoice = frappe.get_doc("AI Invoice", invoice_id)
 			subscription = frappe.get_doc("AI Subscription", invoice.subscription) if invoice.subscription else None
-			user = frappe.get_doc("User", invoice.user)
+			user = frappe.get_doc("User", invoice.customer)
 			
 			# Generate unique transaction ID
 			txnid = f"ORO{invoice.name.replace('-', '')}"
@@ -214,13 +215,27 @@ class PayUGateway:
 			invoice.db_set("amount_paid", float(response_data.get("amount", 0)), update_modified=False)
 			invoice.db_set("payment_method", response_data.get("mode", ""), update_modified=False)
 			
+			# Update Payment Session if exists
+			try:
+				from oropendola_ai.oropendola_ai.doctype.payment_session.payment_session import PaymentSession
+				session = PaymentSession.get_active_session(invoice_id)
+				if session:
+					session.mark_as_success(
+						transaction_id=response_data.get("mihpayid"),
+						gateway_response=response_data
+					)
+					frappe.logger().info(f"Payment session {session.name} marked as success")
+			except Exception as session_error:
+				frappe.log_error(message=str(session_error), title="Payment Session Update Error")
+				# Continue even if session update fails
+
 			# Update subscription using centralized renewal logic
 			if invoice.subscription:
 				from oropendola_ai.oropendola_ai.api.subscription_renewal import apply_payment_to_subscription
 				apply_payment_to_subscription(invoice.name)
-			
+
 			frappe.db.commit()
-			
+
 			frappe.logger().info(f"Payment successful for invoice {invoice.name}")
 			
 			return {
@@ -255,14 +270,29 @@ class PayUGateway:
 				invoice = frappe.get_doc("AI Invoice", invoice_id)
 				invoice.db_set("status", "Failed", update_modified=False)
 				invoice.db_set("payment_gateway_response", json.dumps(response_data), update_modified=False)
+
+				# Update Payment Session if exists
+				try:
+					from oropendola_ai.oropendola_ai.doctype.payment_session.payment_session import PaymentSession
+					session = PaymentSession.get_active_session(invoice_id)
+					if session:
+						session.mark_as_failed(
+							error_message=response_data.get("error_Message", "Payment failed"),
+							gateway_response=response_data
+						)
+						frappe.logger().info(f"Payment session {session.name} marked as failed")
+				except Exception as session_error:
+					frappe.log_error(message=str(session_error), title="Payment Session Update Error")
+					# Continue even if session update fails
+
 				frappe.db.commit()
-			
+
 			return {
 				"success": False,
 				"error": response_data.get("error_Message", "Payment failed"),
 				"invoice_id": invoice_id
 			}
-			
+
 		except Exception as e:
 			frappe.log_error(message=str(e), title="PayU Payment Failure Processing Error")
 			return {
@@ -314,6 +344,72 @@ class PayUGateway:
 				"error": str(e)
 			}
 
+	def create_bolt_payment_request(self, invoice_id: str, embed_mode: bool = False) -> dict:
+		"""
+		Create payment request with PayU Bolt (embedded checkout)
+		Bolt allows embedding payment page in iframe
+
+		Args:
+			invoice_id (str): AI Invoice ID
+			embed_mode (bool): If True, returns params for Bolt embedded mode
+
+		Returns:
+			dict: Payment request with Bolt configuration
+		"""
+		try:
+			# Get base payment request
+			base_request = self.create_payment_request(invoice_id)
+
+			if not base_request.get("success"):
+				return base_request
+
+			# Add Bolt-specific parameters
+			payment_data = base_request["payment_data"]
+
+			# PayU Bolt customization options
+			bolt_config = {
+				"key": self.merchant_key,
+				"txnid": payment_data["txnid"],
+				"amount": payment_data["amount"],
+				"productinfo": payment_data["productinfo"],
+				"firstname": payment_data["firstname"],
+				"email": payment_data["email"],
+				"phone": payment_data["phone"],
+				"surl": payment_data["surl"],
+				"furl": payment_data["furl"],
+				"hash": payment_data["hash"],
+				"udf1": payment_data["udf1"],
+				"udf2": payment_data["udf2"],
+				"udf3": payment_data["udf3"],
+
+				# Bolt customization parameters (per PayU docs)
+				"enforce_paymethod": "",  # Can specify specific payment method
+				"display_lang": "EN",  # EN/HI/TE/TA/MR/GU
+				"pg_redirect_flow": "embedded" if embed_mode else "inline",  # embedded for iframe
+				"show_payment_mode": "CC,DC,NB,UPI,CASH",  # Show all payment modes
+			}
+
+			return {
+				"success": True,
+				"mode": "bolt_embedded" if embed_mode else "bolt_inline",
+				"payu_mode": self.mode,  # test or production
+				"bolt_config": bolt_config,
+				"merchant_key": self.merchant_key,
+				"invoice_id": invoice_id,
+				"embed_mode": embed_mode,
+				"instructions": {
+					"embedded": "Use PayU Bolt SDK on frontend with these parameters in iframe",
+					"inline": "Redirect user to PayU with these parameters"
+				}
+			}
+
+		except Exception as e:
+			frappe.log_error(message=str(e), title="PayU Bolt Request Error")
+			return {
+				"success": False,
+				"error": str(e)
+			}
+
 
 # Singleton gateway instance
 _gateway = None
@@ -354,3 +450,20 @@ def check_payment_status(txnid: str):
 	"""
 	gateway = get_gateway()
 	return gateway.check_payment_status(txnid)
+
+
+# Whitelist Bolt API
+@frappe.whitelist(allow_guest=False)
+def create_bolt_payment(invoice_id: str, embed_mode: bool = False):
+	"""
+	Create PayU Bolt payment request (can be embedded)
+	
+	Args:
+		invoice_id (str): Invoice ID
+		embed_mode (bool): Enable embedded mode for iframe
+		
+	Returns:
+		dict: Bolt payment configuration
+	"""
+	gateway = get_gateway()
+	return gateway.create_bolt_payment_request(invoice_id, embed_mode)

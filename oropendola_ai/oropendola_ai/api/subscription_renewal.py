@@ -112,12 +112,12 @@ def extend_active_subscription(subscription_id, plan):
 		
 		# Calculate new end date (extend from current end_date, not today)
 		current_end = getdate(subscription.end_date)
-		new_end_date = add_days(current_end, plan.duration_days) if plan.duration_days > 0 else None
+		new_end_date = add_days(current_end, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
 		
 		# Create renewal invoice
 		invoice = frappe.get_doc({
 			"doctype": "AI Invoice",
-			"user": subscription.user,
+			"customer": subscription.user,
 			"subscription": subscription.name,
 			"plan": plan.name,
 			"status": "Pending",
@@ -148,7 +148,7 @@ def extend_active_subscription(subscription_id, plan):
 			"new_end_date": str(new_end_date),
 			"amount": float(plan.price),
 			"currency": plan.currency or "INR",
-			"is_free": float(plan.price) == 0,
+			"is_free": float(plan.price or 0) == 0,
 			"message": f"Your subscription will be extended to {new_end_date} after payment"
 		}
 		
@@ -164,7 +164,7 @@ def renew_expired_subscription(user, plan, old_subscription):
 	"""
 	try:
 		start_date = today()
-		end_date = add_days(start_date, plan.duration_days) if plan.duration_days > 0 else None
+		end_date = add_days(start_date, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
 		
 		# Create new subscription (not extending old one)
 		subscription = frappe.get_doc({
@@ -177,7 +177,6 @@ def renew_expired_subscription(user, plan, old_subscription):
 			"billing_email": frappe.db.get_value("User", user, "email"),
 			"daily_quota_limit": plan.requests_limit_per_day,
 			"daily_quota_remaining": plan.requests_limit_per_day,
-			"auto_renew": 0,  # Auto-renewal always disabled
 			"created_by_user": user
 		})
 		subscription.insert(ignore_permissions=True)
@@ -185,7 +184,7 @@ def renew_expired_subscription(user, plan, old_subscription):
 		# Create invoice for new subscription
 		invoice = frappe.get_doc({
 			"doctype": "AI Invoice",
-			"user": user,
+			"customer": user,
 			"subscription": subscription.name,
 			"plan": plan.name,
 			"status": "Pending",
@@ -211,7 +210,7 @@ def renew_expired_subscription(user, plan, old_subscription):
 			"old_subscription_id": old_subscription["name"],
 			"amount": float(plan.price),
 			"currency": plan.currency or "INR",
-			"is_free": float(plan.price) == 0,
+			"is_free": float(plan.price or 0) == 0,
 			"message": "New subscription created. Previous subscription has expired."
 		}
 		
@@ -243,7 +242,7 @@ def get_subscription_status():
 		subscriptions = frappe.get_all(
 			"AI Subscription",
 			filters={"user": user},
-			fields=["name", "plan", "status", "end_date", "start_date", "auto_renew"],
+			fields=["name", "plan", "status", "end_date", "start_date"],
 			order_by="modified desc",
 			limit=1
 		)
@@ -291,8 +290,7 @@ def get_subscription_status():
 				"status": sub["status"],
 				"start_date": sub["start_date"],
 				"end_date": sub["end_date"],
-				"days_remaining": days_remaining,
-				"auto_renew": sub["auto_renew"]
+				"days_remaining": days_remaining
 			},
 			"can_renew": can_renew,
 			"renewal_type": renewal_type,
@@ -345,7 +343,7 @@ def apply_payment_to_subscription(invoice_id: str):
 			# Extension: Add duration to current end_date
 			plan = frappe.get_doc("AI Plan", subscription.plan)
 			current_end = getdate(subscription.end_date)
-			new_end_date = add_days(current_end, plan.duration_days) if plan.duration_days > 0 else None
+			new_end_date = add_days(current_end, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
 			
 			subscription.db_set("end_date", new_end_date)
 			subscription.db_set("amount_paid", (subscription.amount_paid or 0) + invoice.total_amount)
@@ -353,16 +351,21 @@ def apply_payment_to_subscription(invoice_id: str):
 			
 		else:
 			# New subscription or renewal after expiration: Activate
-			subscription.db_set("status", "Active")
 			subscription.db_set("amount_paid", invoice.total_amount)
 			subscription.db_set("last_payment_date", nowdate())
-			
+
 			# Ensure dates are set
 			if not subscription.start_date:
 				subscription.db_set("start_date", today())
 			if not subscription.end_date:
 				plan = frappe.get_doc("AI Plan", subscription.plan)
 				subscription.db_set("end_date", add_days(subscription.start_date, plan.duration_days))
+
+			# Reload subscription to get latest data
+			subscription.reload()
+
+			# Activate subscription (sets status, quota, and creates API key)
+			subscription.activate_after_payment()
 		
 		frappe.db.commit()
 		

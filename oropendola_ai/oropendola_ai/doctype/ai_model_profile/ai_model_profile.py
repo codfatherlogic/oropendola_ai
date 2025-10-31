@@ -200,7 +200,7 @@ class AIModelProfile(Document):
 		cost_score = -WEIGHT_COST * float(self.cost_per_unit or 0)
 		
 		# Priority score from subscription
-		priority_score = WEIGHT_PRIORITY * subscription_priority
+		priority_score = WEIGHT_PRIORITY * (subscription_priority or 0)
 		
 		# Success rate score
 		success_score = WEIGHT_SUCCESS * ((self.success_rate or 100) / 100.0)

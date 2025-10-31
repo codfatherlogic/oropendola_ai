@@ -30,11 +30,15 @@ app_license = "mit"
 # app_include_js = "/assets/oropendola_ai/js/oropendola_ai.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/oropendola_ai/css/oropendola_ai.css"
+web_include_css = [
+    "/assets/oropendola_ai/css/payment_modal.css"
+]
+
 web_include_js = [
     "/assets/oropendola_ai/js/cache-buster.js",
     "/assets/oropendola_ai/js/security-redirect.js",
-    "/assets/oropendola_ai/js/force_redirect.js"
+    "/assets/oropendola_ai/js/force_redirect.js",
+    "/assets/oropendola_ai/js/payment_modal.js"
 ]
 
 # include custom scss in every website theme (without file extension ".scss")
@@ -167,6 +171,9 @@ scheduler_events = {
 		"oropendola_ai.oropendola_ai.tasks.send_quota_alerts"
 	],
 	"cron": {
+		"*/30 * * * *": [  # Every 30 minutes - check for abandoned payments
+			"oropendola_ai.oropendola_ai.api.payment.check_abandoned_payments"
+		],
 		"*/5 * * * *": [
 			"oropendola_ai.oropendola_ai.tasks.perform_health_checks",
 			"oropendola_ai.oropendola_ai.tasks.sync_redis_usage_to_db"

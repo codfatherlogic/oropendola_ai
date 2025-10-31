@@ -25,7 +25,9 @@
     
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
-    
+
+    <!-- PayU Checkout Plus SDK - Loaded dynamically based on mode (test/production) -->
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -1091,6 +1093,292 @@
                 font-size: 18px;
             }
         }
+
+        /* Exit Confirmation Modal */
+        .exit-confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exit-confirm-modal.active {
+            display: flex;
+        }
+
+        .exit-confirm-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .exit-confirm-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .exit-confirm-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1A1A1A;
+        }
+
+        .exit-confirm-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .exit-confirm-buttons {
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+        }
+
+        .exit-btn-continue {
+            background: transparent;
+            color: #1A1A1A;
+            border: 2px solid #E0E0E0;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exit-btn-continue:hover {
+            border-color: #00D9FF;
+            color: #00D9FF;
+        }
+
+        .exit-btn-yes {
+            background: #1A1A1A;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exit-btn-yes:hover {
+            background: #2A2A2A;
+        }
+
+        /* Payment Result Modal */
+        .payment-result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10002;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-result-modal.active {
+            display: flex;
+        }
+
+        .payment-result-content {
+            background: #1A1A1A;
+            padding: 60px 40px;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 90%;
+            color: white;
+        }
+
+        .payment-result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .payment-result-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .payment-result-title.success {
+            color: #00FF88;
+        }
+
+        .payment-result-title.failed {
+            color: #FF4444;
+        }
+
+        .payment-result-subtitle {
+            font-size: 16px;
+            color: #A0A0A0;
+        }
+
+        .payment-result-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .payment-result-section {
+            background: #2A2A2A;
+            padding: 24px;
+            border-radius: 12px;
+        }
+
+        .payment-result-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment-result-section-title svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .payment-result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #3A3A3A;
+        }
+
+        .payment-result-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-result-label {
+            color: #A0A0A0;
+            font-size: 14px;
+        }
+
+        .payment-result-value {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .payment-result-value.success {
+            color: #00FF88;
+        }
+
+        .payment-result-value.failed {
+            color: #FF4444;
+        }
+
+        .payment-result-steps {
+            padding: 0;
+        }
+
+        .payment-result-step {
+            padding: 16px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .payment-result-step-number {
+            background: #3A3A3A;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .payment-result-step-text {
+            color: #A0A0A0;
+            font-size: 14px;
+        }
+
+        .payment-result-footer {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .payment-result-btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .payment-result-btn-primary {
+            background: white;
+            color: #1A1A1A;
+        }
+
+        .payment-result-btn-primary:hover {
+            background: #F0F0F0;
+        }
+
+        .payment-result-btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid #3A3A3A;
+        }
+
+        .payment-result-btn-secondary:hover {
+            border-color: #00D9FF;
+            color: #00D9FF;
+        }
+
+        .payment-result-redirect {
+            text-align: center;
+            margin-top: 20px;
+            color: #A0A0A0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .payment-result-body {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-result-title {
+                font-size: 32px;
+            }
+
+            .payment-result-content {
+                padding: 40px 24px;
+            }
+
+            .payment-result-footer {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1190,35 +1478,10 @@
                 <div class="payment-section">
                     <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Choose Payment Gateway</h3>
 
+                    <!-- Gateway cards will be dynamically loaded here -->
                     <div class="gateway-options">
-                        <div class="gateway-card" onclick="selectGateway('razorpay')" id="gateway-razorpay">
-                            <div class="gateway-radio">
-                                <div class="radio-dot"></div>
-                            </div>
-                            <div class="gateway-info">
-                                <div class="gateway-name">Razorpay</div>
-                                <div class="gateway-methods">
-                                    <span class="payment-method-icon" title="UPI">📱</span>
-                                    <span class="payment-method-icon" title="Cards">💳</span>
-                                    <span class="payment-method-icon" title="Netbanking">🏦</span>
-                                    <span class="payment-method-icon" title="Wallets">👛</span>
-                                </div>
-                            </div>
-                            <div class="gateway-badge">Recommended</div>
-                        </div>
-
-                        <div class="gateway-card" onclick="selectGateway('payu')" id="gateway-payu">
-                            <div class="gateway-radio">
-                                <div class="radio-dot"></div>
-                            </div>
-                            <div class="gateway-info">
-                                <div class="gateway-name">PayU</div>
-                                <div class="gateway-methods">
-                                    <span class="payment-method-icon" title="UPI">📱</span>
-                                    <span class="payment-method-icon" title="Cards">💳</span>
-                                    <span class="payment-method-icon" title="Netbanking">🏦</span>
-                                </div>
-                            </div>
+                        <div style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                            <p>Loading payment gateways...</p>
                         </div>
                     </div>
                 </div>
@@ -1707,13 +1970,27 @@
 
         async function checkUserStatus() {
             try {
+                // Quick check: Is user logged in? (check sid cookie)
+                const isLoggedIn = document.cookie.includes('sid=');
+
+                if (!isLoggedIn) {
+                    // Not logged in - skip API calls to avoid 403 errors
+                    return;
+                }
+
+                // User is logged in, now check authentication status
                 const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
                     method: 'GET',
                     credentials: 'include'
                 });
 
+                // If not OK, user session expired - silently return
+                if (!response.ok) {
+                    return;
+                }
+
                 const data = await response.json();
-                
+
                 if (data.message === 'Guest') {
                     // Not logged in - all subscribe buttons should work
                     return;
@@ -1725,19 +2002,25 @@
                     credentials: 'include'
                 });
 
+                // If not OK, silently return (user might not have subscription yet)
+                if (!subResponse.ok) {
+                    return;
+                }
+
                 const subData = await subResponse.json();
-                
+
                 if (subData.message && subData.message.has_subscription) {
                     // Disable all subscribe buttons
                     document.querySelectorAll('.subscribe-btn').forEach(btn => {
                         btn.textContent = 'Current Plan';
                         btn.disabled = true;
                     });
-                    
+
                     showAlert('You already have an active subscription', 'success');
                 }
             } catch (error) {
-                console.error('Error checking user status:', error);
+                // Silently handle errors - likely authentication issues
+                // No need to log as these are expected when user is not authenticated
             }
         }
 
@@ -1812,24 +2095,261 @@
             }
         }
 
-        function submitPayUForm(paymentData) {
-            // Create form dynamically
+        // PayU Payment Integration
+        let payuBoltInstance = null;
+        let currentPaymentData = null;
+        let payuSdkLoaded = false;
+
+        function redirectToPayU(paymentUrl, paymentData) {
+            // Create a hidden form to POST to PayU
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = paymentData.payment_url;
+            form.action = paymentUrl;
+            form.style.display = 'none';
 
-            // Add payment fields
-            Object.keys(paymentData.payment_data).forEach(key => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = paymentData.payment_data[key];
-                form.appendChild(input);
-            });
+            // Add all payment parameters as hidden fields
+            for (const [key, value] of Object.entries(paymentData)) {
+                if (value !== null && value !== undefined) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
+            }
 
+            // Add form to page and submit
             document.body.appendChild(form);
+            console.log('Submitting payment form to PayU...');
             form.submit();
         }
+
+        function loadPayUSDK(mode, callback) {
+            // Check if SDK already loaded
+            if (payuSdkLoaded && window.bolt) {
+                callback();
+                return;
+            }
+
+            // Determine SDK URL based on mode
+            const sdkUrl = mode === 'production'
+                ? 'https://jssdk.payu.in/bolt/bolt.min.js'
+                : 'https://jssdk-uat.payu.in/bolt/bolt.min.js';
+
+            console.log('Loading PayU SDK for mode:', mode, 'URL:', sdkUrl);
+
+            // Remove old SDK if exists
+            const existingScript = document.querySelector('script[src*="bolt.min.js"]');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            // Load new SDK
+            const script = document.createElement('script');
+            script.src = sdkUrl;
+            script.onload = function() {
+                console.log('PayU SDK loaded successfully');
+                payuSdkLoaded = true;
+                callback();
+            };
+            script.onerror = function() {
+                console.error('Failed to load PayU SDK');
+                showAlert('Payment gateway SDK failed to load. Please try again.', 'error');
+            };
+            document.head.appendChild(script);
+        }
+
+        function initializePayUBolt(boltConfig, payuMode) {
+            console.log('Initializing PayU Bolt with config:', boltConfig);
+            console.log('PayU Mode:', payuMode);
+
+            // PayU Bolt configuration
+            const bolt = {
+                key: boltConfig.key,
+                txnid: boltConfig.txnid,
+                hash: boltConfig.hash,
+                amount: boltConfig.amount,
+                firstname: boltConfig.firstname,
+                email: boltConfig.email,
+                phone: boltConfig.phone,
+                productinfo: boltConfig.productinfo,
+                udf1: boltConfig.udf1 || '',
+                udf2: boltConfig.udf2 || '',
+                udf3: boltConfig.udf3 || '',
+                udf4: boltConfig.udf4 || '',
+                udf5: boltConfig.udf5 || '',
+                surl: boltConfig.surl,
+                furl: boltConfig.furl
+            };
+
+            // PayU Bolt callbacks
+            const handlers = {
+                responseHandler: function(response) {
+                    console.log('PayU Bolt response:', response);
+                    handlePaymentResponse(response);
+                },
+                catchException: function(error) {
+                    console.error('PayU Bolt error:', error);
+                    showPaymentResult({
+                        success: false,
+                        status: 'Failed',
+                        reason: error.message || 'Payment processing error',
+                        plan: boltConfig.productinfo || '',
+                        amount: boltConfig.amount,
+                        txnid: boltConfig.txnid
+                    });
+                }
+            };
+
+            // Load SDK and launch PayU Bolt
+            loadPayUSDK(payuMode || 'test', function() {
+                if (window.bolt) {
+                    console.log('Launching PayU Bolt checkout...');
+                    window.bolt.launch(bolt, handlers);
+                } else {
+                    console.error('PayU Bolt SDK not loaded');
+                    showAlert('Payment gateway not available. Please try again.', 'error');
+                }
+            });
+        }
+
+        function handlePaymentResponse(response) {
+            console.log('Handling payment response:', response);
+
+            // PayU Bolt returns response in response.response object
+            const txnData = response.response || response;
+            const status = txnData.txnStatus || txnData.status;
+            const isSuccess = status === 'success' || status === 'SUCCESS';
+
+            if (isSuccess) {
+                // Success - show success page
+                showPaymentResult({
+                    success: true,
+                    status: 'Success',
+                    reason: 'Payment completed successfully',
+                    plan: currentPlanName || '',
+                    amount: response.amount,
+                    txnid: response.txnid || response.mihpayid,
+                    paymentMode: response.mode
+                });
+
+                // Redirect to dashboard after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/app/dashboard';
+                }, 3000);
+            } else {
+                // Failure or pending - show failure page
+                const errorMessage = response.error || response.error_Message || 'Payment failed';
+                showPaymentResult({
+                    success: false,
+                    status: 'Failed',
+                    reason: errorMessage,
+                    plan: currentPlanName || '',
+                    amount: response.amount,
+                    txnid: response.txnid || response.mihpayid
+                });
+            }
+        }
+
+        function showPaymentResult(data) {
+            // Close payment modal first
+            closePaymentModal();
+
+            // Populate result modal
+            const title = document.getElementById('paymentResultTitle');
+            const subtitle = document.getElementById('paymentResultSubtitle');
+            const plan = document.getElementById('paymentResultPlan');
+            const amount = document.getElementById('paymentResultAmount');
+            const status = document.getElementById('paymentResultStatus');
+            const reason = document.getElementById('paymentResultReason');
+            const txnId = document.getElementById('paymentResultTxnId');
+            const retryBtn = document.getElementById('paymentResultRetry');
+            const nextSteps = document.getElementById('paymentResultNextSteps');
+            const redirectText = document.getElementById('paymentResultRedirectText');
+
+            if (data.success) {
+                title.textContent = 'Payment Successful';
+                title.className = 'payment-result-title success';
+                subtitle.textContent = 'Your subscription has been activated';
+                status.textContent = 'Success';
+                status.className = 'payment-result-value success';
+                reason.textContent = data.reason || 'Payment completed successfully';
+                retryBtn.style.display = 'none';
+                nextSteps.style.display = 'none';
+                redirectText.textContent = 'Redirecting to dashboard in 3 seconds...';
+            } else {
+                title.textContent = 'Payment Unsuccessful';
+                title.className = 'payment-result-title failed';
+                subtitle.textContent = 'Your payment could not be processed';
+                status.textContent = 'Failed';
+                status.className = 'payment-result-value failed';
+                reason.textContent = data.reason || 'Payment failed';
+                retryBtn.style.display = 'block';
+                nextSteps.style.display = 'block';
+                redirectText.textContent = 'Redirecting to pricing in 15 seconds...';
+
+                // Auto redirect to pricing after 15 seconds
+                setTimeout(() => {
+                    closePaymentResultModal();
+                }, 15000);
+            }
+
+            plan.textContent = data.plan;
+            amount.textContent = `₹${data.amount}`;
+            txnId.textContent = data.txnid || 'N/A';
+
+            // Show modal
+            document.getElementById('paymentResultModal').classList.add('active');
+        }
+
+        function closePaymentResultModal() {
+            document.getElementById('paymentResultModal').classList.remove('active');
+        }
+
+        function retryPayment() {
+            closePaymentResultModal();
+            // Reopen payment modal for the same plan
+            if (currentInvoiceId && currentPlanName && currentPlanPrice) {
+                openPaymentModal(currentPlanName, currentPlanPrice, currentInvoiceId);
+            }
+        }
+
+        function contactSupport() {
+            window.location.href = '/support';
+        }
+
+        // Exit confirmation functions
+        function showExitConfirmation() {
+            document.getElementById('exitConfirmModal').classList.add('active');
+        }
+
+        function hideExitConfirmation() {
+            document.getElementById('exitConfirmModal').classList.remove('active');
+        }
+
+        function continuePayment() {
+            hideExitConfirmation();
+            // Redirect to PayU if data exists
+            if (currentPaymentData && currentPaymentData.payment_url && currentPaymentData.payment_data) {
+                redirectToPayU(currentPaymentData.payment_url, currentPaymentData.payment_data);
+            }
+        }
+
+        function confirmExit() {
+            hideExitConfirmation();
+            closePaymentModal();
+            currentPaymentData = null;
+        }
+
+        // Override closePaymentModal to show exit confirmation
+        const originalClosePaymentModal = closePaymentModal;
+        closePaymentModal = function() {
+            if (currentPaymentData) {
+                showExitConfirmation();
+            } else {
+                originalClosePaymentModal();
+            }
+        };
 
         function showAlert(message, type = 'success') {
             const alert = document.getElementById('alert');
@@ -2573,9 +3093,87 @@
         let selectedGateway = '';
         let selectedPaymentMethod = '';
         let currentInvoiceId = '';
+        let currentPlanName = '';
+        let currentPlanPrice = 0;
+        let availableGateways = [];
 
-        function openPaymentModal(planName, price, invoiceId) {
+        async function loadAvailableGateways() {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.get_available_gateways`);
+                const data = await response.json();
+
+                if (data.message && data.message.success) {
+                    availableGateways = data.message.gateways;
+                    console.log('Available gateways:', availableGateways);
+                    return availableGateways;
+                } else {
+                    console.error('Failed to load gateways:', data);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error loading gateways:', error);
+                return [];
+            }
+        }
+
+        function renderGatewayCards() {
+            const container = document.querySelector('.gateway-options');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (availableGateways.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                        <p>No payment gateways configured. Please contact support.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            availableGateways.forEach(gateway => {
+                const card = document.createElement('div');
+                card.className = 'gateway-card';
+                card.id = `gateway-${gateway.id}`;
+                card.onclick = () => selectGateway(gateway.id);
+
+                const methodIcons = {
+                    'upi': '📱',
+                    'cards': '💳',
+                    'netbanking': '🏦',
+                    'wallets': '👛'
+                };
+
+                const methodsHTML = gateway.methods.map(method =>
+                    `<span class="payment-method-icon" title="${method.toUpperCase()}">${methodIcons[method] || '💰'}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="gateway-radio">
+                        <div class="radio-dot"></div>
+                    </div>
+                    <div class="gateway-info">
+                        <div class="gateway-name">${gateway.name}</div>
+                        <div class="gateway-methods">
+                            ${methodsHTML}
+                        </div>
+                    </div>
+                    ${gateway.recommended ? '<div class="gateway-badge">Recommended</div>' : ''}
+                `;
+
+                container.appendChild(card);
+            });
+
+            // Auto-select if only one gateway is available
+            if (availableGateways.length === 1) {
+                selectGateway(availableGateways[0].id);
+            }
+        }
+
+        async function openPaymentModal(planName, price, invoiceId) {
             currentInvoiceId = invoiceId;
+            currentPlanName = planName;
+            currentPlanPrice = price;
             selectedGateway = '';
             selectedPaymentMethod = '';
 
@@ -2584,11 +3182,16 @@
             document.getElementById('paymentPlanPrice').textContent = `₹${price.toLocaleString()}`;
             document.getElementById('paymentTotalAmount').textContent = `₹${price.toLocaleString()}`;
 
+            // Load and render available gateways
+            await loadAvailableGateways();
+            renderGatewayCards();
+
             // Reset selections
-            document.querySelectorAll('.gateway-card').forEach(card => card.classList.remove('selected'));
             document.getElementById('paymentMethodsSection').style.display = 'none';
-            document.getElementById('proceedPaymentBtn').disabled = true;
-            document.getElementById('proceedPaymentBtn').textContent = 'Select Payment Gateway to Continue';
+            document.getElementById('proceedPaymentBtn').disabled = availableGateways.length === 0;
+            document.getElementById('proceedPaymentBtn').textContent = availableGateways.length === 0
+                ? 'No Payment Gateways Available'
+                : (availableGateways.length === 1 ? `Proceed with ${availableGateways[0].name}` : 'Select Payment Gateway to Continue');
 
             // Show modal
             document.getElementById('paymentModal').classList.add('active');
@@ -2616,7 +3219,7 @@
             // Enable proceed button
             const btn = document.getElementById('proceedPaymentBtn');
             btn.disabled = false;
-            btn.textContent = `Proceed with ${gateway === 'razorpay' ? 'Razorpay' : 'PayU'}`;
+            btn.textContent = 'Proceed with PayU';
 
             console.log('Selected gateway:', gateway);
         }
@@ -2630,8 +3233,7 @@
             showAlert(`${methodName} payment method selected`, 'info');
 
             // Update button text
-            const gatewayName = selectedGateway === 'razorpay' ? 'Razorpay' : 'PayU';
-            document.getElementById('proceedPaymentBtn').textContent = `Pay with ${methodName} via ${gatewayName}`;
+            document.getElementById('proceedPaymentBtn').textContent = `Pay with ${methodName} via PayU`;
         }
 
         async function proceedToPayment() {
@@ -2669,14 +3271,20 @@
                 console.log('Payment response:', paymentData);
 
                 if (paymentData.message && paymentData.message.success) {
-                    if (selectedGateway === 'payu') {
-                        // PayU: Submit form for redirect
-                        closePaymentModal();
-                        submitPayUForm(paymentData.message);
-                    } else if (selectedGateway === 'razorpay') {
-                        // Razorpay: Open Razorpay checkout
-                        closePaymentModal();
-                        openRazorpayCheckout(paymentData.message);
+                    // Store payment data for retry/exit handling
+                    currentPaymentData = paymentData.message;
+
+                    // Close payment selection modal
+                    const modal = document.getElementById('paymentModal');
+                    if (modal) modal.style.display = 'none';
+
+                    // Redirect to PayU hosted checkout
+                    if (paymentData.message.payment_url && paymentData.message.payment_data) {
+                        console.log('Redirecting to PayU hosted checkout...');
+                        console.log('Payment URL:', paymentData.message.payment_url);
+                        redirectToPayU(paymentData.message.payment_url, paymentData.message.payment_data);
+                    } else {
+                        throw new Error('Payment configuration not found');
                     }
                 } else {
                     throw new Error(paymentData.message?.error || 'Payment initiation failed');
@@ -2686,84 +3294,7 @@
                 showAlert(error.message || 'Payment initiation failed', 'error');
                 btn.disabled = false;
                 btn.textContent = originalText;
-            }
-        }
-
-        function openRazorpayCheckout(paymentData) {
-            // Load Razorpay script if not already loaded
-            if (typeof Razorpay === 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-                script.onload = () => initiateRazorpayPayment(paymentData);
-                document.head.appendChild(script);
-            } else {
-                initiateRazorpayPayment(paymentData);
-            }
-        }
-
-        function initiateRazorpayPayment(paymentData) {
-            const options = {
-                key: paymentData.key_id,
-                amount: paymentData.amount,
-                currency: paymentData.currency,
-                order_id: paymentData.order_id,
-                name: 'Oropendola AI',
-                description: paymentData.description || 'Subscription Payment',
-                image: '/files/icon.png',
-                handler: function (response) {
-                    // Payment successful
-                    console.log('Razorpay payment successful:', response);
-                    verifyRazorpayPayment(response, paymentData.invoice_id);
-                },
-                prefill: {
-                    name: paymentData.customer_name || '',
-                    email: paymentData.customer_email || '',
-                    contact: paymentData.customer_phone || ''
-                },
-                theme: {
-                    color: '#00D9FF'
-                },
-                modal: {
-                    ondismiss: function() {
-                        showAlert('Payment cancelled', 'error');
-                    }
-                }
-            };
-
-            const rzp = new Razorpay(options);
-            rzp.open();
-        }
-
-        async function verifyRazorpayPayment(razorpayResponse, invoiceId) {
-            try {
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.verify_razorpay_payment`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
-                    },
-                    body: JSON.stringify({
-                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-                        razorpay_order_id: razorpayResponse.razorpay_order_id,
-                        razorpay_signature: razorpayResponse.razorpay_signature,
-                        invoice_id: invoiceId
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.message && data.message.success) {
-                    showAlert('Payment successful!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/my-profile';
-                    }, 1500);
-                } else {
-                    throw new Error(data.message?.error || 'Payment verification failed');
-                }
-            } catch (error) {
-                console.error('Payment verification error:', error);
-                showAlert('Payment verification failed. Please contact support.', 'error');
+                currentPaymentData = null;
             }
         }
 
@@ -2781,5 +3312,105 @@
             });
         });
     </script>
+
+    <!-- Exit Confirmation Modal -->
+    <div id="exitConfirmModal" class="exit-confirm-modal">
+        <div class="exit-confirm-content">
+            <div class="exit-confirm-icon">🚪</div>
+            <h2 class="exit-confirm-title">Are you sure you want to exit?</h2>
+            <p class="exit-confirm-subtitle">You will be taken back to Oropendola AI website.</p>
+            <div class="exit-confirm-buttons">
+                <button class="exit-btn-continue" onclick="continuePayment()">Continue to payment</button>
+                <button class="exit-btn-yes" onclick="confirmExit()">Yes, exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Result Modal -->
+    <div id="paymentResultModal" class="payment-result-modal">
+        <div class="payment-result-content">
+            <div class="payment-result-header">
+                <h1 id="paymentResultTitle" class="payment-result-title"></h1>
+                <p id="paymentResultSubtitle" class="payment-result-subtitle"></p>
+            </div>
+
+            <div class="payment-result-body">
+                <!-- Transaction Details Section -->
+                <div class="payment-result-section">
+                    <div class="payment-result-section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Transaction Details
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Plan</span>
+                        <span id="paymentResultPlan" class="payment-result-value"></span>
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Amount</span>
+                        <span id="paymentResultAmount" class="payment-result-value"></span>
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Payment Gateway</span>
+                        <span id="paymentResultGateway" class="payment-result-value">PayU</span>
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Status</span>
+                        <span id="paymentResultStatus" class="payment-result-value"></span>
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Reason</span>
+                        <span id="paymentResultReason" class="payment-result-value"></span>
+                    </div>
+                    <div class="payment-result-row">
+                        <span class="payment-result-label">Transaction ID</span>
+                        <span id="paymentResultTxnId" class="payment-result-value" style="font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <!-- Next Steps Section (for failures) -->
+                <div id="paymentResultNextSteps" class="payment-result-section" style="display: none;">
+                    <div class="payment-result-section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Next Steps
+                    </div>
+                    <div class="payment-result-steps">
+                        <div class="payment-result-step">
+                            <div class="payment-result-step-number">1</div>
+                            <div class="payment-result-step-text">Check your card details and try again</div>
+                        </div>
+                        <div class="payment-result-step">
+                            <div class="payment-result-step-number">2</div>
+                            <div class="payment-result-step-text">Ensure sufficient balance in your account</div>
+                        </div>
+                        <div class="payment-result-step">
+                            <div class="payment-result-step-number">3</div>
+                            <div class="payment-result-step-text">Try using a different payment method</div>
+                        </div>
+                        <div class="payment-result-step">
+                            <div class="payment-result-step-number">4</div>
+                            <div class="payment-result-step-text">Contact your bank if the issue persists</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-result-footer">
+                <button id="paymentResultRetry" class="payment-result-btn payment-result-btn-primary" onclick="retryPayment()" style="display: none;">
+                    Try Again
+                </button>
+                <button class="payment-result-btn payment-result-btn-secondary" onclick="contactSupport()">
+                    Contact Support
+                </button>
+            </div>
+
+            <div class="payment-result-redirect">
+                <span id="paymentResultRedirectText"></span>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

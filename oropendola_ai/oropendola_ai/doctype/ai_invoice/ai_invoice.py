@@ -28,10 +28,10 @@ class AIInvoice(Document):
 	
 	def validate_amounts(self):
 		"""Ensure amounts are valid"""
-		if self.amount_due < 0:
+		if self.amount_due is not None and self.amount_due < 0:
 			frappe.throw("Amount due cannot be negative")
-		
-		if self.amount_paid and self.amount_paid > self.amount_due:
+
+		if self.amount_paid and self.amount_due and self.amount_paid > self.amount_due:
 			frappe.throw("Amount paid cannot exceed amount due")
 	
 	def calculate_total(self):
@@ -79,12 +79,36 @@ class AIInvoice(Document):
 		if reason:
 			self.admin_notes = f"Payment failed: {reason}"
 		self.save(ignore_permissions=True)
-		
+
 		# Update subscription status
 		if self.subscription:
 			subscription = frappe.get_doc("AI Subscription", self.subscription)
 			subscription.status = "Past Due"
 			subscription.save(ignore_permissions=True)
+
+	def mark_as_processing(self):
+		"""Mark invoice as processing (user redirected to payment gateway)"""
+		self.status = "Processing"
+		self.save(ignore_permissions=True)
+
+	def mark_as_abandoned(self, reason=None):
+		"""Mark invoice as abandoned (user didn't complete payment)"""
+		self.status = "Abandoned"
+		if reason:
+			notes = self.admin_notes or ""
+			self.admin_notes = f"{notes}\nAbandoned: {reason}" if notes else f"Abandoned: {reason}"
+		self.save(ignore_permissions=True)
+
+	def can_retry(self):
+		"""Check if invoice can be retried"""
+		return self.status in ["Failed", "Abandoned"] and (self.retry_count or 0) < 3
+
+	def increment_retry(self):
+		"""Increment retry counter"""
+		self.retry_count = (self.retry_count or 0) + 1
+		self.last_retry_date = frappe.utils.now()
+		self.status = "Pending"  # Reset to pending for retry
+		self.save(ignore_permissions=True)
 	
 	@staticmethod
 	def create_subscription_invoice(subscription_name):
@@ -128,8 +152,8 @@ class AIInvoice(Document):
 		overage_units = 0
 		overage_amount = 0
 		
-		if plan.requests_limit_per_day > 0:  # Metered plan
-			total_allowed = plan.requests_limit_per_day * plan.duration_days
+		if (plan.requests_limit_per_day and plan.requests_limit_per_day > 0):  # Metered plan
+			total_allowed = plan.requests_limit_per_day * (plan.duration_days or 0)
 			if usage_summary.get("total_requests", 0) > total_allowed:
 				overage_units = usage_summary["total_requests"] - total_allowed
 				# Charge ₹0.5 per overage request (configurable)

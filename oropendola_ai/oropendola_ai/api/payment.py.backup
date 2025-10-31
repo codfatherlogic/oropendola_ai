@@ -88,7 +88,7 @@ def create_subscription_and_invoice(plan_id: str):
 			frappe.throw(_("Please login to subscribe"))
 		
 		# Check if user already has an active subscription
-		existing = frappe.get_all(
+		existing_active = frappe.get_all(
 			"AI Subscription",
 			filters={
 				"user": user,
@@ -96,54 +96,79 @@ def create_subscription_and_invoice(plan_id: str):
 			},
 			fields=["name", "plan", "status"]
 		)
-		
-		if existing:
+
+		if existing_active:
 			return {
 				"success": False,
 				"error": "You already have an active subscription",
-				"existing_subscription": existing[0]
+				"existing_subscription": existing_active[0]
 			}
-		
+
+		# Check if user has a pending subscription for this plan (created during signup)
+		existing_pending = frappe.get_all(
+			"AI Subscription",
+			filters={
+				"user": user,
+				"plan": plan_id,
+				"status": "Pending"
+			},
+			fields=["name"],
+			order_by="creation desc",
+			limit=1
+		)
+
 		# Get plan
 		plan = frappe.get_doc("AI Plan", plan_id)
-		
+
 		if not plan.is_active:
 			frappe.throw(_("This plan is not available"))
-		
+
 		# Check if it's a free plan
-		if float(plan.price or 0) == 0:
-			# Create subscription directly without payment
-			subscription = create_free_subscription(user, plan)
+		if float(plan.price) == 0:
+			# Activate existing pending subscription or create new one
+			if existing_pending:
+				subscription = frappe.get_doc("AI Subscription", existing_pending[0].name)
+				subscription.db_set("status", "Active")
+				subscription.db_set("daily_quota_remaining", plan.requests_limit_per_day)
+				frappe.db.commit()
+			else:
+				subscription = create_free_subscription(user, plan)
 			return {
 				"success": True,
 				"is_free": True,
 				"subscription_id": subscription.name,
 				"status": "Active"
 			}
-		
-		# Create subscription in pending state
-		start_date = frappe.utils.today()
-		end_date = frappe.utils.add_days(start_date, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
-		
-		subscription = frappe.get_doc({
-			"doctype": "AI Subscription",
+
+		# Use existing pending subscription or create new one
+		if existing_pending:
+			subscription = frappe.get_doc("AI Subscription", existing_pending[0].name)
+			frappe.logger().info(f"Using existing pending subscription: {subscription.name}")
+		else:
+			# Create subscription in pending state
+			start_date = frappe.utils.today()
+			end_date = frappe.utils.add_days(start_date, plan.duration_days) if plan.duration_days > 0 else None
+
+			subscription = frappe.get_doc({
+				"doctype": "AI Subscription",
+				"user": user,
+				"plan": plan.name,
+				"status": "Pending",
+				"start_date": start_date,
+				"end_date": end_date,
+				"billing_email": frappe.db.get_value("User", user, "email"),
+				"daily_quota_limit": plan.requests_limit_per_day,
+				"daily_quota_remaining": 0,  # No quota until payment
+				"auto_renew": 0,  # Auto-renewal disabled by default
+				"created_by_user": user
+			})
+			subscription.insert(ignore_permissions=True)
+			frappe.logger().info(f"Created new pending subscription: {subscription.name}")
+			
+			# Create invoice
+			invoice = frappe.get_doc({
+				"doctype": "AI Invoice",
 			"user": user,
-			"plan": plan.name,
-			"status": "Pending",
-			"start_date": start_date,
-			"end_date": end_date,
-			"billing_email": frappe.db.get_value("User", user, "email"),
-			"daily_quota_limit": plan.requests_limit_per_day,
-			"daily_quota_remaining": plan.requests_limit_per_day,
-			"auto_renew": 0,  # Auto-renewal disabled by default
-			"created_by_user": user
-		})
-		subscription.insert(ignore_permissions=True)
-		
-		# Create invoice
-		invoice = frappe.get_doc({
-			"doctype": "AI Invoice",
-			"customer": user,
 			"subscription": subscription.name,
 			"plan": plan.name,
 			"status": "Pending",
@@ -152,9 +177,8 @@ def create_subscription_and_invoice(plan_id: str):
 			"period_start": start_date,
 			"period_end": end_date,
 			"billing_type": "Subscription",
-			"amount_due": plan.price or 0,
-			"total_amount": plan.price or 0,
-			"base_plan_amount": plan.price or 0,
+			"total_amount": plan.price,
+			"base_plan_amount": plan.price,
 			"currency": plan.currency or "INR",
 			"payment_gateway": "PayU"
 		})
@@ -182,7 +206,7 @@ def create_subscription_and_invoice(plan_id: str):
 def create_free_subscription(user, plan):
 	"""Create and activate free subscription"""
 	start_date = frappe.utils.today()
-	end_date = frappe.utils.add_days(start_date, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
+	end_date = frappe.utils.add_days(start_date, plan.duration_days) if plan.duration_days > 0 else None
 	
 	subscription = frappe.get_doc({
 		"doctype": "AI Subscription",
@@ -233,7 +257,7 @@ def create_invoice_for_subscription(subscription_id: str):
 		plan = frappe.get_doc("AI Plan", subscription.plan)
 		
 		# Check if it's a free plan
-		if float(plan.price or 0) == 0:
+		if float(plan.price) == 0:
 			# Activate free subscription immediately
 			subscription.db_set("status", "Active")
 			frappe.db.commit()
@@ -266,7 +290,7 @@ def create_invoice_for_subscription(subscription_id: str):
 		# Create new invoice
 		invoice = frappe.get_doc({
 			"doctype": "AI Invoice",
-			"customer": user,
+			"user": user,
 			"subscription": subscription.name,
 			"plan": plan.name,
 			"status": "Pending",
@@ -275,9 +299,8 @@ def create_invoice_for_subscription(subscription_id: str):
 			"period_start": subscription.start_date,
 			"period_end": subscription.end_date,
 			"billing_type": "Subscription",
-			"amount_due": plan.price or 0,
-			"total_amount": plan.price or 0,
-			"base_plan_amount": plan.price or 0,
+			"total_amount": plan.price,
+			"base_plan_amount": plan.price,
 			"currency": plan.currency or "INR",
 			"payment_gateway": "PayU"
 		})
@@ -318,22 +341,24 @@ def initiate_payment(invoice_id: str, gateway: str = "payu"):
 		
 		# Verify invoice belongs to user
 		invoice = frappe.get_doc("AI Invoice", invoice_id)
-		if invoice.customer != user:
+		if invoice.user != user:
 			frappe.throw(_("Unauthorized access"))
 		
 		if invoice.status == "Paid":
-			return {
-				"success": False,
-				"error": "Invoice already paid"
-			}
-		
+		return {
+			"success": False,
+			"error": "Invoice already paid"
+		}
+
+	# Mark invoice as Processing before redirecting to payment gateway
+	invoice.mark_as_processing()
+	frappe.db.commit()
 		# Get payment gateway
 		gateway = gateway.lower()
 		
 		if gateway == "payu":
 			from oropendola_ai.oropendola_ai.services.payu_gateway import get_gateway
 			payu = get_gateway()
-			# Use PayU redirect mode (hosted checkout)
 			return payu.create_payment_request(invoice_id)
 		elif gateway == "razorpay":
 			from oropendola_ai.oropendola_ai.services.razorpay_gateway import get_gateway
@@ -356,24 +381,17 @@ def payu_success():
 	PayU payment success callback
 	"""
 	try:
-		# Get POST data and convert to regular dict
-		data = dict(frappe.form_dict)
-
+		# Get POST data
+		data = frappe.form_dict
+		
 		# Process payment
 		from oropendola_ai.oropendola_ai.services.payu_gateway import get_gateway
 		gateway = get_gateway()
 		result = gateway.process_payment_success(data)
 		
 		if result["success"]:
-			# Show success message
-			frappe.msgprint(
-				msg=f"Payment successful! Your subscription is now active.",
-				title="Payment Successful",
-				indicator="green"
-			)
-
-			# Redirect to user profile page
-			success_url = "/profile"
+			# Redirect to success page
+			success_url = f"/payment-success?subscription={result.get('subscription_id')}&invoice={result.get('invoice_id')}"
 			frappe.local.response["type"] = "redirect"
 			frappe.local.response["location"] = success_url
 		else:
@@ -394,9 +412,9 @@ def payu_failure():
 	PayU payment failure callback
 	"""
 	try:
-		# Get POST data and convert to regular dict
-		data = dict(frappe.form_dict)
-
+		# Get POST data
+		data = frappe.form_dict
+		
 		# Process failure
 		from oropendola_ai.oropendola_ai.services.payu_gateway import get_gateway
 		gateway = get_gateway()
@@ -550,46 +568,45 @@ def get_available_gateways():
 			"gateways": []
 		}
 
-
 @frappe.whitelist()
 def retry_payment(invoice_id: str, gateway: str = "payu"):
 	"""
 	Retry payment for a failed or abandoned invoice
-
+	
 	Args:
 		invoice_id (str): Invoice ID to retry
 		gateway (str): Payment gateway to use
-
+		
 	Returns:
 		dict: Payment initiation details or error
 	"""
 	try:
 		user = frappe.session.user
-
+		
 		if user == "Guest":
 			frappe.throw(_("Please login to retry payment"))
-
+		
 		# Get invoice
 		invoice = frappe.get_doc("AI Invoice", invoice_id)
-
+		
 		# Verify invoice belongs to user
-		if invoice.customer != user:
+		if invoice.user != user:
 			frappe.throw(_("Unauthorized access"))
-
+		
 		# Check if invoice can be retried
 		if not invoice.can_retry():
 			return {
 				"success": False,
 				"error": f"Cannot retry invoice. Status: {invoice.status}, Retry count: {invoice.retry_count or 0}/3"
 			}
-
+		
 		# Increment retry counter and reset status to Pending
 		invoice.increment_retry()
 		frappe.db.commit()
-
+		
 		# Initiate payment again
 		return initiate_payment(invoice_id, gateway)
-
+		
 	except Exception as e:
 		frappe.log_error(message=str(e), title="Retry Payment Error")
 		frappe.db.rollback()
@@ -603,41 +620,79 @@ def retry_payment(invoice_id: str, gateway: str = "payu"):
 def get_pending_invoices():
 	"""
 	Get user's pending/processing/abandoned invoices that can be retried
-
+	
 	Returns:
 		dict: List of invoices with retry information
 	"""
 	try:
 		user = frappe.session.user
-
+		
 		if user == "Guest":
-			frappe.throw(_("Please login to view invoices"))
-
-		# Get invoices that can be retried
+			return {
+				"success": False,
+				"error": "Please login"
+			}
+		
+		# Get all unpaid invoices for user
 		invoices = frappe.get_all(
 			"AI Invoice",
 			filters={
-				"customer": user,
-				"status": ["in", ["Pending", "Processing", "Abandoned", "Failed"]]
+				"user": user,
+				"status": ["in", ["Pending", "Processing", "Failed", "Abandoned"]]
 			},
-			fields=["name", "status", "total_amount", "currency", "invoice_date", "retry_count", "plan"],
-			order_by="creation desc"
+			fields=[
+				"name", "status", "total_amount", "currency", "invoice_date",
+				"payment_gateway", "retry_count", "last_retry_date", "subscription", "plan"
+			],
+			order_by="modified desc"
 		)
-
-		# Add retry capability flag
-		for invoice in invoices:
-			invoice_doc = frappe.get_doc("AI Invoice", invoice.name)
-			invoice["can_retry"] = invoice_doc.can_retry()
-
+		
+		# Enrich with retry information
+		for inv in invoices:
+			inv["can_retry"] = inv["status"] in ["Failed", "Abandoned"] and (inv["retry_count"] or 0) < 3
+			inv["retries_remaining"] = 3 - (inv["retry_count"] or 0)
+		
 		return {
 			"success": True,
-			"invoices": invoices,
-			"count": len(invoices)
+			"invoices": invoices
 		}
-
+		
 	except Exception as e:
 		frappe.log_error(message=str(e), title="Get Pending Invoices Error")
 		return {
 			"success": False,
 			"error": str(e)
 		}
+
+
+def check_abandoned_payments():
+	"""
+	Background job to check for abandoned payments (Processing status for >30 minutes)
+	Mark them as Abandoned so user can retry
+	"""
+	try:
+		from frappe.utils import now_datetime, add_to_date
+		
+		# Get invoices in Processing status for more than 30 minutes
+		thirty_mins_ago = add_to_date(now_datetime(), minutes=-30)
+		
+		invoices = frappe.get_all(
+			"AI Invoice",
+			filters={
+				"status": "Processing",
+				"modified": ["<", thirty_mins_ago]
+			},
+			fields=["name"]
+		)
+		
+		for inv_data in invoices:
+			invoice = frappe.get_doc("AI Invoice", inv_data.name)
+			invoice.mark_as_abandoned("No payment response received for 30+ minutes")
+			frappe.db.commit()
+			frappe.logger().info(f"Marked invoice {invoice.name} as abandoned")
+		
+		return len(invoices)
+		
+	except Exception as e:
+		frappe.log_error(f"Abandoned payment check failed: {str(e)}", "Abandoned Payment Checker")
+		return 0

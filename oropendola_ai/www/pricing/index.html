@@ -592,6 +592,252 @@
             vertical-align: middle;
         }
 
+        /* Payment Modal Styles */
+        .payment-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        .payment-modal-content {
+            padding: 40px;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .payment-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .price-summary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .price-row.total {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .payment-section {
+            margin-bottom: 24px;
+        }
+
+        .gateway-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gateway-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .gateway-card:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .gateway-card.selected {
+            border-color: var(--accent-primary);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .gateway-radio {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .gateway-card.selected .gateway-radio {
+            border-color: var(--accent-primary);
+        }
+
+        .radio-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .gateway-card.selected .radio-dot {
+            background: var(--accent-primary);
+        }
+
+        .gateway-info {
+            flex: 1;
+        }
+
+        .gateway-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .gateway-methods {
+            display: flex;
+            gap: 8px;
+            font-size: 18px;
+        }
+
+        .payment-method-icon {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: help;
+        }
+
+        .gateway-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .payment-methods-section {
+            margin-top: 24px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .payment-methods-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-method-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method-item:hover {
+            border-color: var(--accent-primary);
+            background: rgba(0, 217, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .method-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .method-name {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .method-arrow {
+            font-size: 24px;
+            color: var(--text-secondary);
+        }
+
+        .method-options {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .method-options span {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            margin-top: 24px;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 8px;
+        }
+
         /* Mobile Menu */
         .mobile-menu-toggle {
             display: none;
@@ -789,6 +1035,25 @@
             .btn-full {
                 min-height: 48px; /* Touch-friendly */
             }
+
+            .payment-modal {
+                width: 95%;
+                max-height: 85vh;
+            }
+
+            .payment-modal-content {
+                padding: 32px 24px 24px;
+            }
+
+            .gateway-card {
+                padding: 16px;
+            }
+
+            .method-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -893,6 +1158,147 @@
 
     <!-- Alert -->
     <div id="alert" class="alert"></div>
+
+    <!-- Payment Gateway Modal -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="payment-modal">
+            <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+
+            <div class="payment-modal-content">
+                <!-- Payment Header -->
+                <div class="payment-header">
+                    <div class="payment-logo">
+                        <img src="/files/icon.png" alt="Oropendola AI" style="width: 48px; height: 48px;">
+                    </div>
+                    <h2 style="margin: 16px 0 8px 0;">Complete Your Payment</h2>
+                    <p style="color: var(--text-secondary); font-size: 14px;">Selected Plan: <span id="paymentPlanName" style="color: var(--accent-primary); font-weight: 600;"></span></p>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Plan Price:</span>
+                        <span id="paymentPlanPrice">₹0</span>
+                    </div>
+                    <div class="price-row total">
+                        <span style="font-weight: 700; font-size: 18px;">Total Amount:</span>
+                        <span id="paymentTotalAmount" style="font-weight: 700; font-size: 18px; color: var(--accent-primary);">₹0</span>
+                    </div>
+                </div>
+
+                <!-- Payment Gateway Selection -->
+                <div class="payment-section">
+                    <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Choose Payment Gateway</h3>
+
+                    <div class="gateway-options">
+                        <div class="gateway-card" onclick="selectGateway('razorpay')" id="gateway-razorpay">
+                            <div class="gateway-radio">
+                                <div class="radio-dot"></div>
+                            </div>
+                            <div class="gateway-info">
+                                <div class="gateway-name">Razorpay</div>
+                                <div class="gateway-methods">
+                                    <span class="payment-method-icon" title="UPI">📱</span>
+                                    <span class="payment-method-icon" title="Cards">💳</span>
+                                    <span class="payment-method-icon" title="Netbanking">🏦</span>
+                                    <span class="payment-method-icon" title="Wallets">👛</span>
+                                </div>
+                            </div>
+                            <div class="gateway-badge">Recommended</div>
+                        </div>
+
+                        <div class="gateway-card" onclick="selectGateway('payu')" id="gateway-payu">
+                            <div class="gateway-radio">
+                                <div class="radio-dot"></div>
+                            </div>
+                            <div class="gateway-info">
+                                <div class="gateway-name">PayU</div>
+                                <div class="gateway-methods">
+                                    <span class="payment-method-icon" title="UPI">📱</span>
+                                    <span class="payment-method-icon" title="Cards">💳</span>
+                                    <span class="payment-method-icon" title="Netbanking">🏦</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Accordion (shown after gateway selection) -->
+                <div class="payment-methods-section" id="paymentMethodsSection" style="display: none;">
+                    <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Select Payment Method</h3>
+
+                    <div class="payment-methods-list">
+                        <!-- UPI -->
+                        <div class="payment-method-item" onclick="selectPaymentMethod('upi')">
+                            <div class="method-header">
+                                <div class="method-icon">📱</div>
+                                <div class="method-name">UPI</div>
+                                <div class="method-arrow">›</div>
+                            </div>
+                            <div class="method-options">
+                                <span>PhonePe</span>
+                                <span>Google Pay</span>
+                                <span>Paytm</span>
+                                <span>BHIM UPI</span>
+                            </div>
+                        </div>
+
+                        <!-- Cards -->
+                        <div class="payment-method-item" onclick="selectPaymentMethod('card')">
+                            <div class="method-header">
+                                <div class="method-icon">💳</div>
+                                <div class="method-name">Debit/Credit Cards</div>
+                                <div class="method-arrow">›</div>
+                            </div>
+                            <div class="method-options">
+                                <span>Visa</span>
+                                <span>MasterCard</span>
+                                <span>Rupay</span>
+                                <span>Amex</span>
+                            </div>
+                        </div>
+
+                        <!-- Netbanking -->
+                        <div class="payment-method-item" onclick="selectPaymentMethod('netbanking')">
+                            <div class="method-header">
+                                <div class="method-icon">🏦</div>
+                                <div class="method-name">Netbanking</div>
+                                <div class="method-arrow">›</div>
+                            </div>
+                            <div class="method-options">
+                                <span>All Major Banks</span>
+                            </div>
+                        </div>
+
+                        <!-- Wallets -->
+                        <div class="payment-method-item" onclick="selectPaymentMethod('wallet')">
+                            <div class="method-header">
+                                <div class="method-icon">👛</div>
+                                <div class="method-name">Wallets</div>
+                                <div class="method-arrow">›</div>
+                            </div>
+                            <div class="method-options">
+                                <span>Paytm</span>
+                                <span>PhonePe</span>
+                                <span>Amazon Pay</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proceed Button -->
+                <button class="btn-full" id="proceedPaymentBtn" onclick="proceedToPayment()" disabled style="margin-top: 24px;">
+                    Select Payment Gateway to Continue
+                </button>
+
+                <!-- Security Badge -->
+                <div class="security-badge">
+                    <span style="font-size: 20px;">🔒</span>
+                    <span style="font-size: 12px; color: var(--text-secondary);">Your payment information is secure and encrypted</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- OTP Auth Modal -->
     <div id="authModal" class="modal-overlay">
@@ -1389,28 +1795,9 @@
                             window.location.href = '/my-profile';
                         }, 1500);
                     } else {
-                        // Paid plan - initiate payment
-                        const paymentResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Frappe-CSRF-Token': getCookie('csrf_token')
-                            },
-                            body: JSON.stringify({
-                                invoice_id: data.message.invoice_id,
-                                gateway: 'payu'
-                            })
-                        });
-
-                        const paymentData = await paymentResponse.json();
-
-                        if (paymentData.message && paymentData.message.success) {
-                            // Redirect to PayU
-                            submitPayUForm(paymentData.message);
-                        } else {
-                            throw new Error(paymentData.message?.error || 'Payment initiation failed');
-                        }
+                        // Paid plan - open payment gateway modal
+                        const planTitle = btn.closest('.plan-card').querySelector('h3').textContent;
+                        openPaymentModal(planTitle, price, data.message.invoice_id);
                     }
                 } else {
                     throw new Error(data.message?.error || 'Failed to create subscription');
@@ -1527,6 +1914,7 @@
         let otpTimer = null;
         let otpCountdown = 1800;  // 30 minutes instead of 10
         let authMode = 'signup'; // 'signup' or 'login'
+        let verifiedOTP = ''; // Store verified OTP for signup
 
         function switchAuthMode(mode) {
             authMode = mode;
@@ -1592,6 +1980,7 @@
             document.getElementById('emailForm').reset();
             document.getElementById('signupForm').reset();
             clearOtpInputs();
+            verifiedOTP = ''; // Clear stored OTP
             if (otpTimer) {
                 clearInterval(otpTimer);
                 otpTimer = null;
@@ -1723,8 +2112,8 @@
                             window.location.href = '/my-profile';
                         }, 1500);
                     } else {
-                        // Paid plan - initiate payment
-                        await initiatePayment(data.message.invoice_id);
+                        // Paid plan - open payment gateway modal
+                        openPaymentModal(currentPlanTitle, currentPrice, data.message.invoice_id);
                     }
                 } else {
                     throw new Error(data.message?.error || 'Failed to create subscription');
@@ -1976,6 +2365,9 @@
                 const data = await response.json();
                 if (data.message && data.message.success) {
                     if (otpTimer) clearInterval(otpTimer);
+                    // Store the verified OTP for later use in signup
+                    verifiedOTP = otp;
+                    console.log('OTP verified and stored for signup');
                     showAuthStep('signupStep');
                     setTimeout(() => document.getElementById('authFullName').focus(), 100);
                 } else {
@@ -2053,17 +2445,25 @@
             const fullName = document.getElementById('authFullName').value.trim();
             const password = document.getElementById('authPassword').value;
             const btn = document.getElementById('signupBtn');
-            
+
             if (password.length < 8) {
                 showAlert('Password must be at least 8 characters long', 'error');
                 return;
             }
-            
+
+            // Check if we have a verified OTP
+            if (!verifiedOTP) {
+                showAlert('OTP verification failed. Please go back and verify your email.', 'error');
+                console.error('No verified OTP found. User needs to verify OTP first.');
+                return;
+            }
+
             try {
                 btn.disabled = true;
                 btn.innerHTML = 'Creating Account<span class="btn-spinner"></span>';
-                
-                // Create account with OTP
+
+                console.log('Creating account with stored verified OTP');
+                // Create account with verified OTP
                 const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.otp_auth.signup_with_otp`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -2071,18 +2471,21 @@
                         email: currentEmail,
                         full_name: fullName,
                         password: password,
-                        otp: getOtpCode(),
+                        otp: verifiedOTP, // Use the stored verified OTP
                         plan_id: currentPlanId
                     })
                 });
                 const data = await response.json();
-                
+
                 if (data.message && data.message.success) {
                     showAlert('Account created successfully!', 'success');
-                    
+
+                    // Clear the stored OTP
+                    verifiedOTP = '';
+
                     // Auto-login
                     await loginUser(currentEmail, password);
-                    
+
                     // Close modal and proceed to payment
                     setTimeout(async () => {
                         closeAuthModal();
@@ -2114,51 +2517,6 @@
             }
         }
 
-        async function initiatePayment(subscriptionId) {
-            try {
-                // Create invoice for existing subscription
-                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.create_invoice_for_subscription`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {'Content-Type': 'application/json', 'X-Frappe-CSRF-Token': getCookie('csrf_token')},
-                    body: JSON.stringify({ subscription_id: subscriptionId })
-                });
-                const data = await response.json();
-                
-                if (data.message && data.message.success) {
-                    if (data.message.is_free) {
-                        // Free plan - redirect to dashboard
-                        alert('Subscription activated!');
-                        window.location.href = '/my-profile';
-                        return;
-                    }
-                    
-                    // Paid plan - initiate payment
-                    if (data.message.invoice_id) {
-                        const paymentResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: {'Content-Type': 'application/json', 'X-Frappe-CSRF-Token': getCookie('csrf_token')},
-                            body: JSON.stringify({invoice_id: data.message.invoice_id, gateway: 'payu'})
-                        });
-                        const paymentData = await paymentResponse.json();
-                        if (paymentData.message && paymentData.message.success) {
-                            submitPayUForm(paymentData.message);
-                        } else {
-                            throw new Error('Payment initiation failed');
-                        }
-                    } else {
-                        throw new Error('Invoice creation failed');
-                    }
-                } else {
-                    throw new Error(data.message?.error || 'Failed to create invoice');
-                }
-            } catch (error) {
-                console.error('Payment initiation error:', error);
-                alert('Payment setup failed. Please try again from your dashboard.');
-                window.location.href = '/my-profile';
-            }
-        }
 
         function goBackToEmail(event) {
             if (event) event.preventDefault();
@@ -2191,9 +2549,218 @@
             overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
-    </script>
-</body>
-</html>
+
+        // === PAYMENT GATEWAY MODAL FUNCTIONS ===
+        let selectedGateway = '';
+        let selectedPaymentMethod = '';
+        let currentInvoiceId = '';
+
+        function openPaymentModal(planName, price, invoiceId) {
+            currentInvoiceId = invoiceId;
+            selectedGateway = '';
+            selectedPaymentMethod = '';
+
+            // Update modal content
+            document.getElementById('paymentPlanName').textContent = planName;
+            document.getElementById('paymentPlanPrice').textContent = `₹${price.toLocaleString()}`;
+            document.getElementById('paymentTotalAmount').textContent = `₹${price.toLocaleString()}`;
+
+            // Reset selections
+            document.querySelectorAll('.gateway-card').forEach(card => card.classList.remove('selected'));
+            document.getElementById('paymentMethodsSection').style.display = 'none';
+            document.getElementById('proceedPaymentBtn').disabled = true;
+            document.getElementById('proceedPaymentBtn').textContent = 'Select Payment Gateway to Continue';
+
+            // Show modal
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedGateway = '';
+            selectedPaymentMethod = '';
+            currentInvoiceId = '';
+        }
+
+        function selectGateway(gateway) {
+            selectedGateway = gateway;
+
+            // Update UI
+            document.querySelectorAll('.gateway-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById(`gateway-${gateway}`).classList.add('selected');
+
+            // Show payment methods
+            document.getElementById('paymentMethodsSection').style.display = 'block';
+
+            // Enable proceed button
+            const btn = document.getElementById('proceedPaymentBtn');
+            btn.disabled = false;
+            btn.textContent = `Proceed with ${gateway === 'razorpay' ? 'Razorpay' : 'PayU'}`;
+
+            console.log('Selected gateway:', gateway);
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            console.log('Selected payment method:', method);
+
+            // Show feedback
+            const methodName = method.charAt(0).toUpperCase() + method.slice(1);
+            showAlert(`${methodName} payment method selected`, 'info');
+
+            // Update button text
+            const gatewayName = selectedGateway === 'razorpay' ? 'Razorpay' : 'PayU';
+            document.getElementById('proceedPaymentBtn').textContent = `Pay with ${methodName} via ${gatewayName}`;
+        }
+
+        async function proceedToPayment() {
+            if (!selectedGateway) {
+                showAlert('Please select a payment gateway', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('proceedPaymentBtn');
+            const originalText = btn.textContent;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Processing<span class="btn-spinner"></span>';
+
+                console.log('Processing payment with gateway:', selectedGateway);
+                console.log('Payment method:', selectedPaymentMethod);
+                console.log('Invoice ID:', currentInvoiceId);
+
+                // Initiate payment with selected gateway
+                const paymentResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.initiate_payment`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({
+                        invoice_id: currentInvoiceId,
+                        gateway: selectedGateway
+                    })
+                });
+
+                const paymentData = await paymentResponse.json();
+                console.log('Payment response:', paymentData);
+
+                if (paymentData.message && paymentData.message.success) {
+                    if (selectedGateway === 'payu') {
+                        // PayU: Submit form for redirect
+                        closePaymentModal();
+                        submitPayUForm(paymentData.message);
+                    } else if (selectedGateway === 'razorpay') {
+                        // Razorpay: Open Razorpay checkout
+                        closePaymentModal();
+                        openRazorpayCheckout(paymentData.message);
+                    }
+                } else {
+                    throw new Error(paymentData.message?.error || 'Payment initiation failed');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showAlert(error.message || 'Payment initiation failed', 'error');
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        function openRazorpayCheckout(paymentData) {
+            // Load Razorpay script if not already loaded
+            if (typeof Razorpay === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                script.onload = () => initiateRazorpayPayment(paymentData);
+                document.head.appendChild(script);
+            } else {
+                initiateRazorpayPayment(paymentData);
+            }
+        }
+
+        function initiateRazorpayPayment(paymentData) {
+            const options = {
+                key: paymentData.key_id,
+                amount: paymentData.amount,
+                currency: paymentData.currency,
+                order_id: paymentData.order_id,
+                name: 'Oropendola AI',
+                description: paymentData.description || 'Subscription Payment',
+                image: '/files/icon.png',
+                handler: function (response) {
+                    // Payment successful
+                    console.log('Razorpay payment successful:', response);
+                    verifyRazorpayPayment(response, paymentData.invoice_id);
+                },
+                prefill: {
+                    name: paymentData.customer_name || '',
+                    email: paymentData.customer_email || '',
+                    contact: paymentData.customer_phone || ''
+                },
+                theme: {
+                    color: '#00D9FF'
+                },
+                modal: {
+                    ondismiss: function() {
+                        showAlert('Payment cancelled', 'error');
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        async function verifyRazorpayPayment(razorpayResponse, invoiceId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.verify_razorpay_payment`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({
+                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                        razorpay_order_id: razorpayResponse.razorpay_order_id,
+                        razorpay_signature: razorpayResponse.razorpay_signature,
+                        invoice_id: invoiceId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.message && data.message.success) {
+                    showAlert('Payment successful!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/my-profile';
+                    }, 1500);
+                } else {
+                    throw new Error(data.message?.error || 'Payment verification failed');
+                }
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                showAlert('Payment verification failed. Please contact support.', 'error');
+            }
+        }
+
+        // Close payment modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePaymentModal();
+            }
+        });
+
+        // Close payment modal on overlay click
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('paymentModal')?.addEventListener('click', function(e) {
+                if (e.target === this) closePaymentModal();
+            });
+        });
     </script>
 </body>
 </html>

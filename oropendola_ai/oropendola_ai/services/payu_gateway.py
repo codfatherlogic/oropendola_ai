@@ -255,11 +255,11 @@ class PayUGateway:
 	
 	def process_payment_failure(self, response_data: dict) -> dict:
 		"""
-		Process failed payment
-		
+		Process failed payment and cancel pending subscription
+
 		Args:
 			response_data (dict): Response data from PayU
-			
+
 		Returns:
 			dict: Processing result
 		"""
@@ -270,6 +270,18 @@ class PayUGateway:
 				invoice = frappe.get_doc("AI Invoice", invoice_id)
 				invoice.db_set("status", "Failed", update_modified=False)
 				invoice.db_set("payment_gateway_response", json.dumps(response_data), update_modified=False)
+
+				# Cancel pending subscription associated with failed payment
+				if invoice.subscription:
+					try:
+						subscription = frappe.get_doc("AI Subscription", invoice.subscription)
+						if subscription.status == "Pending":
+							subscription.db_set("status", "Cancelled", update_modified=False)
+							subscription.db_set("cancellation_reason", f"Payment failed: {response_data.get('error_Message', 'Payment failed')}", update_modified=False)
+							frappe.logger().info(f"Subscription {subscription.name} cancelled due to payment failure")
+					except Exception as sub_error:
+						frappe.log_error(message=str(sub_error), title="Subscription Cancellation Error")
+						# Continue even if subscription update fails
 
 				# Update Payment Session if exists
 				try:

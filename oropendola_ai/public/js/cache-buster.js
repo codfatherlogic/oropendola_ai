@@ -61,13 +61,13 @@
         return originalXHROpen.apply(this, [method, url, async, user, password]);
     };
     
-    // Prevent back/forward cache
-    window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            console.log('⚠️ Page loaded from cache, forcing reload...');
-            window.location.reload(true);
-        }
-    });
+    // Prevent back/forward cache - DISABLED to preserve navigation state
+    // window.addEventListener('pageshow', function(event) {
+    //     if (event.persisted) {
+    //         console.log('⚠️ Page loaded from cache, forcing reload...');
+    //         window.location.reload(true);
+    //     }
+    // });
     
     // Add version to all script and link tags
     document.addEventListener('DOMContentLoaded', function() {
@@ -157,42 +157,50 @@
             });
         });
     }
-    
-    console.log('🚀 Aggressive Cache Buster Active');
+
+    // Clear old auto-reload session storage to prevent unexpected reloads
+    try {
+        sessionStorage.removeItem('page-last-modified');
+    } catch (e) {
+        // Ignore
+    }
+
+    console.log('🚀 Cache Buster Active (Auto-reload DISABLED to preserve auth state)');
     console.log('   Timestamp:', CACHE_BUSTER);
     console.log('   Press Ctrl+Shift+R to force reload');
-    
-    // Periodic check for updates (development only)
-    if (window.location.hostname === 'localhost' || window.location.hostname.includes('oropendola')) {
-        let lastCheck = Date.now();
-        setInterval(function() {
-            // Check if page has been inactive
-            const now = Date.now();
-            const timeDiff = now - lastCheck;
-            lastCheck = now;
-            
-            // If time difference is more than 10 seconds, user might have switched tabs
-            // Check for updates when they come back
-            if (timeDiff > 10000) {
-                fetch(window.location.href, {
-                    method: 'HEAD',
-                    cache: 'no-store'
-                }).then(function(response) {
-                    const serverTime = response.headers.get('Last-Modified');
-                    if (serverTime) {
-                        const stored = sessionStorage.getItem('page-last-modified');
-                        if (stored && stored !== serverTime) {
-                            console.log('📝 Page updated, reloading...');
-                            sessionStorage.setItem('page-last-modified', serverTime);
-                            window.location.reload(true);
-                        } else if (!stored) {
-                            sessionStorage.setItem('page-last-modified', serverTime);
-                        }
-                    }
-                }).catch(function() {
-                    // Ignore errors
-                });
-            }
-        }, 5000); // Check every 5 seconds
-    }
+
+    // Periodic check for updates - DISABLED to prevent auto-reloads during navigation
+    // This was causing the navigation state to reset and users to appear logged out
+    // if (window.location.hostname === 'localhost' || window.location.hostname.includes('oropendola')) {
+    //     let lastCheck = Date.now();
+    //     setInterval(function() {
+    //         // Check if page has been inactive
+    //         const now = Date.now();
+    //         const timeDiff = now - lastCheck;
+    //         lastCheck = now;
+    //
+    //         // If time difference is more than 10 seconds, user might have switched tabs
+    //         // Check for updates when they come back
+    //         if (timeDiff > 10000) {
+    //             fetch(window.location.href, {
+    //                 method: 'HEAD',
+    //                 cache: 'no-store'
+    //             }).then(function(response) {
+    //                 const serverTime = response.headers.get('Last-Modified');
+    //                 if (serverTime) {
+    //                     const stored = sessionStorage.getItem('page-last-modified');
+    //                     if (stored && stored !== serverTime) {
+    //                         console.log('📝 Page updated, reloading...');
+    //                         sessionStorage.setItem('page-last-modified', serverTime);
+    //                         window.location.reload(true);
+    //                     } else if (!stored) {
+    //                         sessionStorage.setItem('page-last-modified', serverTime);
+    //                     }
+    //                 }
+    //             }).catch(function() {
+    //                 // Ignore errors
+    //             });
+    //         }
+    //     }, 5000); // Check every 5 seconds
+    // }
 })();

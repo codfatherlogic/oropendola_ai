@@ -39,18 +39,19 @@ def reset_daily_quotas():
 
 def check_expired_subscriptions():
 	"""
-	Check for expired subscriptions and update their status.
+	Check for expired subscriptions and update their status based on exact datetime.
 	Runs hourly.
 	"""
 	try:
 		frappe.logger().info("Checking expired subscriptions...")
-		
-		# Get subscriptions that should be expired
+
+		# Get subscriptions that should be expired (comparing datetime, not just date)
+		# This ensures subscription expires at exact time, not midnight
 		subscriptions = frappe.get_all(
 			"AI Subscription",
 			filters={
 				"status": ["in", ["Active", "Trial"]],
-				"end_date": ["<", today()]
+				"end_date": ["<", now()]  # Compare with current datetime, not just date
 			},
 			fields=["name"]
 		)

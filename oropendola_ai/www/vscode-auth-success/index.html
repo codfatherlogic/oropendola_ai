@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0A0A0A">
+    <meta name="color-scheme" content="dark">
+    <title>Authentication Successful - Oropendola AI</title>
+    <link rel="icon" type="image/png" href="/files/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: #0A0A0A;
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+            color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .message h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #10b981;
+        }
+
+        .message p {
+            font-size: 16px;
+            color: #A0A0A0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #10b981;
+            margin: 0;
+        }
+
+        .account-card {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .account-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .account-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .account-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 5px;
+        }
+
+        .account-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            word-break: break-word;
+        }
+
+        .account-email {
+            font-size: 13px;
+            color: #9CA3AF;
+            margin-top: 3px;
+            word-break: break-word;
+        }
+
+        .close-hint {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-hint p {
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .countdown {
+            display: inline-block;
+            min-width: 20px;
+            font-weight: 600;
+            color: #7B61FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✓</div>
+
+        <div class="logo">
+            <h1>Oropendola AI</h1>
+        </div>
+
+        <div class="message">
+            <h2>Sign in success</h2>
+        </div>
+
+        <div class="account-card">
+            <div class="account-avatar" id="avatar"></div>
+            <div class="account-info">
+                <div class="account-label">Account</div>
+                <div class="account-name" id="userName">Loading...</div>
+                <div class="account-email" id="userEmail"></div>
+            </div>
+        </div>
+
+        <div class="message">
+            <p style="font-size: 18px; color: #FFFFFF; font-weight: 500;">You're all set!</p>
+            <p>Now you can return to VS Code to begin your AI coding journey.</p>
+        </div>
+
+        <div class="close-hint">
+            <p style="margin-top: 10px; font-size: 12px;">
+                Redirecting to your profile in <span class="countdown" id="countdown">5</span> seconds
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get user details from URL
+        const userName = decodeURIComponent(getQueryParam('name') || 'User');
+        const userEmail = decodeURIComponent(getQueryParam('email') || '');
+
+        // Generate avatar initial (first letter of name)
+        const avatarInitial = userName.charAt(0).toUpperCase();
+
+        // Update DOM
+        document.getElementById('avatar').textContent = avatarInitial;
+        document.getElementById('userName').textContent = userName;
+
+        if (userEmail) {
+            document.getElementById('userEmail').textContent = userEmail;
+        } else {
+            document.getElementById('userEmail').style.display = 'none';
+        }
+
+        // Auto-close window or redirect after 5 seconds
+        let countdown = 5;
+        const countdownEl = document.getElementById('countdown');
+
+        const timer = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(timer);
+
+                // Try to close the window (works if opened by window.open())
+                window.close();
+
+                // If window didn't close (opened by OS/VS Code), redirect to profile
+                // Give it a brief moment to close before redirecting
+                setTimeout(() => {
+                    // If we're still here, window.close() didn't work - redirect instead
+                    window.location.href = '/my-profile';
+                }, 500);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

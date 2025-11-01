@@ -116,8 +116,18 @@ def initiate_social_login(provider, redirect_to=None):
 		
 		# Determine actual redirect_to value
 		actual_redirect_to = None
-		if redirect_to and redirect_to.lower() in ['pricing', 'payment', '/pricing']:
-			actual_redirect_to = '/pricing'
+		if redirect_to:
+			# Preserve VS Code auth redirects
+			if 'vscode_auth.complete_auth' in redirect_to:
+				actual_redirect_to = redirect_to
+			# Handle pricing redirects
+			elif redirect_to.lower() in ['pricing', 'payment', '/pricing']:
+				actual_redirect_to = '/pricing'
+			# Default for other valid paths starting with /
+			elif redirect_to.startswith('/'):
+				actual_redirect_to = redirect_to
+			else:
+				actual_redirect_to = '/my-profile'
 		else:
 			actual_redirect_to = '/my-profile'
 		

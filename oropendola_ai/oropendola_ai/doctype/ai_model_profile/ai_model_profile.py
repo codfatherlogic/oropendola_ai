@@ -19,6 +19,18 @@ class AIModelProfile(Document):
 		self.validate_capacity_score()
 		self.validate_cost()
 		self.validate_endpoint()
+
+	def on_update(self):
+		"""Save API key to site config when document is updated"""
+		if self.api_key:
+			# Store in site config with pattern: {model_name}_api_key
+			config_key = f"{self.model_name.lower().replace(' ', '_')}_api_key"
+
+			# Update site_config.json
+			from frappe.installer import update_site_config
+			update_site_config(config_key, self.api_key)
+
+			frappe.msgprint(f"API key saved to site config as '{config_key}'", alert=True)
 	
 	def validate_capacity_score(self):
 		"""Ensure capacity score is within bounds"""
@@ -39,17 +51,13 @@ class AIModelProfile(Document):
 			frappe.throw("Endpoint URL must start with http:// or https://")
 	
 	def get_api_key(self):
-		"""Get API key from site config or environment variable"""
-		if not self.api_key_env_var:
-			return None
-		
-		# Try to get from Frappe site config first
-		api_key = frappe.conf.get(self.api_key_env_var)
-		
-		# Fallback to OS environment variable
-		if not api_key:
-			api_key = os.getenv(self.api_key_env_var)
-		
+		"""Get API key from site config"""
+		# Generate config key from model name
+		config_key = f"{self.model_name.lower().replace(' ', '_')}_api_key"
+
+		# Get from site config
+		api_key = frappe.conf.get(config_key)
+
 		return api_key
 	
 	def perform_health_check(self):
@@ -66,10 +74,11 @@ class AIModelProfile(Document):
 				self.db_set("health_status", "Down", update_modified=False)
 				self.db_set("last_health_check", frappe.utils.now(), update_modified=False)
 				frappe.db.commit()
-				
+
+				config_key = f"{self.model_name.lower().replace(' ', '_')}_api_key"
 				return {
 					"status": "Down",
-					"error": f"API key not configured: {self.api_key_env_var}",
+					"error": f"API key not configured in site config: {config_key}",
 					"timestamp": frappe.utils.now()
 				}
 			
@@ -251,6 +260,5 @@ class AIModelProfile(Document):
 		
 		# Sort by score (highest first)
 		scored_models.sort(key=lambda x: x["score"], reverse=True)
-		
-		return scored_models[0]["model"] if scored_models else None
+
 		return scored_models[0]["model"] if scored_models else None

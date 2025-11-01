@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | Oropendola AI</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/files/icon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A0A;
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: #FFFFFF;
+        }
+
+        p {
+            font-size: 18px;
+            color: #A0A0A0;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(123, 97, 255, 0.3);
+        }
+
+        .illustration {
+            margin-bottom: 30px;
+        }
+
+        .illustration svg {
+            width: 300px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="illustration">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+                <circle cx="200" cy="150" r="100" fill="none" stroke="#7B61FF" stroke-width="4" opacity="0.3"/>
+                <circle cx="200" cy="150" r="70" fill="none" stroke="#00D9FF" stroke-width="4" opacity="0.5"/>
+                <path d="M150,130 Q200,100 250,130" stroke="#7B61FF" stroke-width="3" fill="none"/>
+                <circle cx="175" cy="140" r="8" fill="#7B61FF"/>
+                <circle cx="225" cy="140" r="8" fill="#7B61FF"/>
+                <path d="M170,180 Q200,190 230,180" stroke="#00D9FF" stroke-width="3" fill="none"/>
+            </svg>
+        </div>
+
+        <div class="error-code">404</div>
+        <h1>There's nothing here</h1>
+        <p>The page you're looking for has gone missing. Let's get you back on track.</p>
+
+        <a href="/" class="btn-home">Back to Home</a>
+    </div>
+</body>
+</html>

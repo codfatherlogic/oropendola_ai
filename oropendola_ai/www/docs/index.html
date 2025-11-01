@@ -18,7 +18,18 @@
     
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
-    
+
+    <!-- Prevent Navigation Flash - Must run before page renders -->
+    <script>
+        (function() {
+            // Hide navigation immediately if user has session cookie
+            // This prevents flash of logged-out state before dynamic-nav.js runs
+            if (document.cookie.includes('sid=')) {
+                document.write('<style id="nav-flash-fix">.nav-links { visibility: hidden !important; }</style>');
+            }
+        })();
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -47,6 +58,12 @@
             color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        /* CRITICAL: Hide navigation by default to prevent flash of wrong state */
+        /* JavaScript will show it after updating with correct auth state */
+        .nav-links {
+            visibility: hidden;
         }
 
         /* Header */

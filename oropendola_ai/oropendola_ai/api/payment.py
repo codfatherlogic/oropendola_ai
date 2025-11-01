@@ -121,17 +121,17 @@ def create_subscription_and_invoice(plan_id: str):
 				"status": "Active"
 			}
 		
-		# Create subscription in pending state
-		start_date = frappe.utils.today()
-		end_date = frappe.utils.add_days(start_date, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
-		
+		# Create subscription in pending state with exact datetime
+		start_datetime = frappe.utils.now()
+		end_datetime = frappe.utils.add_to_date(start_datetime, days=plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
+
 		subscription = frappe.get_doc({
 			"doctype": "AI Subscription",
 			"user": user,
 			"plan": plan.name,
 			"status": "Pending",
-			"start_date": start_date,
-			"end_date": end_date,
+			"start_date": start_datetime,
+			"end_date": end_datetime,
 			"billing_email": frappe.db.get_value("User", user, "email"),
 			"daily_quota_limit": plan.requests_limit_per_day,
 			"daily_quota_remaining": plan.requests_limit_per_day,
@@ -149,8 +149,8 @@ def create_subscription_and_invoice(plan_id: str):
 			"status": "Pending",
 			"invoice_date": frappe.utils.today(),
 			"due_date": frappe.utils.add_days(frappe.utils.today(), 7),
-			"period_start": start_date,
-			"period_end": end_date,
+			"period_start": start_datetime,
+			"period_end": end_datetime,
 			"billing_type": "Subscription",
 			"amount_due": plan.price or 0,
 			"total_amount": plan.price or 0,
@@ -180,17 +180,17 @@ def create_subscription_and_invoice(plan_id: str):
 
 
 def create_free_subscription(user, plan):
-	"""Create and activate free subscription"""
-	start_date = frappe.utils.today()
-	end_date = frappe.utils.add_days(start_date, plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
-	
+	"""Create and activate free subscription with exact datetime"""
+	start_datetime = frappe.utils.now()
+	end_datetime = frappe.utils.add_to_date(start_datetime, days=plan.duration_days) if (plan.duration_days and plan.duration_days > 0) else None
+
 	subscription = frappe.get_doc({
 		"doctype": "AI Subscription",
 		"user": user,
 		"plan": plan.name,
 		"status": "Active",
-		"start_date": start_date,
-		"end_date": end_date,
+		"start_date": start_datetime,
+		"end_date": end_datetime,
 		"billing_email": frappe.db.get_value("User", user, "email"),
 		"daily_quota_limit": plan.requests_limit_per_day,
 		"daily_quota_remaining": plan.requests_limit_per_day,
@@ -641,3 +641,68 @@ def get_pending_invoices():
 			"success": False,
 			"error": str(e)
 		}
+
+
+def check_abandoned_payments():
+	"""
+	Check for abandoned payment sessions and mark them as abandoned.
+	Runs every 30 minutes via scheduler.
+
+	Marks as abandoned if:
+	- Invoice is still Pending and created more than 1 hour ago
+	- Associated subscription is still Pending
+
+	This handles cases where user:
+	- Closes browser without completing payment
+	- Abandons PayU payment page
+	- Does not return from PayU (no callback received)
+	"""
+	try:
+		from frappe.utils import add_to_date, now
+
+		frappe.logger().info("Checking for abandoned payments...")
+
+		# Find invoices that are still pending after 1 hour
+		cutoff_time = add_to_date(now(), hours=-1)
+
+		abandoned_invoices = frappe.get_all(
+			"AI Invoice",
+			filters={
+				"status": "Pending",
+				"creation": ["<", cutoff_time]
+			},
+			fields=["name", "subscription", "customer", "total_amount"]
+		)
+
+		count = 0
+		for inv in abandoned_invoices:
+			try:
+				# Get invoice
+				invoice = frappe.get_doc("AI Invoice", inv.name)
+
+				# Mark invoice as abandoned
+				invoice.db_set("status", "Abandoned", update_modified=False)
+				frappe.logger().info(f"Invoice {invoice.name} marked as Abandoned")
+
+				# Cancel associated pending subscription
+				if invoice.subscription:
+					subscription = frappe.get_doc("AI Subscription", invoice.subscription)
+					if subscription.status == "Pending":
+						subscription.db_set("status", "Cancelled", update_modified=False)
+						subscription.db_set("cancellation_reason", "Payment abandoned - no payment received within 1 hour", update_modified=False)
+						frappe.logger().info(f"Subscription {subscription.name} cancelled due to abandoned payment")
+
+				count += 1
+
+			except Exception as invoice_error:
+				frappe.log_error(
+					message=str(invoice_error),
+					title=f"Error processing abandoned invoice {inv.name}"
+				)
+				continue
+
+		frappe.db.commit()
+		frappe.logger().info(f"Marked {count} abandoned payments")
+
+	except Exception as e:
+		frappe.log_error(f"Failed to check abandoned payments: {str(e)}", "Abandoned Payments Check Error")

@@ -26,6 +26,17 @@
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
 
+    <!-- Prevent Navigation Flash - Must run before page renders -->
+    <script>
+        (function() {
+            // Hide navigation immediately if user has session cookie
+            // This prevents flash of logged-out state before dynamic-nav.js runs
+            if (document.cookie.includes('sid=')) {
+                document.write('<style id="nav-flash-fix">.nav-links { visibility: hidden !important; }</style>');
+            }
+        })();
+    </script>
+
     <!-- PayU Checkout Plus SDK - Loaded dynamically based on mode (test/production) -->
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,6 +65,12 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
+        }
+
+        /* CRITICAL: Hide navigation by default to prevent flash of wrong state */
+        /* JavaScript will show it after updating with correct auth state */
+        .nav-links {
+            visibility: hidden;
         }
 
         /* Header (same as homepage) */
@@ -746,89 +763,6 @@
             text-transform: uppercase;
         }
 
-        .payment-methods-section {
-            margin-top: 24px;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .payment-methods-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .payment-method-item {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .payment-method-item:hover {
-            border-color: var(--accent-primary);
-            background: rgba(0, 217, 255, 0.05);
-            transform: translateX(4px);
-        }
-
-        .method-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .method-icon {
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-
-        .method-name {
-            flex: 1;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .method-arrow {
-            font-size: 24px;
-            color: var(--text-secondary);
-        }
-
-        .method-options {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .method-options span {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
         .security-badge {
             display: flex;
             align-items: center;
@@ -1486,69 +1420,6 @@
                     </div>
                 </div>
 
-                <!-- Payment Methods Accordion (shown after gateway selection) -->
-                <div class="payment-methods-section" id="paymentMethodsSection" style="display: none;">
-                    <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Select Payment Method</h3>
-
-                    <div class="payment-methods-list">
-                        <!-- UPI -->
-                        <div class="payment-method-item" onclick="selectPaymentMethod('upi')">
-                            <div class="method-header">
-                                <div class="method-icon">📱</div>
-                                <div class="method-name">UPI</div>
-                                <div class="method-arrow">›</div>
-                            </div>
-                            <div class="method-options">
-                                <span>PhonePe</span>
-                                <span>Google Pay</span>
-                                <span>Paytm</span>
-                                <span>BHIM UPI</span>
-                            </div>
-                        </div>
-
-                        <!-- Cards -->
-                        <div class="payment-method-item" onclick="selectPaymentMethod('card')">
-                            <div class="method-header">
-                                <div class="method-icon">💳</div>
-                                <div class="method-name">Debit/Credit Cards</div>
-                                <div class="method-arrow">›</div>
-                            </div>
-                            <div class="method-options">
-                                <span>Visa</span>
-                                <span>MasterCard</span>
-                                <span>Rupay</span>
-                                <span>Amex</span>
-                            </div>
-                        </div>
-
-                        <!-- Netbanking -->
-                        <div class="payment-method-item" onclick="selectPaymentMethod('netbanking')">
-                            <div class="method-header">
-                                <div class="method-icon">🏦</div>
-                                <div class="method-name">Netbanking</div>
-                                <div class="method-arrow">›</div>
-                            </div>
-                            <div class="method-options">
-                                <span>All Major Banks</span>
-                            </div>
-                        </div>
-
-                        <!-- Wallets -->
-                        <div class="payment-method-item" onclick="selectPaymentMethod('wallet')">
-                            <div class="method-header">
-                                <div class="method-icon">👛</div>
-                                <div class="method-name">Wallets</div>
-                                <div class="method-arrow">›</div>
-                            </div>
-                            <div class="method-options">
-                                <span>Paytm</span>
-                                <span>PhonePe</span>
-                                <span>Amazon Pay</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Proceed Button -->
                 <button class="btn-full" id="proceedPaymentBtn" onclick="proceedToPayment()" disabled style="margin-top: 24px;">
                     Select Payment Gateway to Continue
@@ -1970,22 +1841,23 @@
 
         async function checkUserStatus() {
             try {
-                // Quick check: Is user logged in? (check sid cookie)
-                const isLoggedIn = document.cookie.includes('sid=');
+                // CRITICAL FIX: sid cookie is httpOnly and can't be read by JavaScript
+                // Always check with API - this is the only reliable way
+                console.log('🔍 Checking user subscription status...');
 
-                if (!isLoggedIn) {
-                    // Not logged in - skip API calls to avoid 403 errors
-                    return;
-                }
-
-                // User is logged in, now check authentication status
+                // Check authentication status with server
                 const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
                     method: 'GET',
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
 
-                // If not OK, user session expired - silently return
+                // If not OK, user is not authenticated
                 if (!response.ok) {
+                    console.log('❌ User not authenticated, showing all subscribe buttons');
                     return;
                 }
 
@@ -1993,34 +1865,51 @@
 
                 if (data.message === 'Guest') {
                     // Not logged in - all subscribe buttons should work
+                    console.log('👤 User is Guest, showing all subscribe buttons');
                     return;
                 }
+
+                console.log('✅ User authenticated:', data.message);
 
                 // Check if user has active subscription
                 const subResponse = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.payment.get_my_subscription`, {
                     method: 'POST',
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
 
                 // If not OK, silently return (user might not have subscription yet)
                 if (!subResponse.ok) {
+                    console.log('ℹ️ No subscription found for user');
                     return;
                 }
 
                 const subData = await subResponse.json();
+                console.log('📋 Subscription data:', subData);
 
                 if (subData.message && subData.message.has_subscription) {
+                    console.log('🎯 User has active subscription - disabling subscribe buttons');
                     // Disable all subscribe buttons
                     document.querySelectorAll('.subscribe-btn').forEach(btn => {
                         btn.textContent = 'Current Plan';
                         btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                        btn.style.cursor = 'not-allowed';
                     });
 
-                    showAlert('You already have an active subscription', 'success');
+                    // Show success message
+                    setTimeout(() => {
+                        showAlert('You already have an active subscription!', 'success');
+                    }, 500);
+                } else {
+                    console.log('💡 User has no active subscription - subscribe buttons enabled');
                 }
             } catch (error) {
                 // Silently handle errors - likely authentication issues
-                // No need to log as these are expected when user is not authenticated
+                console.warn('⚠️ Error checking user status:', error);
             }
         }
 
@@ -3091,7 +2980,6 @@
 
         // === PAYMENT GATEWAY MODAL FUNCTIONS ===
         let selectedGateway = '';
-        let selectedPaymentMethod = '';
         let currentInvoiceId = '';
         let currentPlanName = '';
         let currentPlanPrice = 0;
@@ -3175,7 +3063,6 @@
             currentPlanName = planName;
             currentPlanPrice = price;
             selectedGateway = '';
-            selectedPaymentMethod = '';
 
             // Update modal content
             document.getElementById('paymentPlanName').textContent = planName;
@@ -3187,7 +3074,6 @@
             renderGatewayCards();
 
             // Reset selections
-            document.getElementById('paymentMethodsSection').style.display = 'none';
             document.getElementById('proceedPaymentBtn').disabled = availableGateways.length === 0;
             document.getElementById('proceedPaymentBtn').textContent = availableGateways.length === 0
                 ? 'No Payment Gateways Available'
@@ -3200,7 +3086,6 @@
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             selectedGateway = '';
-            selectedPaymentMethod = '';
             currentInvoiceId = '';
         }
 
@@ -3213,27 +3098,12 @@
             });
             document.getElementById(`gateway-${gateway}`).classList.add('selected');
 
-            // Show payment methods
-            document.getElementById('paymentMethodsSection').style.display = 'block';
-
             // Enable proceed button
             const btn = document.getElementById('proceedPaymentBtn');
             btn.disabled = false;
             btn.textContent = 'Proceed with PayU';
 
             console.log('Selected gateway:', gateway);
-        }
-
-        function selectPaymentMethod(method) {
-            selectedPaymentMethod = method;
-            console.log('Selected payment method:', method);
-
-            // Show feedback
-            const methodName = method.charAt(0).toUpperCase() + method.slice(1);
-            showAlert(`${methodName} payment method selected`, 'info');
-
-            // Update button text
-            document.getElementById('proceedPaymentBtn').textContent = `Pay with ${methodName} via PayU`;
         }
 
         async function proceedToPayment() {
@@ -3250,7 +3120,6 @@
                 btn.innerHTML = 'Processing<span class="btn-spinner"></span>';
 
                 console.log('Processing payment with gateway:', selectedGateway);
-                console.log('Payment method:', selectedPaymentMethod);
                 console.log('Invoice ID:', currentInvoiceId);
 
                 // Initiate payment with selected gateway

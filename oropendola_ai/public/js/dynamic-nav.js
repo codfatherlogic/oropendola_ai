@@ -5,7 +5,7 @@
 
 (function() {
     'use strict';
-    
+
     const API_BASE = window.location.origin;
     let currentUser = null;
     let isAuthenticated = false;
@@ -15,43 +15,51 @@
      */
     async function checkAuth() {
         try {
-            // Quick check: Is user logged in? (check sid cookie)
-            const isLoggedIn = document.cookie.includes('sid=');
-
-            if (!isLoggedIn) {
-                // Not logged in - skip API call to avoid 403 errors
-                currentUser = null;
-                isAuthenticated = false;
-                return false;
-            }
-
-            // User has session cookie, verify with server
+            // Always check with server - sid cookie is httpOnly so we can't read it
+            // This is the ONLY reliable way to determine auth state
             const response = await fetch(`${API_BASE}/api/method/frappe.auth.get_logged_user`, {
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
 
-            // If response not OK, session likely expired
+            // If response not OK, check if it's a 403 (unauthorized) or other error
             if (!response.ok) {
-                currentUser = null;
-                isAuthenticated = false;
-                return false;
+                if (response.status === 403 || response.status === 401) {
+                    // Definitely not logged in
+                    console.log('❌ Auth check: User not authenticated (403/401)');
+                    currentUser = null;
+                    isAuthenticated = false;
+                    return false;
+                } else {
+                    // Server error - keep current state
+                    console.warn('⚠️ Auth check: Server error, keeping current state');
+                    return isAuthenticated;
+                }
             }
 
             const data = await response.json();
+            console.log('📡 Auth check response:', data);
 
             if (data.message && data.message !== 'Guest') {
                 currentUser = data.message;
                 isAuthenticated = true;
+                console.log('✅ User authenticated:', currentUser);
             } else {
+                // API explicitly says user is Guest - they're logged out
                 currentUser = null;
                 isAuthenticated = false;
+                console.log('👤 User is Guest (not authenticated)');
             }
 
             return isAuthenticated;
         } catch (error) {
-            // Silently handle errors - likely authentication issues
-            isAuthenticated = false;
-            return false;
+            // Network error or other exception - KEEP current state
+            // Don't log out user just because API call failed
+            console.warn('⚠️ Auth check failed, keeping current state:', error);
+            return isAuthenticated;
         }
     }
 
@@ -89,8 +97,10 @@
             `;
         } else {
             // Non-authenticated user navigation
+            // Use /#features anchor ONLY on homepage, /features on other pages
+            const featuresHref = currentPath === '/' ? '/#features' : '/features';
             navLinksContainer.innerHTML = `
-                <a href="/#features" ${currentPath === '/' || currentPath.includes('#features') ? 'class="active"' : ''}>Features</a>
+                <a href="${featuresHref}" ${currentPath === '/' || currentPath.includes('#features') ? 'class="active"' : ''}>Features</a>
                 <a href="/pricing" ${currentPath === '/pricing' ? 'class="active"' : ''}>Pricing</a>
                 <a href="/docs" ${currentPath === '/docs' ? 'class="active"' : ''}>Docs</a>
                 <a href="/login" class="btn-secondary">Sign In</a>
@@ -121,8 +131,10 @@
                 `;
             } else {
                 // Non-authenticated user mobile menu
+                // Use /#features anchor ONLY on homepage, /features on other pages
+                const featuresHref = currentPath === '/' ? '/#features' : '/features';
                 mobileMenuItems.innerHTML = `
-                    <a href="/#features" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <a href="${featuresHref}" class="mobile-menu-item" onclick="closeMobileMenu()">
                         Features <span>→</span>
                     </a>
                     <a href="/pricing" class="mobile-menu-item" onclick="closeMobileMenu()">
@@ -143,6 +155,18 @@
 
         // Add logout button styles if not present
         addLogoutStyles();
+
+        // Remove flash prevention styles now that navigation is updated
+        const navFlashFix = document.getElementById('nav-flash-fix');
+        if (navFlashFix) {
+            navFlashFix.remove();
+        }
+
+        // Make navigation visible (CSS hides it by default)
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks) {
+            navLinks.style.visibility = 'visible';
+        }
     }
 
     /**
@@ -212,8 +236,43 @@
      * Initialize dynamic navigation
      */
     async function init() {
-        await checkAuth();
+        // CRITICAL FIX: Frappe's sid cookie is httpOnly and can't be read by JavaScript
+        // We MUST rely on the API call to determine auth state
+        // Start by assuming logged out to prevent flash
+        isAuthenticated = false;
+
+        // Try to check for alternative cookies that might indicate login
+        // Frappe sets 'user_id' and 'full_name' cookies that are readable
+        const hasUserCookie = document.cookie.includes('user_id=') ||
+                              document.cookie.includes('full_name=') ||
+                              document.cookie.includes('system_user=');
+
+        if (hasUserCookie) {
+            // User cookies present - likely logged in
+            isAuthenticated = true;
+            console.log('🔐 User cookies detected, assuming logged in');
+        } else {
+            console.log('🔓 No user cookies detected, assuming logged out');
+        }
+
+        // Store initial state for comparison
+        const initialAuthState = isAuthenticated;
+
+        // Update navigation immediately with assumed state (no flash!)
         updateNavigation();
+
+        // VERIFICATION PATH: Verify auth state with server (async)
+        // This is the ONLY reliable way to check auth (sid cookie is httpOnly)
+        await checkAuth();
+
+        // Update again ONLY if verification changed the auth state
+        // This prevents overwriting correct nav with wrong state
+        if (isAuthenticated !== initialAuthState) {
+            console.log('🔄 Auth state changed from', initialAuthState, 'to', isAuthenticated);
+            updateNavigation();
+        } else {
+            console.log('✅ Auth state confirmed:', isAuthenticated);
+        }
     }
 
     // Public API

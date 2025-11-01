@@ -16,7 +16,15 @@
     
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
-    
+
+    <!-- Early Auth Check to Prevent Flash -->
+    <script>
+        // Hide body initially if user might be logged in
+        if (document.cookie.includes('sid=')) {
+            document.write('<style>body { visibility: hidden; }</style>');
+        }
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/files/icon.png">
     <link rel="apple-touch-icon" href="/files/icon.png">
@@ -55,6 +63,12 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* CRITICAL: Hide navigation by default to prevent flash of wrong state */
+        /* JavaScript will show it after updating with correct auth state */
+        .nav-links {
+            visibility: hidden;
         }
 
         /* Smooth scroll */
@@ -1001,6 +1015,33 @@
     </footer>
 
     <script>
+        // Early redirect for authenticated users - prevents UI flash
+        (function() {
+            // Quick check: Does user have a session cookie?
+            const hasSid = document.cookie.includes('sid=');
+
+            if (hasSid) {
+                // User appears to be logged in - verify and redirect
+                fetch('/api/method/frappe.auth.get_logged_user', {
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message && data.message !== 'Guest') {
+                        // User is authenticated - redirect to features immediately
+                        window.location.replace('/features');
+                    } else {
+                        // User is a guest - show the page
+                        document.body.style.visibility = 'visible';
+                    }
+                })
+                .catch(() => {
+                    // Error - show the page anyway
+                    document.body.style.visibility = 'visible';
+                });
+            }
+        })();
+
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

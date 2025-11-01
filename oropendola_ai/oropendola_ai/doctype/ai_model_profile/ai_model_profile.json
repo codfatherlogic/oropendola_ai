@@ -12,7 +12,7 @@
   "is_active",
   "column_break_1",
   "endpoint_url",
-  "api_key_env_var",
+  "api_key",
   "performance_section",
   "capacity_score",
   "cost_per_unit",
@@ -67,10 +67,10 @@
    "reqd": 1
   },
   {
-   "description": "Environment variable name for API key",
-   "fieldname": "api_key_env_var",
-   "fieldtype": "Small Text",
-   "label": "API Key Env Var"
+   "description": "API key for this model provider (stored securely in site config)",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
   },
   {
    "fieldname": "performance_section",
@@ -191,7 +191,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-27 00:00:00.000000",
+ "modified": "2025-11-01 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Oropendola Ai",
  "name": "AI Model Profile",

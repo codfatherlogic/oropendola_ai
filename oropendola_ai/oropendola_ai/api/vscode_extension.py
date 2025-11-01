@@ -269,12 +269,11 @@ def create_api_key(key_name: str, subscription: str):
 # ========================================
 
 @frappe.whitelist(allow_guest=True)
-def agent(api_key: str, prompt: str, context: str = None, mode: str = "auto", 
-          session_id: str = None, **kwargs):
+def agent(api_key=None, prompt=None, context=None, mode="auto", session_id=None, **kwargs):
 	"""
 	Agent Mode - Intelligent AI routing with Smart Routing Modes
 	Users don't need to select models - Oropendola handles routing automatically
-	
+
 	Args:
 		api_key (str): API key
 		prompt (str): User's request/prompt
@@ -282,45 +281,138 @@ def agent(api_key: str, prompt: str, context: str = None, mode: str = "auto",
 		mode (str): Routing mode - auto, performance, efficient, lite (default: auto)
 		session_id (str): Session ID for continuity (optional)
 		**kwargs: Additional parameters (temperature, max_tokens, etc.)
-		
+
 	Returns:
 		dict: AI response with model selection metadata
 	"""
 	try:
+		# Handle JSON body data if sent via POST
+		import json
+		if frappe.request and frappe.request.data:
+			try:
+				json_data = json.loads(frappe.request.data)
+				# Merge JSON data with function args, prioritizing explicit args
+				api_key = api_key or json_data.get('api_key')
+				prompt = prompt or json_data.get('prompt')
+				context = context or json_data.get('context')
+				mode = json_data.get('mode', mode)
+				session_id = session_id or json_data.get('session_id')
+				# Merge any additional kwargs
+				kwargs.update({k: v for k, v in json_data.items() if k not in ['api_key', 'prompt', 'context', 'mode', 'session_id', 'cmd']})
+			except:
+				pass  # Fall back to form_dict params
+
+		# Type conversion and validation
+		api_key = str(api_key) if api_key else None
+		if not api_key:
+			return {
+				"status": 400,
+				"error": "API key is required"
+			}
+
+		# Check if api_key is actually a VS Code access token
+		# VS Code extension passes the access token as api_key
+		# We need to convert it to the user's actual API key
+		try:
+			access_token_check = frappe.db.sql("""
+				SELECT user
+				FROM `tabVS Code Auth Request`
+				WHERE access_token = %s AND status = 'Completed'
+				LIMIT 1
+			""", (api_key,), as_dict=True)
+
+			if access_token_check:
+				# This is an access token, not an API key
+				# Look up the user's actual API key
+				user_email = access_token_check[0].user
+				user_api_key = frappe.db.get_value("User", user_email, "api_key")
+
+				if not user_api_key:
+					# Generate API key for the user if they don't have one
+					user_doc = frappe.get_doc("User", user_email)
+					user_api_key = frappe.generate_hash(length=32)
+					user_doc.api_key = user_api_key
+					user_doc.save(ignore_permissions=True)
+					frappe.db.commit()
+
+				# Replace access token with actual API key
+				api_key = user_api_key
+		except Exception as e:
+			frappe.log_error(f"Error converting access token to API key: {str(e)}", "VS Code Agent API")
+
+		# Convert prompt to string if needed
+		if prompt is None or prompt == "":
+			return {
+				"status": 400,
+				"error": "Prompt is required"
+			}
+		prompt = str(prompt)
+
+		# Convert optional parameters
+		context = str(context) if context else None
+		mode = str(mode) if mode else "auto"
+		session_id = str(session_id) if session_id else None
+
 		# Build messages for AI
 		messages = []
-		
+
 		if context:
 			messages.append({
 				"role": "system",
 				"content": context
 			})
-		
+
 		messages.append({
 			"role": "user",
 			"content": prompt
 		})
-		
+
 		# Prepare payload
 		payload = {
 			"messages": messages,
 			**kwargs
 		}
-		
+
 		# Route through smart router
 		from oropendola_ai.oropendola_ai.services.smart_router import get_smart_router
-		
+
 		router = get_smart_router()
 		result = router.smart_route(api_key, payload, mode, session_id)
-		
-		# Add metadata about agent mode
-		if result.get("status") == 200:
-			result["agent_mode"] = True
-			result["auto_selected"] = True
-			result["selection_reason"] = f"Optimized for {result.get('task_complexity', 'general')} tasks in {mode} mode"
-		
-		return result
-	
+
+		# Handle errors
+		if result.get("status") != 200:
+			return result
+
+		# Extract AI response from nested structure
+		# The router returns: {"status": 200, "response": {...}, "model": "..."}
+		# We need to return the actual AI content in a format the VS Code extension understands
+		ai_response = result.get("response", {})
+
+		# Check if response has choices (OpenAI format)
+		if "choices" in ai_response:
+			content = ai_response["choices"][0].get("message", {}).get("content", "")
+		# Check if response has content directly
+		elif "content" in ai_response:
+			content = ai_response["content"]
+		# Fallback: return entire response
+		else:
+			content = str(ai_response)
+
+		# Return in VS Code extension compatible format
+		return {
+			"status": 200,
+			"content": content,
+			"model": result.get("model", "auto-selected"),
+			"agent_mode": True,
+			"auto_selected": True,
+			"selection_reason": f"Optimized for {result.get('task_complexity', 'general')} tasks in {mode} mode",
+			"task_complexity": result.get("task_complexity"),
+			"latency_ms": result.get("latency_ms"),
+			"cost": result.get("cost"),
+			"budget_remaining": result.get("budget_remaining"),
+			"full_response": ai_response  # Include full response for debugging
+		}
+
 	except Exception as e:
 		frappe.log_error(message=str(e), title="VS Code Agent Mode Error")
 		return {
@@ -373,29 +465,59 @@ def chat_completion(api_key: str, model: str = None, messages: str = None, **kwa
 
 
 @frappe.whitelist(allow_guest=True)
-def code_completion(api_key: str, code: str, language: str, context: str = None):
+def code_completion(api_key=None, code=None, language=None, context=None):
 	"""
 	Agent Mode: Code completion
 	Automatically routes to best model for code completion tasks
-	
+
 	Args:
 		api_key (str): API key
 		code (str): Code to complete
 		language (str): Programming language
 		context (str): Additional context (optional)
-		
+
 	Returns:
 		dict: Code completion response
 	"""
 	try:
+		# Handle JSON body data if sent via POST
+		import json
+		if frappe.request and frappe.request.data:
+			try:
+				json_data = json.loads(frappe.request.data)
+				api_key = api_key or json_data.get('api_key')
+				code = code or json_data.get('code')
+				language = language or json_data.get('language')
+				context = context or json_data.get('context')
+			except:
+				pass
+
+		# Type conversion and validation
+		api_key = str(api_key) if api_key else None
+		if not api_key:
+			return {
+				"status": 400,
+				"error": "API key is required"
+			}
+
+		code = str(code) if code else None
+		if not code:
+			return {
+				"status": 400,
+				"error": "Code is required"
+			}
+
+		language = str(language) if language else "code"
+		context = str(context) if context else None
+
 		# Build specialized prompt for code completion
 		system_context = f"You are an expert {language} programmer. Complete the following code precisely and efficiently."
-		
+
 		if context:
 			system_context += f"\n\nAdditional context: {context}"
-		
+
 		prompt = f"Complete this {language} code:\n\n{code}"
-		
+
 		# Use agent mode - let Oropendola select the best model
 		return agent(
 			api_key=api_key,
@@ -403,7 +525,7 @@ def code_completion(api_key: str, code: str, language: str, context: str = None)
 			context=system_context,
 			temperature=0.3  # Lower temperature for code completion
 		)
-	
+
 	except Exception as e:
 		frappe.log_error(message=str(e), title="VS Code Code Completion Error")
 		return {
@@ -413,23 +535,51 @@ def code_completion(api_key: str, code: str, language: str, context: str = None)
 
 
 @frappe.whitelist(allow_guest=True)
-def code_explanation(api_key: str, code: str, language: str):
+def code_explanation(api_key=None, code=None, language=None):
 	"""
 	Agent Mode: Code explanation
 	Automatically routes to best model for code explanation tasks
-	
+
 	Args:
 		api_key (str): API key
 		code (str): Code to explain
 		language (str): Programming language
-		
+
 	Returns:
 		dict: Code explanation
 	"""
 	try:
+		# Handle JSON body data if sent via POST
+		import json
+		if frappe.request and frappe.request.data:
+			try:
+				json_data = json.loads(frappe.request.data)
+				api_key = api_key or json_data.get('api_key')
+				code = code or json_data.get('code')
+				language = language or json_data.get('language')
+			except:
+				pass
+
+		# Type conversion and validation
+		api_key = str(api_key) if api_key else None
+		if not api_key:
+			return {
+				"status": 400,
+				"error": "API key is required"
+			}
+
+		code = str(code) if code else None
+		if not code:
+			return {
+				"status": 400,
+				"error": "Code is required"
+			}
+
+		language = str(language) if language else "code"
+
 		system_context = f"You are an expert {language} programmer. Explain the following code clearly and concisely."
 		prompt = f"Explain this {language} code:\n\n```{language}\n{code}\n```"
-		
+
 		# Use agent mode
 		return agent(
 			api_key=api_key,
@@ -437,7 +587,7 @@ def code_explanation(api_key: str, code: str, language: str):
 			context=system_context,
 			temperature=0.5
 		)
-	
+
 	except Exception as e:
 		frappe.log_error(message=str(e), title="VS Code Code Explanation Error")
 		return {
@@ -447,24 +597,60 @@ def code_explanation(api_key: str, code: str, language: str):
 
 
 @frappe.whitelist(allow_guest=True)
-def code_refactor(api_key: str, code: str, language: str, instructions: str):
+def code_refactor(api_key=None, code=None, language=None, instructions=None):
 	"""
-	Agent Mode: Code refactoring  
+	Agent Mode: Code refactoring
 	Automatically routes to best model for code refactoring tasks
-	
+
 	Args:
 		api_key (str): API key
 		code (str): Code to refactor
 		language (str): Programming language
 		instructions (str): Refactoring instructions
-		
+
 	Returns:
 		dict: Refactored code
 	"""
 	try:
+		# Handle JSON body data if sent via POST
+		import json
+		if frappe.request and frappe.request.data:
+			try:
+				json_data = json.loads(frappe.request.data)
+				api_key = api_key or json_data.get('api_key')
+				code = code or json_data.get('code')
+				language = language or json_data.get('language')
+				instructions = instructions or json_data.get('instructions')
+			except:
+				pass
+
+		# Type conversion and validation
+		api_key = str(api_key) if api_key else None
+		if not api_key:
+			return {
+				"status": 400,
+				"error": "API key is required"
+			}
+
+		code = str(code) if code else None
+		if not code:
+			return {
+				"status": 400,
+				"error": "Code is required"
+			}
+
+		language = str(language) if language else "code"
+
+		instructions = str(instructions) if instructions else None
+		if not instructions:
+			return {
+				"status": 400,
+				"error": "Refactoring instructions are required"
+			}
+
 		system_context = f"You are an expert {language} programmer. Refactor the following code according to the instructions. Provide only the refactored code."
 		prompt = f"Refactoring instructions: {instructions}\n\n```{language}\n{code}\n```"
-		
+
 		# Use agent mode
 		return agent(
 			api_key=api_key,
@@ -472,7 +658,7 @@ def code_refactor(api_key: str, code: str, language: str, instructions: str):
 			context=system_context,
 			temperature=0.4
 		)
-	
+
 	except Exception as e:
 		frappe.log_error(message=str(e), title="VS Code Code Refactor Error")
 		return {

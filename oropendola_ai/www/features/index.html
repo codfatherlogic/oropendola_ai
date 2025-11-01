@@ -16,7 +16,18 @@
     
     <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
-    
+
+    <!-- Prevent Navigation Flash - Must run before page renders -->
+    <script>
+        (function() {
+            // Hide navigation immediately if user has session cookie
+            // This prevents flash of logged-out state before dynamic-nav.js runs
+            if (document.cookie.includes('sid=')) {
+                document.write('<style id="nav-flash-fix">.nav-links { visibility: hidden !important; }</style>');
+            }
+        })();
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/files/icon.png">
     <link rel="apple-touch-icon" href="/files/icon.png">
@@ -55,6 +66,12 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* CRITICAL: Hide navigation by default to prevent flash of wrong state */
+        /* JavaScript will show it after updating with correct auth state */
+        .nav-links {
+            visibility: hidden;
         }
 
         /* Smooth scroll */

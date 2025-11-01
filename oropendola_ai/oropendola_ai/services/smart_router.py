@@ -423,6 +423,3 @@ def smart_route(api_key: str, payload: dict, mode: str = "auto", session_id: str
 	"""
 	router = get_smart_router()
 	return router.smart_route(api_key, payload, mode, session_id)
-	"""
-	router = get_smart_router()
-	return router.smart_route(api_key, payload, mode, session_id)

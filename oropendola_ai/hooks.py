@@ -217,7 +217,10 @@ scheduler_events = {
 
 # Request Events
 # ----------------
-before_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_headers"]
+before_request = [
+	"oropendola_ai.oropendola_ai.utils.vscode_auth_hook.handle_vscode_auth",
+	"oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_headers"
+]
 after_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_headers"]
 
 # Session Events
@@ -262,8 +265,10 @@ after_request = ["oropendola_ai.oropendola_ai.utils.cache_utils.set_cache_header
 # Authentication and authorization
 # --------------------------------
 
+# DISABLED: Auth hooks were breaking normal web authentication
+# VS Code auth endpoints use allow_guest=True and validate tokens internally
 # auth_hooks = [
-# 	"oropendola_ai.auth.validate"
+# 	"oropendola_ai.oropendola_ai.utils.custom_auth.validate"
 # ]
 
 # Automatically update python controller files with type annotations for this app.

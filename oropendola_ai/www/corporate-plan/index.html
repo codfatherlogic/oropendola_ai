@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise AI - Oropendola AI</title>
+    <title>Enterprise Solutions - Oropendola AI</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/files/icon.png">
     <link rel="apple-touch-icon" href="/files/icon.png">
 
-    <!-- Cache Control -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-    <!-- Dynamic Navigation Script -->
     <script src="/assets/oropendola_ai/js/dynamic-nav.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -32,64 +28,64 @@
             --bg-tertiary: #1A1A1A;
             --text-primary: #FFFFFF;
             --text-secondary: #A0A0A0;
+            --text-tertiary: #666666;
             --accent-primary: #00D9FF;
             --accent-secondary: #7B61FF;
-            --accent-gradient: linear-gradient(135deg, #7B61FF 0%, #00D9FF 100%);
+            --accent-gold: #FFD700;
             --border-color: rgba(255, 255, 255, 0.1);
+            --border-color-hover: rgba(0, 217, 255, 0.3);
+            --success: #27C93F;
+            --error: #FF5F56;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Header */
         header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-color);
         }
 
         nav {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px 40px;
+            padding: 1.25rem 2.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo {
+        .logo-link {
             display: flex;
             align-items: center;
-            gap: 12px;
             text-decoration: none;
+            transition: opacity 0.3s;
         }
 
-        .logo img {
-            width: 32px;
-            height: 32px;
+        .logo-link:hover {
+            opacity: 0.8;
         }
 
-        .logo span {
-            font-size: 24px;
-            font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .logo-link img {
+            width: 40px;
+            height: 40px;
         }
 
         .nav-links {
             display: flex;
-            gap: 32px;
+            gap: 2rem;
             align-items: center;
         }
 
@@ -97,160 +93,291 @@
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.9375rem;
             transition: color 0.3s;
+            position: relative;
         }
 
-        .nav-links a:hover, .nav-links a.active {
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
             color: var(--text-primary);
         }
 
-        /* Hero Section */
-        .hero-section {
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .hero {
             margin-top: 100px;
-            padding: 80px 40px;
+            padding: 5rem 2.5rem;
             text-align: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(123, 97, 255, 0.1);
-            border: 1px solid rgba(123, 97, 255, 0.3);
-            border-radius: 24px;
-            font-size: 14px;
-            margin-bottom: 24px;
+            gap: 0.75rem;
+            padding: 0.625rem 1.25rem;
+            background: rgba(123, 97, 255, 0.08);
+            border: 1px solid rgba(123, 97, 255, 0.25);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        .badge .dot {
+        .badge-dot {
             width: 6px;
             height: 6px;
             background: var(--accent-secondary);
             border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
-        .badge .custom-label {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .badge-label {
+            color: var(--text-primary);
+        }
+
+        .badge-custom {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #FFA500 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .hero-title {
-            font-size: 56px;
-            font-weight: 800;
-            margin-bottom: 24px;
-            line-height: 1.2;
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
         }
 
         .hero-subtitle {
-            font-size: 20px;
+            font-size: 1.25rem;
             color: var(--text-secondary);
+            line-height: 1.7;
             max-width: 700px;
-            margin: 0 auto 48px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
         }
 
         .hero-subtitle strong {
-            color: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 700;
         }
 
-        /* Feature Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .features {
             max-width: 1200px;
-            margin: 60px auto;
-            padding: 0 40px;
+            margin: 4rem auto;
+            padding: 0 2.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
         }
 
         .feature-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
+            border-radius: 20px;
+            padding: 2.5rem;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            opacity: 0;
+            transition: opacity 0.4s;
+            border-radius: 20px;
+            z-index: 0;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.05;
         }
 
         .feature-card:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-4px);
+            border-color: var(--border-color-hover);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(123, 97, 255, 0.15);
+        }
+
+        .feature-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .feature-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            filter: grayscale(0.3);
+            transition: filter 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            filter: grayscale(0);
         }
 
         .feature-title {
-            font-size: 18px;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
         }
 
         .feature-desc {
-            font-size: 14px;
+            font-size: 0.9375rem;
             color: var(--text-secondary);
+            font-weight: 400;
         }
 
-        /* Contact Form Section */
         .contact-section {
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 0 40px;
+            max-width: 640px;
+            margin: 6rem auto;
+            padding: 0 2.5rem;
         }
 
         .form-container {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 48px;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
         .form-title {
-            font-size: 32px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 12px;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-subtitle {
-            text-align: center;
             color: var(--text-secondary);
-            margin-bottom: 40px;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .message {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .message-success {
+            background: rgba(39, 201, 63, 0.1);
+            border: 1px solid rgba(39, 201, 63, 0.3);
+            color: var(--success);
+        }
+
+        .message-error {
+            background: rgba(255, 95, 86, 0.1);
+            border: 1px solid rgba(255, 95, 86, 0.3);
+            color: var(--error);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 1.5rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.625rem;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 0.875rem;
+            color: var(--text-primary);
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 0.875rem 1rem;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text-primary);
-            font-size: 15px;
+            font-size: 0.9375rem;
             font-family: 'Inter', sans-serif;
             transition: all 0.3s;
         }
 
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        .form-input::placeholder,
+        .form-select::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+            background: var(--bg-secondary);
         }
 
         .form-textarea {
@@ -258,80 +385,149 @@
             resize: vertical;
         }
 
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23A0A0A0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
         .form-button {
             width: 100%;
-            padding: 16px;
-            background: var(--accent-gradient);
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-primary) 100%);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             color: white;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .form-button:hover::before {
+            left: 100%;
         }
 
         .form-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(123, 97, 255, 0.4);
+            box-shadow: 0 12px 32px rgba(123, 97, 255, 0.4);
+        }
+
+        .form-button:active {
+            transform: translateY(0);
         }
 
         .form-button:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .success-message, .error-message {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            text-align: center;
-            display: none;
-        }
-
-        .success-message {
-            background: rgba(39, 201, 63, 0.1);
-            border: 1px solid rgba(39, 201, 63, 0.3);
-            color: #27C93F;
-        }
-
-        .error-message {
-            background: rgba(255, 95, 86, 0.1);
-            border: 1px solid rgba(255, 95, 86, 0.3);
-            color: #FF5F56;
-        }
-
-        /* Footer */
         footer {
             text-align: center;
-            padding: 40px;
+            padding: 3rem 2.5rem;
             color: var(--text-secondary);
             border-top: 1px solid var(--border-color);
-            margin-top: 80px;
+            margin-top: 6rem;
+            font-size: 0.875rem;
+        }
+
+        .footer-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-secondary);
         }
 
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 36px;
+            nav {
+                padding: 1rem 1.5rem;
             }
 
-            .feature-grid {
+            .nav-links {
+                gap: 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .hero {
+                padding: 3rem 1.5rem;
+                margin-top: 80px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .features {
+                padding: 0 1.5rem;
                 grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+
+            .contact-section {
+                padding: 0 1.5rem;
+                margin: 4rem auto;
             }
 
             .form-container {
-                padding: 32px 24px;
+                padding: 2rem 1.5rem;
+            }
+
+            .form-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-link img {
+                width: 32px;
+                height: 32px;
+            }
+
+            .nav-links a {
+                font-size: 0.8125rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .badge {
+                font-size: 0.75rem;
+                padding: 0.5rem 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <nav>
-            <a href="/" class="logo">
-                <img src="/files/icon.png" alt="Oropendola AI">
-                <span>Oropendola AI</span>
+            <a href="/" class="logo-link">
+                <img src="/files/icon.png" alt="Oropendola AI Logo">
             </a>
             <div class="nav-links">
                 <a href="/">Home</a>
@@ -343,54 +539,53 @@
         </nav>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero">
         <div class="badge">
-            <span class="dot"></span>
-            <span>Enterprise Solution</span>
-            <span class="custom-label">Custom</span>
+            <span class="badge-dot"></span>
+            <span class="badge-label">Enterprise Solution</span>
+            <span class="badge-custom">Custom</span>
         </div>
         <h1 class="hero-title">Scale with<br>Enterprise AI</h1>
         <p class="hero-subtitle">
-            Transform your organization's development workflow with <strong>Lyzo AI Enterprise</strong>.<br>
+            Transform your organization's development workflow with <strong>Oropendola AI Enterprise</strong>.<br>
             Custom solutions, dedicated support, and enterprise-grade security.
         </p>
     </section>
 
-    <!-- Features Grid -->
-    <div class="feature-grid">
+    <section class="features">
         <div class="feature-card">
             <div class="feature-icon">🏢</div>
-            <div class="feature-title">Enterprise Security</div>
-            <div class="feature-desc">SOC 2 compliant</div>
+            <h3 class="feature-title">Enterprise Security</h3>
+            <p class="feature-desc">SOC 2 compliant</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">👥</div>
-            <div class="feature-title">Team Management</div>
-            <div class="feature-desc">Centralized control</div>
+            <h3 class="feature-title">Team Management</h3>
+            <p class="feature-desc">Centralized control</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">⚙️</div>
-            <div class="feature-title">Advanced Analytics</div>
-            <div class="feature-desc">Analytics dashboard</div>
+            <h3 class="feature-title">Advanced Analytics</h3>
+            <p class="feature-desc">Analytics dashboard</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">🚀</div>
-            <div class="feature-title">Priority Support</div>
-            <div class="feature-desc">24/7 dedicated team</div>
+            <h3 class="feature-title">Priority Support</h3>
+            <p class="feature-desc">24/7 dedicated team</p>
         </div>
-    </div>
+    </section>
 
-    <!-- Contact Form -->
     <section class="contact-section">
         <div class="form-container">
-            <h2 class="form-title">Get Enterprise Access</h2>
-            <p class="form-subtitle">Fill out the form below and our enterprise team will connect with you within 24 hours.</p>
+            <div class="form-header">
+                <h2 class="form-title">Get Enterprise Access</h2>
+                <p class="form-subtitle">Fill out the form below and our enterprise team will connect with you within 24 hours.</p>
+            </div>
 
-            <div id="successMessage" class="success-message">
+            <div id="successMsg" class="message message-success">
                 ✓ Thank you! Our enterprise team will contact you within 24 hours.
             </div>
-            <div id="errorMessage" class="error-message">
+            <div id="errorMsg" class="message message-error">
                 ✗ <span id="errorText">Something went wrong. Please try again.</span>
             </div>
 
@@ -444,11 +639,10 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2025 Oropendola AI. All rights reserved.</p>
-        <p style="margin-top: 8px; font-size: 14px;">
-            <a href="/pricing" style="color: var(--accent-primary); text-decoration: none;">← Back to Pricing</a>
+        <p style="margin-top: 0.5rem;">
+            <a href="/pricing" class="footer-link">← Back to Pricing</a>
         </p>
     </footer>
 
@@ -459,31 +653,27 @@
             e.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
             const errorText = document.getElementById('errorText');
 
-            // Hide previous messages
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
 
-            // Disable button and show loading
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
-            // Get form data
             const formData = {
-                full_name: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                company: document.getElementById('company').value,
-                job_title: document.getElementById('jobTitle').value,
+                full_name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                company: document.getElementById('company').value.trim(),
+                job_title: document.getElementById('jobTitle').value.trim(),
                 num_accounts: document.getElementById('accounts').value,
-                message: document.getElementById('message').value || ''
+                message: document.getElementById('message').value.trim() || ''
             };
 
             try {
-                // Submit enterprise inquiry
                 const response = await fetch(`${API_BASE}/api/method/oropendola_ai.oropendola_ai.api.support.submit_enterprise_inquiry`, {
                     method: 'POST',
                     headers: {
@@ -496,26 +686,18 @@
                 const data = await response.json();
 
                 if (data.message && data.message.success) {
-                    // Show success message
-                    successMessage.style.display = 'block';
-
-                    // Reset form
+                    successMsg.style.display = 'block';
                     document.getElementById('enterpriseForm').reset();
-
-                    // Scroll to success message
-                    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+                    successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } else {
                     throw new Error(data.message?.error || 'Submission failed');
                 }
-
             } catch (error) {
-                console.error('Enterprise form submission error:', error);
+                console.error('Form submission error:', error);
                 errorText.textContent = error.message || 'Something went wrong. Please try again or email us at support@oropendola.ai';
-                errorMessage.style.display = 'block';
-                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                errorMsg.style.display = 'block';
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } finally {
-                // Re-enable button
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Contact Enterprise Team';
             }
